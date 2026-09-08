@@ -141,15 +141,72 @@
       });
     });
 
+    renderShipProgress();
+    renderCrosssell();
     renderSummary();
   }
   document.addEventListener('gadelo:langchange', renderCart);
+
+  // ---------- Free-shipping progress bar (cart view) ----------
+  // Shown against the $50 domestic-delivery free-shipping threshold below, regardless
+  // of which fulfillment method ends up chosen on the checkout screen (that choice isn't
+  // made yet at this point in the flow) — pickup is already free either way.
+  function renderShipProgress(){
+    var el = document.getElementById('shipProgress');
+    var fill = document.getElementById('shipProgressFill');
+    var label = document.getElementById('shipProgressLabel');
+    if(!el) return;
+    if(cart.length === 0){ el.hidden = true; return; }
+    var threshold = (window.gadeloFulfillment && window.gadeloFulfillment.freeShipThreshold) || 50;
+    var subtotal = cart.reduce(function(s,i){return s + i.unitPrice * i.qty;}, 0);
+    var pct = Math.max(0, Math.min(100, (subtotal / threshold) * 100));
+    if(fill) fill.style.width = pct + '%';
+    var remaining = Math.max(0, threshold - subtotal);
+    if(label){
+      label.innerHTML = remaining > 0
+        ? window.gadeloI18n.t('cart.shipProgress').replace('{amount}', '<b>' + fmtUSD(remaining) + '</b>')
+        : window.gadeloI18n.t('cart.shipProgressDone');
+    }
+    el.hidden = false;
+  }
+
+  // ---------- Cross-sell: "you might also like" other core-lineup blends ----------
+  function renderCrosssell(){
+    var wrap = document.getElementById('cartCrosssell');
+    var list = document.getElementById('crosssellList');
+    if(!wrap || !list || typeof GADELO_PRODUCTS === 'undefined') return;
+    if(cart.length === 0){ wrap.hidden = true; return; }
+    var inCart = {};
+    cart.forEach(function(i){ inCart[i.nameEn] = true; });
+    var candidates = Object.keys(GADELO_PRODUCTS).map(function(k){ return GADELO_PRODUCTS[k]; })
+      .filter(function(p){ return p.line === 'core' && !inCart[p.nameEn]; })
+      .slice(0, 2);
+    if(!candidates.length){ wrap.hidden = true; return; }
+    list.innerHTML = candidates.map(function(p){
+      var price = p.prices[400];
+      var swatch = p.image ? ('background-image:url(' + p.image + ')') : ('background:' + p.color);
+      return '<div class="crosssell-card">' +
+        '<div class="swatch" style="' + swatch + '"></div>' +
+        '<div class="info"><div class="nm">' + productLabel(p) + '</div><div class="pr">' + fmtUSD(price) + '</div></div>' +
+        '<button type="button" class="crosssell-add" data-slug="' + p.slug + '">' + window.gadeloI18n.t('add.cart') + '</button>' +
+      '</div>';
+    }).join('');
+    list.querySelectorAll('.crosssell-add').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var p = GADELO_PRODUCTS[btn.getAttribute('data-slug')];
+        if(!p) return;
+        addToCart({ nameEn: p.nameEn, nameKo: p.nameKo, size: sizeLabelFor(400), qty: 1, unitPrice: p.prices[400], color: p.color });
+      });
+    });
+    wrap.hidden = false;
+  }
 
   // ---------- Order summary: subtotal, promo discount, shipping, total ----------
   // Shared by the cart drawer display and the PayPal/Telegram checkout flow below, so
   // the amount shown to the customer and the amount actually charged always match.
   var PROMO_CODES = { 'MILITARY10': 0.10 };
   var appliedPromo = null; // { code, rate } | null
+  var cartSubtotalMiniEl = document.getElementById('cartSubtotalMini');
   var discountRowEl = document.getElementById('discountRow');
   var cartDiscountEl = document.getElementById('cartDiscount');
   var cartShippingEl = document.getElementById('cartShipping');
@@ -158,7 +215,7 @@
   function computeTotals(){
     var subtotal = cart.reduce(function(s,i){return s + i.unitPrice * i.qty;}, 0);
     var discount = appliedPromo ? subtotal * appliedPromo.rate : 0;
-    var shipping = (cart.length && window.gadeloFulfillment) ? window.gadeloFulfillment.fee() : 0;
+    var shipping = (cart.length && window.gadeloFulfillment) ? window.gadeloFulfillment.fee(subtotal) : 0;
     var total = Math.max(0, subtotal - discount + shipping);
     return { subtotal: subtotal, discount: discount, shipping: shipping, total: total };
   }
@@ -167,6 +224,7 @@
   function renderSummary(){
     var t = computeTotals();
     if(cartSubtotalEl) cartSubtotalEl.textContent = fmtUSD(t.subtotal);
+    if(cartSubtotalMiniEl) cartSubtotalMiniEl.textContent = fmtUSD(t.subtotal);
     if(discountRowEl) discountRowEl.hidden = !(appliedPromo && t.discount > 0);
     if(cartDiscountEl) cartDiscountEl.textContent = '-' + fmtUSD(t.discount);
     if(cartShippingEl) cartShippingEl.textContent = t.shipping > 0 ? fmtUSD(t.shipping) : window.gadeloI18n.t('cart.free');
@@ -199,9 +257,36 @@
     });
   }
 
+  // ---------- Cart drawer: two-step flow (item review -> checkout/payment) ----------
+  // cartView is items + a free-shipping nudge + cross-sell + two checkout entry points.
+  // checkoutView is fulfillment + address + promo + summary + the actual PayPal button —
+  // reached only after clicking one of those two entry points, modeled on the
+  // cart-drawer -> dedicated-checkout-page pattern other coffee/retail sites use.
+  var cartView = document.getElementById('cartView');
+  var checkoutView = document.getElementById('checkoutView');
+  var goCheckoutPaypalBtn = document.getElementById('goCheckoutPaypal');
+  var goCheckoutCardBtn = document.getElementById('goCheckoutCard');
+  var checkoutBackBtn = document.getElementById('checkoutBack');
+  var checkoutEntryMethod = 'paypal'; // 'paypal' | 'card' — which entry point was clicked
+
+  function showCartView(){
+    if(cartView) cartView.hidden = false;
+    if(checkoutView) checkoutView.hidden = true;
+  }
+  function showCheckoutView(entryMethod){
+    if(cart.length === 0){ showToast(window.gadeloI18n.t('cart.emptyToast')); return; }
+    checkoutEntryMethod = entryMethod;
+    if(cartView) cartView.hidden = true;
+    if(checkoutView) checkoutView.hidden = false;
+    renderPaypalButtons(checkoutEntryMethod);
+  }
+  if(goCheckoutPaypalBtn) goCheckoutPaypalBtn.addEventListener('click', function(){ showCheckoutView('paypal'); });
+  if(goCheckoutCardBtn) goCheckoutCardBtn.addEventListener('click', function(){ showCheckoutView('card'); });
+  if(checkoutBackBtn) checkoutBackBtn.addEventListener('click', showCartView);
+
   var cartDrawer = document.getElementById('cartDrawer');
   var overlay = document.getElementById('overlay');
-  function openCart(){ if(cartDrawer){ cartDrawer.classList.add('open'); overlay.classList.add('open'); } }
+  function openCart(){ if(cartDrawer){ cartDrawer.classList.add('open'); overlay.classList.add('open'); showCartView(); } }
   function closeCart(){ if(cartDrawer){ cartDrawer.classList.remove('open'); overlay.classList.remove('open'); } }
   var cartToggle = document.getElementById('cartToggle');
   var cartClose = document.getElementById('cartClose');
@@ -273,8 +358,7 @@
       line1: document.getElementById('addrLine1'),
       line2: document.getElementById('addrLine2'),
       city: document.getElementById('addrCity'),
-      zip: document.getElementById('addrZip'),
-      camp: document.getElementById('addrCamp')
+      zip: document.getElementById('addrZip')
     };
     if(!fields.name) { window.gadeloAddress = { save: function(){} }; return; }
 
@@ -310,36 +394,36 @@
   // (No JS logic needed beyond what's already in the saved-address IIFE above; this
   // comment exists so the intent is documented next to the related code.)
 
-  // ---------- Fulfillment: store pickup / USFK APO-FPO / Korea domestic delivery ----------
-  // Pickup hides the whole address block (nothing to ship). Both shipping methods show
-  // the address block; only APO/FPO also shows the camp/base select (relevant only for
-  // on-post USFK mail, not a regular Korea domestic address). Each method carries its own
-  // flat shipping fee, read by computeTotals() above. Remembers the last choice on this
-  // device the same way the address is remembered.
+  // ---------- Fulfillment: store pickup / Korea domestic delivery ----------
+  // Scoped down to these two for now — USFK APO/FPO mail is shelved pending a separate
+  // look at how on-post personnel receive parcel deliveries, and can come back later.
+  // Pickup hides the address block entirely (nothing to ship). Domestic delivery's flat
+  // fee is waived once the subtotal clears FREE_SHIP_THRESHOLD (see also the cart-view
+  // progress bar, which nudges toward the same threshold). Remembers the last choice on
+  // this device the same way the address is remembered.
   (function(){
     var FULFILL_KEY = 'gadelo_fulfillment';
-    var FULFILL_FEES = { pickup: 0, apofpo: 5.00, domestic: 4.00 };
+    var FULFILL_FEES = { pickup: 0, domestic: 4.00 };
+    var FREE_SHIP_THRESHOLD = 50; // USD subtotal — domestic delivery fee waived at/above this
     var radios = document.querySelectorAll('input[name="fulfillMethod"]');
     var addressBlock = document.getElementById('cartAddress');
-    var campBlock = document.getElementById('addrCampBlock');
     var pickupNote = document.getElementById('pickupNote');
     if(!radios.length) return;
 
     function currentMethod(){
       var checked = document.querySelector('input[name="fulfillMethod"]:checked');
-      return checked ? checked.value : 'pickup';
+      return (checked && FULFILL_FEES.hasOwnProperty(checked.value)) ? checked.value : 'pickup';
     }
 
     function apply(method){
       if(addressBlock) addressBlock.hidden = (method === 'pickup');
-      if(campBlock) campBlock.hidden = (method !== 'apofpo');
       if(pickupNote) pickupNote.hidden = (method !== 'pickup');
       renderSummary();
     }
 
     var saved = 'pickup';
     try{ saved = localStorage.getItem(FULFILL_KEY) || 'pickup'; }catch(e){}
-    if(!FULFILL_FEES.hasOwnProperty(saved)) saved = 'pickup'; // guard against a stale value from the old 2-option scheme
+    if(!FULFILL_FEES.hasOwnProperty(saved)) saved = 'pickup'; // guard against a stale value (e.g. the old apofpo option)
     radios.forEach(function(r){
       r.checked = (r.value === saved);
       r.addEventListener('change', function(){
@@ -352,39 +436,52 @@
 
     window.gadeloFulfillment = {
       current: currentMethod,
-      fee: function(){ return FULFILL_FEES[currentMethod()] || 0; },
+      fee: function(subtotal){
+        var method = currentMethod();
+        if(method === 'domestic' && typeof subtotal === 'number' && subtotal >= FREE_SHIP_THRESHOLD) return 0;
+        return FULFILL_FEES[method] || 0;
+      },
+      freeShipThreshold: FREE_SHIP_THRESHOLD,
       label: function(){ return window.gadeloI18n.t('fulfill.' + currentMethod()); }
     };
   })();
 
-  // ---------- PayPal checkout — single combined-total button ----------
+  // ---------- PayPal checkout — single combined-total button, rendered on demand ----------
   // Renders one PayPal Buttons instance for the whole cart (subtotal - discount +
   // shipping) instead of a button per item. createOrder() reads the live total at click
   // time via computeTotals(), so it always reflects the current cart, promo code, and
   // shipping method with no need to re-render the button when any of those change.
-  (function(){
-    var container = document.getElementById('paypal-button-container');
-    var fallback = document.getElementById('paypalFallback');
-    if(!container) return;
+  //
+  // renderPaypalButtons(mode) is called each time the checkout screen opens rather than
+  // once at page load, because which button set to show depends on which entry point the
+  // customer clicked in the cart ('paypal' = the standard PayPal login button; 'card' =
+  // PayPal's own guest card-entry button, restricted to the CARD funding source, so a
+  // customer without a PayPal account can pay by debit/credit card without one).
+  var paypalContainer = document.getElementById('paypal-button-container');
+  var paypalFallback = document.getElementById('paypalFallback');
+
+  function requiredFieldsOk(method){
+    if(method === 'pickup') return true;
+    var get = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    var basicsOk = get('addrName') && get('addrPhone') && get('addrLine1') && get('addrCity') && get('addrZip');
+    if(!basicsOk){ showToast(window.gadeloI18n.t('cart.fillRequired')); return false; }
+    return true;
+  }
+
+  function renderPaypalButtons(mode){
+    if(!paypalContainer) return;
+    paypalContainer.innerHTML = '';
+    if(paypalFallback) paypalFallback.hidden = true;
 
     if(!window.paypal || typeof paypal.Buttons !== 'function'){
       // SDK failed to load (network/ad-blocker) — show a plain-language fallback instead
       // of a silently broken button.
-      if(fallback) fallback.hidden = false;
+      if(paypalFallback) paypalFallback.hidden = false;
       return;
     }
 
-    function requiredFieldsOk(method){
-      if(method === 'pickup') return true;
-      var get = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
-      var basicsOk = get('addrName') && get('addrPhone') && get('addrLine1') && get('addrCity') && get('addrZip');
-      if(!basicsOk){ showToast(window.gadeloI18n.t('cart.fillRequired')); return false; }
-      if(method === 'apofpo' && !get('addrCamp')){ showToast(window.gadeloI18n.t('cart.selectCamp')); return false; }
-      return true;
-    }
-
-    paypal.Buttons({
-      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
+    var buttonConfig = {
+      style: { layout: 'vertical', color: mode === 'card' ? 'black' : 'gold', shape: 'rect', label: mode === 'card' ? 'pay' : 'paypal' },
       onClick: function(data, actions){
         if(cart.length === 0){ showToast(window.gadeloI18n.t('cart.emptyToast')); return actions.reject(); }
         var method = window.gadeloFulfillment ? window.gadeloFulfillment.current() : 'pickup';
@@ -406,6 +503,7 @@
           if(window.gadeloAddress) window.gadeloAddress.save();
           cart = [];
           renderCart();
+          showCartView();
           closeCart();
           showToast(window.gadeloI18n.t('cart.orderSuccess'));
         });
@@ -414,8 +512,11 @@
         console.error('[GADELO] PayPal checkout error:', err);
         showToast(window.gadeloI18n.t('cart.orderError'));
       }
-    }).render('#paypal-button-container');
-  })();
+    };
+    if(mode === 'card') buttonConfig.fundingSource = paypal.FUNDING.CARD;
+
+    paypal.Buttons(buttonConfig).render('#paypal-button-container');
+  }
 
   // ---------- Telegram order notification ----------
   // ⚠️ Placeholder credentials — set these to your real bot token / chat id before launch.
@@ -450,8 +551,6 @@
         get('addrLine1'), get('addrLine2'),
         (get('addrCity') + ' ' + get('addrZip')).trim()
       ].filter(Boolean).join('\n');
-      var camp = get('addrCamp');
-      if(camp) addrLines += '\nCamp/Base: ' + camp;
     }
 
     var textLines = [

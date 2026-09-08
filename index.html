@@ -309,77 +309,85 @@
     <h3 data-i18n="cart.title">Your Cart</h3>
     <button class="close-x" id="cartClose">&times;</button>
   </div>
-  <div class="cart-items" id="cartItems">
-    <div class="cart-empty" data-i18n-html="cart.empty">Your cart is empty.<br>Add a blend to get started.</div>
-  </div>
-  <div class="fulfill-choice">
-    <label class="fulfill-option">
-      <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="pickup" checked><span data-i18n="fulfill.pickup">Store Pickup</span></span>
-      <span class="fulfill-fee" data-i18n="fulfill.pickupFee">Free</span>
-    </label>
-    <label class="fulfill-option">
-      <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="apofpo"><span data-i18n="fulfill.apofpo">USFK APO/FPO Mail</span></span>
-      <span class="fulfill-fee" data-i18n="fulfill.apofpoFee">+$5.00</span>
-    </label>
-    <label class="fulfill-option">
-      <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic"><span data-i18n="fulfill.domestic">Korea Domestic Delivery</span></span>
-      <span class="fulfill-fee" data-i18n="fulfill.domesticFee">+$4.00</span>
-    </label>
-  </div>
-  <p class="pickup-note" id="pickupNote" data-i18n="fulfill.pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
-  <div class="cart-address" id="cartAddress" hidden>
-    <h4 data-i18n="address.title">Shipping Address</h4>
-    <p class="addr-note" data-i18n="address.note">Saved on this device only, so it's ready next time — no account needed.</p>
-    <div class="addr-row">
-      <input type="text" id="addrName" data-i18n-placeholder="address.name" placeholder="Full name">
+
+  <!-- Step 1: review items, see free-shipping progress + other blends, choose how to pay -->
+  <div class="cart-view" id="cartView">
+    <div class="cart-scroll">
+      <div class="ship-progress" id="shipProgress" hidden>
+        <div class="ship-progress-label" id="shipProgressLabel"></div>
+        <div class="ship-progress-track"><div class="ship-progress-fill" id="shipProgressFill"></div></div>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty" data-i18n-html="cart.empty">Your cart is empty.<br>Add a blend to get started.</div>
+      </div>
+      <div class="cart-crosssell" id="cartCrosssell" hidden>
+        <h4 data-i18n="cart.crosssell">You Might Also Like</h4>
+        <div id="crosssellList"></div>
+      </div>
     </div>
-    <div class="addr-row-split">
-      <input type="tel" id="addrPhone" data-i18n-placeholder="address.phone" placeholder="Phone">
-      <input type="email" id="addrEmail" data-i18n-placeholder="address.email" placeholder="Email">
-    </div>
-    <div class="addr-row">
-      <input type="text" id="addrLine1" data-i18n-placeholder="address.line1" placeholder="Address">
-    </div>
-    <div class="addr-row">
-      <input type="text" id="addrLine2" data-i18n-placeholder="address.line2" placeholder="Apt / Unit / APO-FPO details">
-    </div>
-    <div class="addr-row-split">
-      <input type="text" id="addrCity" data-i18n-placeholder="address.city" placeholder="City / APO or FPO">
-      <input type="text" id="addrZip" data-i18n-placeholder="address.zip" placeholder="ZIP / Postal code">
-    </div>
-    <div class="addr-row" id="addrCampBlock">
-      <select id="addrCamp">
-        <option value="" data-i18n="address.campPlaceholder">Select your camp / base</option>
-        <option value="humphreys">Camp Humphreys</option>
-        <option value="osan">Osan Air Base</option>
-        <option value="casey">Camp Casey</option>
-        <option value="carroll">Camp Carroll</option>
-        <option value="walker">Camp Walker</option>
-        <option value="henry">Camp Henry</option>
-        <option value="kunsan">Kunsan Air Base</option>
-        <option value="mujuk">Camp Mujuk</option>
-        <option value="suwon">Suwon Air Base</option>
-        <option value="yongsan">Yongsan Garrison</option>
-        <option value="other" data-i18n="address.campOther">Other / not on a USFK installation</option>
-      </select>
-      <p class="addr-note" data-i18n="address.campNote">Live off-post? Choose the camp you're stationed at / work out of — not your home address.</p>
+    <div class="cart-foot">
+      <div class="cart-subtotal"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotalMini">$0.00</span></div>
+      <div class="cart-checkout-actions">
+        <button type="button" class="btn btn-brass btn-block" id="goCheckoutPaypal" data-i18n="cart.checkoutPaypal">Checkout (PayPal)</button>
+        <button type="button" class="btn btn-outline-light btn-block" id="goCheckoutCard" data-i18n="cart.checkoutCard">Debit / Credit Card</button>
+      </div>
+      <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
     </div>
   </div>
-  <div class="cart-promo">
-    <input type="text" id="promoInput" data-i18n-placeholder="promo.placeholder" placeholder="Promo code">
-    <button type="button" class="btn btn-outline btn-sm" id="promoApplyBtn" data-i18n="promo.apply">Apply</button>
-  </div>
-  <div class="cart-promo-msg" id="promoMsg" hidden></div>
-  <div class="cart-summary">
-    <div class="cart-summary-row"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotal">$0.00</span></div>
-    <div class="cart-summary-row discount-row" id="discountRow" hidden><span data-i18n="cart.discount">Discount</span><span id="cartDiscount">-$0.00</span></div>
-    <div class="cart-summary-row"><span data-i18n="cart.shipping">Shipping</span><span id="cartShipping">$0.00</span></div>
-    <div class="cart-summary-row total-row"><span data-i18n="cart.total">Total</span><span id="cartTotal">$0.00</span></div>
-  </div>
-  <div class="cart-foot">
-    <div id="paypal-button-container" class="paypal-button-container"></div>
-    <div class="cart-hint paypal-fallback" id="paypalFallback" hidden data-i18n="cart.paypalUnavailable">PayPal checkout couldn't load. Please refresh the page, or try again in a moment.</div>
-    <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
+
+  <!-- Step 2: fulfillment + address + promo + summary + actual payment -->
+  <div class="checkout-view" id="checkoutView" hidden>
+    <button type="button" class="checkout-back" id="checkoutBack">&larr; <span data-i18n="checkout.back">Back to cart</span></button>
+    <div class="checkout-scroll">
+      <div class="fulfill-choice">
+        <label class="fulfill-option">
+          <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="pickup" checked><span data-i18n="fulfill.pickup">Store Pickup</span></span>
+          <span class="fulfill-fee" data-i18n="fulfill.pickupFee">Free</span>
+        </label>
+        <label class="fulfill-option">
+          <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic"><span data-i18n="fulfill.domestic">Korea Domestic Delivery</span></span>
+          <span class="fulfill-fee" data-i18n="fulfill.domesticFee">+$4.00</span>
+        </label>
+      </div>
+      <p class="pickup-note" id="pickupNote" data-i18n="fulfill.pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
+      <div class="cart-address" id="cartAddress" hidden>
+        <h4 data-i18n="address.title">Shipping Address</h4>
+        <p class="addr-note" data-i18n="address.note">Saved on this device only, so it's ready next time — no account needed.</p>
+        <div class="addr-row">
+          <input type="text" id="addrName" data-i18n-placeholder="address.name" placeholder="Full name">
+        </div>
+        <div class="addr-row-split">
+          <input type="tel" id="addrPhone" data-i18n-placeholder="address.phone" placeholder="Phone">
+          <input type="email" id="addrEmail" data-i18n-placeholder="address.email" placeholder="Email">
+        </div>
+        <div class="addr-row">
+          <input type="text" id="addrLine1" data-i18n-placeholder="address.line1" placeholder="Address">
+        </div>
+        <div class="addr-row">
+          <input type="text" id="addrLine2" data-i18n-placeholder="address.line2" placeholder="Apt / Unit">
+        </div>
+        <div class="addr-row-split">
+          <input type="text" id="addrCity" data-i18n-placeholder="address.city" placeholder="City">
+          <input type="text" id="addrZip" data-i18n-placeholder="address.zip" placeholder="ZIP / Postal code">
+        </div>
+      </div>
+      <div class="cart-promo">
+        <input type="text" id="promoInput" data-i18n-placeholder="promo.placeholder" placeholder="Promo code">
+        <button type="button" class="btn btn-outline btn-sm" id="promoApplyBtn" data-i18n="promo.apply">Apply</button>
+      </div>
+      <div class="cart-promo-msg" id="promoMsg" hidden></div>
+      <div class="cart-summary">
+        <div class="cart-summary-row"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+        <div class="cart-summary-row discount-row" id="discountRow" hidden><span data-i18n="cart.discount">Discount</span><span id="cartDiscount">-$0.00</span></div>
+        <div class="cart-summary-row"><span data-i18n="cart.shipping">Shipping</span><span id="cartShipping">$0.00</span></div>
+        <div class="cart-summary-row total-row"><span data-i18n="cart.total">Total</span><span id="cartTotal">$0.00</span></div>
+      </div>
+    </div>
+    <div class="cart-foot">
+      <div id="paypal-button-container" class="paypal-button-container"></div>
+      <div class="cart-hint paypal-fallback" id="paypalFallback" hidden data-i18n="cart.paypalUnavailable">PayPal checkout couldn't load. Please refresh the page, or try again in a moment.</div>
+      <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
+    </div>
   </div>
 </aside>
 

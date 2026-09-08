@@ -24,6 +24,11 @@
   --shadow:0 10px 30px rgba(0,0,0,0.55);
 }
 *{box-sizing:border-box;}
+/* Elements toggled with the plain `hidden` attribute must always collapse —
+   even ones (like the cart/checkout view panes below) that also carry their
+   own `display:flex` rule, which would otherwise out-rank the browser's
+   default [hidden] styling since it comes from this same stylesheet. */
+[hidden]{display:none !important;}
 html{scroll-behavior:smooth;}
 body{
   margin:0;
@@ -430,9 +435,57 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(0,0,0,.25);
 }
 .cart-drawer.open{transform:translateX(0);}
-.cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--sand-line);}
+.cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--sand-line);flex:none;}
 .cart-head h3{margin:0;font-size:18px;}
-.cart-items{flex:1;overflow-y:auto;padding:16px 22px;display:flex;flex-direction:column;gap:16px;}
+
+/* ---------- Cart drawer: two-step flow ----------
+   cartView (items + progress bar + cross-sell + a checkout button) and
+   checkoutView (fulfillment + address + promo + summary + payment) are two
+   panes inside the same drawer, toggled with [hidden]. Each pane pins its
+   own .cart-foot at the bottom and scrolls only the middle section, so the
+   checkout/payment button is always on screen no matter how much content is
+   above it — this is what fixes the drawer-doesn't-scroll / button-hidden
+   issue reported against the previous single-pane layout. */
+.cart-view, .checkout-view{flex:1;min-height:0;display:flex;flex-direction:column;}
+.cart-scroll, .checkout-scroll{flex:1;min-height:0;overflow-y:auto;}
+.checkout-back{
+  display:flex;align-items:center;gap:6px;flex:none;
+  background:none;border:none;cursor:pointer;text-align:left;
+  color:var(--olive-text);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.04em;
+  padding:16px 22px 4px;
+}
+.checkout-back:hover{color:var(--brass-dark);}
+
+/* ---------- Free/discounted shipping progress bar ---------- */
+.ship-progress{padding:16px 22px 4px;}
+.ship-progress-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--olive-text);line-height:1.5;}
+.ship-progress-label b{color:var(--brass-dark);}
+.ship-progress-track{height:6px;background:var(--khaki-dim);border-radius:4px;overflow:hidden;margin-top:8px;}
+.ship-progress-fill{height:100%;background:var(--brass);border-radius:4px;transition:width .3s ease;}
+
+/* ---------- Cross-sell: other blends ---------- */
+.cart-crosssell{padding:18px 22px 4px;border-top:1px solid var(--sand-line);margin-top:6px;}
+.cart-crosssell h4{
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--olive-text);margin:0 0 12px;
+}
+.crosssell-card{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--sand-line);}
+.crosssell-card:first-child{border-top:none;}
+.crosssell-card .swatch{width:42px;height:42px;border-radius:2px;flex:none;background-size:cover;background-position:center;background-color:var(--od);}
+.crosssell-card .info{flex:1;min-width:0;}
+.crosssell-card .nm{font-family:'Black Ops One',cursive;font-size:12px;line-height:1.3;}
+.crosssell-card .pr{font-family:'Space Mono',monospace;font-size:11px;color:var(--brass-dark);margin-top:2px;}
+.crosssell-add{
+  flex:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--khaki-dim);border:1px solid var(--sand-line);color:var(--khaki);
+  padding:7px 10px;border-radius:2px;cursor:pointer;
+}
+.crosssell-add:hover{border-color:var(--brass);color:var(--brass);}
+
+/* ---------- Cart view: item list + checkout entry points ---------- */
+.cart-checkout-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+
+.cart-items{padding:16px 22px;display:flex;flex-direction:column;gap:16px;}
 .cart-empty{color:var(--olive-text);font-family:'Space Mono',monospace;font-size:13px;text-align:center;margin-top:40px;}
 .cart-address{padding:0 22px 18px;border-top:1px solid var(--sand-line);}
 .cart-address h4{
@@ -504,7 +557,7 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .cart-line .info .meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--olive-text);}
 .cart-line .qty-price{text-align:right;}
 .cart-line .rm{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--field-rust);cursor:pointer;background:none;border:none;padding:0;margin-top:4px;}
-.cart-foot{padding:18px 22px 24px;border-top:1px solid var(--sand-line);}
+.cart-foot{padding:18px 22px 24px;border-top:1px solid var(--sand-line);flex:none;}
 .cart-subtotal{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;}
 .cart-hint{font-size:11px;color:var(--olive-text);font-family:'Space Mono',monospace;margin-top:10px;line-height:1.5;}
 .close-x{background:none;border:none;cursor:pointer;font-size:20px;color:var(--khaki);}
