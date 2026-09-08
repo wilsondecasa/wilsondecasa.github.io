@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GADELO Coffee Roasters</title>
+<meta name="description" content="GADELO Coffee Roasters — small-batch specialty coffee, roasted fresh in Korea and shipped to the U.S. military community and their families.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Black+Han+Sans&family=Noto+Serif+KR:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= Announcement bar + language toggle ================= -->
+<div class="announce">
+  <div class="announce-inner wrap">
+    <span id="announceText"></span>
+    <div class="lang-toggle">
+      <button data-lang="en" class="flag-btn" aria-label="English">🇺🇸<span>EN</span></button>
+      <button data-lang="ko" class="flag-btn" aria-label="한국어">🇰🇷<span>KR</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Header ================= -->
+<header>
+  <div class="nav-row">
+    <a class="brand" href="#top">
+      <img src="images/logo-navy-crop.png" alt="GADELO Coffee Roasters logo">
+      <span class="word">GADELO<small>COFFEE ROASTERS · 가델로</small></span>
+    </a>
+    <nav class="primary">
+      <a href="#blends" data-i18n="nav.coffee">Our Coffee</a>
+      <a href="#about" data-i18n="nav.story">Our Story</a>
+      <a href="#community" data-i18n="nav.community">For Military &amp; Families</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="cartToggle" aria-label="Open cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6L4 2H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="hamburger icon-btn" id="hamburgerBtn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="top"></div>
+
+<!-- ================= Hero ================= -->
+<section class="hero" style="padding:0;">
+  <div class="hero-bg-ring"></div>
+  <div class="hero-bg-ring small"></div>
+  <div class="hero-carousel-full" id="heroCarouselFull">
+    <div class="hero-slide-full active" data-slide="0">
+      <!-- To add a background image to this slide, set style="background-image:url('images/your-photo.jpg')" below. -->
+      <div class="hero-slide-bg"></div>
+      <div class="hero-inner">
+        <span class="eyebrow" data-i18n="hero.eyebrow">GADELO COFFEE ROASTERS · ROASTED IN KOREA</span>
+        <h1 data-i18n-html="hero.title">Every bean<br><em>carries a story.</em></h1>
+        <p class="lead" data-i18n="hero.lead">Small-batch specialty coffee, roasted fresh and shipped to your door — from base housing to the barracks, wherever the mission takes you. Built for the U.S. military community and the families who hold it together.</p>
+        <div class="hero-ctas">
+          <a href="#blends" class="btn btn-brass" data-i18n="hero.cta1">Shop Our Blends</a>
+          <a href="#about" class="btn btn-outline-light" data-i18n="hero.cta2">Read Our Story</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-slide-full" data-slide="1">
+      <div class="hero-slide-bg"></div>
+      <div class="hero-inner">
+        <span class="eyebrow" data-i18n="hero2.eyebrow">FOR THE USFK COMMUNITY</span>
+        <h1 data-i18n-html="hero2.title">Made for the community<br><em>you serve.</em></h1>
+        <p class="lead" data-i18n="hero2.lead">Bulk orders for units and spouses' clubs, care-package-friendly packaging, and bilingual support — wherever the mission takes you.</p>
+        <div class="hero-ctas">
+          <a href="#community" class="btn btn-brass" data-i18n="hero2.cta1">Military &amp; Family Program</a>
+          <a href="#contact" class="btn btn-outline-light" data-i18n="hero2.cta2">Ask About Bulk Orders</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-dots" id="heroDots">
+    <button class="hero-dot active" data-i="0" aria-label="Slide 1"></button>
+    <button class="hero-dot" data-i="1" aria-label="Slide 2"></button>
+  </div>
+</section>
+
+<!-- ================= Featured Blends (core lineup) ================= -->
+<section id="blends">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="blends.eyebrow">OUR CORE LINEUP</span>
+      <h2 data-i18n="blends.title">Three Bold Blends, Each Named on Purpose</h2>
+      <p data-i18n="blends.desc">Every GADELO blend carries a name with meaning and a recipe we don't cut corners on. Pick a size below — pricing updates instantly.</p>
+    </div>
+
+    <div class="roast-filter" id="roastFilter" role="tablist" aria-label="Filter by roast level">
+      <button class="roast-tab active" data-roast="all" data-i18n="filter.all">All Roasts</button>
+      <button class="roast-tab" data-roast="light" data-i18n="filter.light">Light Roast</button>
+      <button class="roast-tab" data-roast="medium" data-i18n="filter.medium">Medium Roast</button>
+      <button class="roast-tab" data-roast="dark" data-i18n="filter.dark">Dark Roast</button>
+    </div>
+
+    <!-- ⚠️ Fight Tonight / Uncle Sam / Freedom: recipe & pricing are unconfirmed placeholders, see js/products.js -->
+    <div class="blend-grid blend-grid-3" id="blendGrid">
+      <!-- Card 1: Fight Tonight -->
+      <article class="blend-card" data-name-en="Fight Tonight" data-name-ko="파이트 투나잇" data-color="#4B3A2A" data-roast="dark"
+        data-p400="21.99" data-p1000="27.99">
+        <a class="blend-art-link" href="product.html?blend=fighttonight">
+          <div class="blend-art has-photo" style="--card-bg:#4B3A2A;">
+            <img class="blend-art-photo" src="images/blend-fighttonight.jpg" alt="">
+            <span class="mark" data-i18n="badge.flagship">Flagship Blend</span>
+            <div>
+              <div class="name-kr">파이트 투나잇</div>
+              <div class="name-en">Fight Tonight</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=fighttonight">Fight Tonight · 파이트 투나잇</a>
+          <div class="roast-tag" data-i18n="roast.dark">Dark Roast</div>
+          <div class="blend-origin" data-i18n="origin.fighttonight">Brazil 55% · Guatemala 25% · Robusta 20% (placeholder — recipe TBD)</div>
+          <div class="size-select">
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(2x7oz)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb</div>
+          </div>
+          <div class="price-row">
+            <span class="price">$21.99</span>
+            <button class="add-btn" data-i18n="add.cart">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Uncle Sam -->
+      <article class="blend-card" data-name-en="Uncle Sam" data-name-ko="엉클샘" data-color="#2F3B52" data-roast="medium"
+        data-p400="21.99" data-p1000="27.99">
+        <a class="blend-art-link" href="product.html?blend=unclesam">
+          <div class="blend-art has-photo" style="--card-bg:#2F3B52;">
+            <img class="blend-art-photo" src="images/blend-unclesam.jpg" alt="">
+            <span class="mark" data-i18n="badge.flagship">Flagship Blend</span>
+            <div>
+              <div class="name-kr">엉클샘</div>
+              <div class="name-en">Uncle Sam</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=unclesam">Uncle Sam · 엉클샘</a>
+          <div class="roast-tag" data-i18n="roast.medium">Medium Roast</div>
+          <div class="blend-origin" data-i18n="origin.unclesam">Colombia 45% · Brazil 35% · Ethiopia Sidamo 20% (placeholder — recipe TBD)</div>
+          <div class="size-select">
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(2x7oz)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb</div>
+          </div>
+          <div class="price-row">
+            <span class="price">$21.99</span>
+            <button class="add-btn" data-i18n="add.cart">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: Freedom -->
+      <article class="blend-card" data-name-en="Freedom" data-name-ko="프리덤" data-color="#7A2E2E" data-roast="light"
+        data-p400="23.99" data-p1000="29.99">
+        <a class="blend-art-link" href="product.html?blend=freedom">
+          <div class="blend-art" style="--card-bg:#7A2E2E;">
+            <span class="mark" data-i18n="badge.flagship">Flagship Blend</span>
+            <div>
+              <div class="name-kr">프리덤</div>
+              <div class="name-en">Freedom</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=freedom">Freedom · 프리덤</a>
+          <div class="roast-tag" data-i18n="roast.light">Light Roast</div>
+          <div class="blend-origin" data-i18n="origin.freedom">Ethiopia Sidamo 50% · Guatemala 30% · Colombia 20% (placeholder — recipe TBD)</div>
+          <div class="size-select">
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(2x7oz)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb</div>
+          </div>
+          <div class="price-row">
+            <span class="price">$23.99</span>
+            <button class="add-btn" data-i18n="add.cart">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="grid-foot">
+      <a href="#contact" class="btn btn-outline" data-i18n="blends.cta">View Full Catalog</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Statement banner ================= -->
+<section class="statement">
+  <div class="wrap">
+    <span class="eyebrow" style="color:var(--brass);">GADELO</span>
+    <h2 data-i18n-html="statement.title">Quality. Craft.<br>Quiet Intention.</h2>
+    <p data-i18n="statement.desc">We roast in small batches, name every blend on purpose, and let the coffee do the talking — no shortcuts, no filler.</p>
+    <a href="#about" class="link" data-i18n="statement.link">Learn Our Story →</a>
+  </div>
+</section>
+
+<!-- ================= About / Story ================= -->
+<section id="about">
+  <div class="wrap about">
+    <div class="about-visual">
+      <img src="images/logo-navy-crop.png" alt="GADELO Coffee Roasters emblem">
+    </div>
+    <div>
+      <span class="eyebrow" data-i18n="about.eyebrow">OUR STORY</span>
+      <h2 data-i18n="about.title">Roasted with intention, from the ground up.</h2>
+      <p data-i18n="about.p1">GADELO Coffee Roasters is a small-batch roastery built on three things: quality green beans sourced carefully, creativity in how we blend and name every roast, and a quiet sense of purpose behind the whole operation.</p>
+      <p data-i18n="about.p2">Every blend — Logos, Covenant, Good Will, and the rest of the lineup — is named with meaning, not marketing. We roast weekly in small batches so what ships to you is never far from the drum.</p>
+      <div class="value-pills">
+        <span class="pill" data-i18n="pill.1">Quality</span>
+        <span class="pill" data-i18n="pill.2">Creativity</span>
+        <span class="pill" data-i18n="pill.3">Purpose</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Military & Family community ================= -->
+<section class="community" id="community">
+  <div class="wrap community-inner">
+    <div>
+      <span class="community-badge" data-i18n="community.badge">For the USFK Community</span>
+      <h2 data-i18n="community.title">Made for the community you serve.</h2>
+      <p data-i18n="community.p">We know coffee means a little more when you're far from home — it's routine, comfort, and a small piece of normal. GADELO works directly with service members, spouses, and families stationed in Korea.</p>
+      <ul class="community-list">
+        <li data-i18n="community.li1">Bulk &amp; recurring orders for units, offices, and spouses' clubs</li>
+        <li data-i18n="community.li2">Care-package-friendly packaging on request</li>
+        <li data-i18n="community.li3">Bilingual customer support — English &amp; 한국어</li>
+        <li data-i18n="community.li4">Prices shown in USD — pay securely with PayPal</li>
+      </ul>
+      <a href="#contact" class="btn btn-brass" data-i18n="community.cta">Ask About Bulk &amp; Unit Orders</a>
+      <div class="community-note" data-i18n="community.note">
+        Shipping coverage, APO/FPO availability, and any military/family appreciation program are being finalized — details to be confirmed before launch.
+      </div>
+    </div>
+    <div class="community-visual">
+      <div class="big">03</div>
+      <div class="cap" data-i18n="community.cap1">Core Values — Quality · Creativity · Purpose</div>
+      <hr>
+      <div class="big">01</div>
+      <div class="cap" data-i18n="community.cap2">Roastery, One Location in Korea</div>
+      <hr>
+      <div class="big">EN·KR</div>
+      <div class="cap" data-i18n="community.cap3">Bilingual Customer Support</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Footer ================= -->
+<footer id="contact">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <img src="images/logo-navy-crop.png" alt="GADELO Coffee Roasters">
+      <p data-i18n="footer.brandline">Small-batch coffee roasted in Korea, made for the U.S. military community and their families — wherever the mission takes you.</p>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.shop">Shop</h4>
+      <a href="#blends" data-i18n="footer.link.coffee">Our Coffee</a>
+      <a href="#" data-i18n="footer.link.gift">Gift Cards</a>
+      <a href="#" data-i18n="footer.link.wholesale">Wholesale</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.company">Company</h4>
+      <a href="#about" data-i18n="footer.link.story">Our Story</a>
+      <a href="#community" data-i18n="footer.link.military">Military &amp; Families</a>
+      <a href="#" data-i18n="footer.link.careers">Careers</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.support">Support</h4>
+      <a href="#" data-i18n="footer.link.faq">FAQ</a>
+      <a href="#" data-i18n="footer.link.shipping">Shipping &amp; Returns</a>
+      <a href="#" data-i18n="footer.link.track">Track Order</a>
+      <a href="mailto:hello@gadelo.coffee" data-i18n="footer.link.contact">Contact Us</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.connect">Connect</h4>
+      <div class="social-row">
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+        <a href="#" aria-label="Threads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c4 0 7 2.5 7 7 0 5-3 11-7 11s-7-2-7-6c0-3 2-4.5 5-4.5s5 1.5 5 4"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-i18n="footer.bottom">© 2026 GADELO Coffee Roasters (가델로 커피 로스터스). All rights reserved.</span>
+    <div class="pay-icons">
+      <span class="pay-badge">PayPal</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= Cart drawer ================= -->
+<div class="overlay" id="overlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+  <div class="cart-head">
+    <h3 data-i18n="cart.title">Your Cart</h3>
+    <button class="close-x" id="cartClose">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty" data-i18n-html="cart.empty">Your cart is empty.<br>Add a blend to get started.</div>
+  </div>
+  <div class="fulfill-choice">
+    <label class="fulfill-option">
+      <input type="radio" name="fulfillMethod" value="delivery" checked>
+      <span data-i18n="fulfill.delivery">Courier Delivery</span>
+    </label>
+    <label class="fulfill-option">
+      <input type="radio" name="fulfillMethod" value="pickup">
+      <span data-i18n="fulfill.pickup">Store Pickup</span>
+    </label>
+  </div>
+  <p class="pickup-note" id="pickupNote" hidden data-i18n="fulfill.pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
+  <div class="cart-address" id="cartAddress">
+    <h4 data-i18n="address.title">Shipping Address</h4>
+    <p class="addr-note" data-i18n="address.note">Saved on this device only, so it's ready next time — no account needed.</p>
+    <div class="addr-row">
+      <input type="text" id="addrName" data-i18n-placeholder="address.name" placeholder="Full name">
+    </div>
+    <div class="addr-row-split">
+      <input type="tel" id="addrPhone" data-i18n-placeholder="address.phone" placeholder="Phone">
+      <input type="email" id="addrEmail" data-i18n-placeholder="address.email" placeholder="Email">
+    </div>
+    <div class="addr-row">
+      <input type="text" id="addrLine1" data-i18n-placeholder="address.line1" placeholder="Address">
+    </div>
+    <div class="addr-row">
+      <input type="text" id="addrLine2" data-i18n-placeholder="address.line2" placeholder="Apt / Unit / APO-FPO details">
+    </div>
+    <div class="addr-row-split">
+      <input type="text" id="addrCity" data-i18n-placeholder="address.city" placeholder="City / APO or FPO">
+      <input type="text" id="addrZip" data-i18n-placeholder="address.zip" placeholder="ZIP / Postal code">
+    </div>
+    <div class="addr-row">
+      <select id="addrCountry">
+        <option value="kr" data-i18n="address.countryKr">South Korea</option>
+        <option value="us" data-i18n="address.countryUs">United States (APO/FPO/DPO)</option>
+      </select>
+    </div>
+    <div class="addr-row">
+      <select id="addrCamp">
+        <option value="" data-i18n="address.campPlaceholder">Select your camp / base</option>
+        <option value="humphreys">Camp Humphreys</option>
+        <option value="osan">Osan Air Base</option>
+        <option value="casey">Camp Casey</option>
+        <option value="carroll">Camp Carroll</option>
+        <option value="walker">Camp Walker</option>
+        <option value="henry">Camp Henry</option>
+        <option value="kunsan">Kunsan Air Base</option>
+        <option value="mujuk">Camp Mujuk</option>
+        <option value="suwon">Suwon Air Base</option>
+        <option value="yongsan">Yongsan Garrison</option>
+        <option value="other" data-i18n="address.campOther">Other / not on a USFK installation</option>
+      </select>
+      <p class="addr-note" data-i18n="address.campNote">Live off-post? Choose the camp you're stationed at / work out of — not your home address.</p>
+    </div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-subtotal"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+    <button class="btn btn-brass btn-block" id="checkoutBtn" data-i18n="cart.checkout">Checkout with PayPal</button>
+    <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. // This button is a placeholder — connect your live PayPal Client ID before launch.</div>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/products.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

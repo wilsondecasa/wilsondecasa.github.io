@@ -1,0 +1,289 @@
+// GADELO — bilingual EN/KO dictionary + toggle (no page reload)
+// Usage: elements marked data-i18n="key" get textContent replaced;
+// data-i18n-html="key" get innerHTML replaced (for markup like <em>).
+var GADELO_I18N = {
+  en: {
+    "announce.1": "Freshly roasted in small batches — never sitting on a shelf.",
+    "announce.2": "Checkout securely with PayPal — pay the way you trust.",
+    "announce.3": "Ask us about bulk orders for your unit or spouses' club.",
+    "nav.coffee": "Our Coffee",
+    "nav.story": "Our Story",
+    "nav.community": "For Military & Families",
+    "nav.contact": "Contact",
+    "hero.eyebrow": "GADELO COFFEE ROASTERS · ROASTED IN KOREA",
+    "hero.title": "Every bean<br><em>carries a story.</em>",
+    "hero.lead": "Small-batch specialty coffee, roasted fresh and shipped to your door — from base housing to the barracks, wherever the mission takes you. Built for the U.S. military community and the families who hold it together.",
+    "hero.cta1": "Shop Our Blends",
+    "hero.cta2": "Read Our Story",
+    "hero2.eyebrow": "FOR THE USFK COMMUNITY",
+    "hero2.title": "Made for the community<br><em>you serve.</em>",
+    "hero2.lead": "Bulk orders for units and spouses' clubs, care-package-friendly packaging, and bilingual support — wherever the mission takes you.",
+    "hero2.cta1": "Military & Family Program",
+    "hero2.cta2": "Ask About Bulk Orders",
+    "blends.eyebrow": "OUR CORE LINEUP",
+    "blends.title": "Three Bold Blends, Each Named on Purpose",
+    "blends.desc": "Every GADELO blend carries a name with meaning and a recipe we don't cut corners on. Pick a size below — pricing updates instantly.",
+    "blends.cta": "View Full Catalog",
+    "badge.house": "House Blend",
+    "badge.premium": "Premium Blend",
+    "badge.flagship": "Flagship Blend",
+    "add.cart": "Add to Cart",
+    "filter.all": "All Roasts",
+    "filter.light": "Light Roast",
+    "filter.medium": "Medium Roast",
+    "filter.dark": "Dark Roast",
+    "roast.light": "Light Roast",
+    "roast.medium": "Medium Roast",
+    "roast.dark": "Dark Roast",
+    "statement.title": "Quality. Craft.<br>Quiet Intention.",
+    "statement.desc": "We roast in small batches, name every blend on purpose, and let the coffee do the talking — no shortcuts, no filler.",
+    "statement.link": "Learn Our Story →",
+    "about.eyebrow": "OUR STORY",
+    "about.title": "Roasted with intention, from the ground up.",
+    "about.p1": "GADELO Coffee Roasters is a small-batch roastery built on three things: quality green beans sourced carefully, creativity in how we blend and name every roast, and a quiet sense of purpose behind the whole operation.",
+    "about.p2": "Every blend — Logos, Covenant, Good Will, and the rest of the lineup — is named with meaning, not marketing. We roast weekly in small batches so what ships to you is never far from the drum.",
+    "pill.1": "Quality",
+    "pill.2": "Creativity",
+    "pill.3": "Purpose",
+    "community.badge": "For the USFK Community",
+    "community.title": "Made for the community you serve.",
+    "community.p": "We know coffee means a little more when you're far from home — it's routine, comfort, and a small piece of normal. GADELO works directly with service members, spouses, and families stationed in Korea.",
+    "community.li1": "Bulk & recurring orders for units, offices, and spouses' clubs",
+    "community.li2": "Care-package-friendly packaging on request",
+    "community.li3": "Bilingual customer support — English & 한국어",
+    "community.li4": "Prices shown in USD — pay securely with PayPal",
+    "community.cta": "Ask About Bulk & Unit Orders",
+    "community.note": "Shipping coverage, APO/FPO availability, and any military/family appreciation program are being finalized — details to be confirmed before launch.",
+    "community.cap1": "Core Values — Quality · Creativity · Purpose",
+    "community.cap2": "Roastery, One Location in Korea",
+    "community.cap3": "Bilingual Customer Support",
+    "footer.shop": "Shop",
+    "footer.company": "Company",
+    "footer.support": "Support",
+    "footer.connect": "Connect",
+    "footer.brandline": "Small-batch coffee roasted in Korea, made for the U.S. military community and their families — wherever the mission takes you.",
+    "footer.link.coffee": "Our Coffee",
+    "footer.link.gift": "Gift Cards",
+    "footer.link.wholesale": "Wholesale",
+    "footer.link.story": "Our Story",
+    "footer.link.military": "Military & Families",
+    "footer.link.careers": "Careers",
+    "footer.link.faq": "FAQ",
+    "footer.link.shipping": "Shipping & Returns",
+    "footer.link.track": "Track Order",
+    "footer.link.contact": "Contact Us",
+    "footer.bottom": "© 2026 GADELO Coffee Roasters (가델로 커피 로스터스). All rights reserved.",
+    "address.title": "Shipping Address",
+    "address.note": "Saved on this device only, so it's ready next time — no account needed.",
+    "address.name": "Full name",
+    "address.phone": "Phone",
+    "address.email": "Email",
+    "address.line1": "Address",
+    "address.line2": "Apt / Unit / APO-FPO details",
+    "address.city": "City / APO or FPO",
+    "address.zip": "ZIP / Postal code",
+    "address.countryKr": "South Korea",
+    "address.countryUs": "United States (APO/FPO/DPO)",
+    "address.camp": "USFK Duty Camp (optional)",
+    "address.campPlaceholder": "Select your camp / base",
+    "address.campOther": "Other / not on a USFK installation",
+    "address.campNote": "Live off-post? Choose the camp you're stationed at / work out of — not your home address.",
+    "fulfill.delivery": "Courier Delivery",
+    "fulfill.pickup": "Store Pickup",
+    "fulfill.pickupNote": "Pickup location and time will be confirmed with you directly after you place your order.",
+    "cart.title": "Your Cart",
+    "cart.empty": "Your cart is empty.<br>Add a blend to get started.",
+    "cart.subtotal": "Subtotal",
+    "cart.checkout": "Checkout with PayPal",
+    "cart.hint": "Prices shown in USD. // This button is a placeholder — connect your live PayPal Client ID before launch.",
+    "cart.remove": "Remove",
+    "cart.emptyToast": "Your cart is empty.",
+    "cart.checkoutAlert": "This is a working prototype.\n\nA real PayPal Checkout button will be wired in here (using the PayPal JS SDK and your business Client ID) before this site goes live.",
+    "pdp.breadcrumbHome": "Home",
+    "pdp.breadcrumbShop": "Our Coffee",
+    "pdp.reviews": "No reviews yet — be the first",
+    "pdp.sizeLabel": "Size",
+    "pdp.qtyLabel": "Quantity",
+    "pdp.note": "Roasted to order in small batches. Ships from our roastery in Korea; APO/FPO and international shipping details to be confirmed before launch.",
+    "pdp.trust1": "Fresh-roasted weekly",
+    "pdp.trust2": "Secure checkout via PayPal",
+    "pdp.trust3": "English & 한국어 support",
+    "pdp.notFound": "Blend not found. Back to",
+    "origin.logos": "Brazil 65% · Guatemala 25% · Aceh Gayo 10%",
+    "origin.covenant": "Brazil 65% · Colombia 15% · Guatemala 10% · Sidamo 10%",
+    "origin.india": "Mysore 65% · Kapi Royale (Robusta) 35%",
+    "origin.goodwill": "Guat. Huican 40% · Nicaragua Segovia 30% · CR Don Mayo 30%",
+    "origin.fighttonight": "Brazil 55% · Guatemala 25% · Robusta 20% (placeholder — recipe TBD)",
+    "origin.unclesam": "Colombia 45% · Brazil 35% · Ethiopia Sidamo 20% (placeholder — recipe TBD)",
+    "origin.freedom": "Ethiopia Sidamo 50% · Guatemala 30% · Colombia 20% (placeholder — recipe TBD)"
+  },
+  ko: {
+    "announce.1": "소규모 배치로 신선하게 로스팅합니다 — 재고로 오래 묵히지 않습니다.",
+    "announce.2": "페이팔로 안전하게 결제하세요 — 믿을 수 있는 결제 방식입니다.",
+    "announce.3": "부대나 배우자 모임 단위 대량 주문도 문의해 주세요.",
+    "nav.coffee": "커피 소개",
+    "nav.story": "브랜드 스토리",
+    "nav.community": "미군 가족 프로그램",
+    "nav.contact": "문의하기",
+    "hero.eyebrow": "가델로 커피 로스터스 · 한국에서 로스팅",
+    "hero.title": "모든 원두에는<br><em>이야기가 담겨 있습니다.</em>",
+    "hero.lead": "소규모 배치로 신선하게 로스팅해 문 앞까지 배송합니다. 관사에서 막사까지, 임무가 향하는 곳이 어디든지요. 미군 커뮤니티와 그 가족들을 위해 만들었습니다.",
+    "hero.cta1": "블렌드 둘러보기",
+    "hero.cta2": "브랜드 스토리 보기",
+    "hero2.eyebrow": "USFK 커뮤니티를 위해",
+    "hero2.title": "당신이 지키는 커뮤니티를<br><em>위해 만들었습니다.</em>",
+    "hero2.lead": "부대·배우자 모임을 위한 대량 주문, 케어 패키지에 어울리는 포장, 이중언어 지원까지 — 임무가 향하는 곳이 어디든지요.",
+    "hero2.cta1": "미군 가족 프로그램 보기",
+    "hero2.cta2": "대량 주문 문의하기",
+    "blends.eyebrow": "코어 라인업",
+    "blends.title": "세 가지 대표 블렌드, 저마다의 이유가 있는 이름",
+    "blends.desc": "가델로의 모든 블렌드는 의미를 담은 이름과 타협하지 않은 레시피로 만들어집니다. 아래에서 용량을 선택하면 가격이 바로 반영됩니다.",
+    "blends.cta": "전체 상품 보기",
+    "badge.house": "하우스 블렌드",
+    "badge.premium": "프리미엄 블렌드",
+    "badge.flagship": "플래그십 블렌드",
+    "add.cart": "장바구니 담기",
+    "filter.all": "전체 로스트",
+    "filter.light": "라이트 로스트",
+    "filter.medium": "미디움 로스트",
+    "filter.dark": "다크 로스트",
+    "roast.light": "라이트 로스트",
+    "roast.medium": "미디움 로스트",
+    "roast.dark": "다크 로스트",
+    "statement.title": "품질. 크래프트.<br>조용한 신념.",
+    "statement.desc": "소규모로 로스팅하고, 모든 블렌드에 의미를 담아 이름 짓고, 나머지는 커피가 말하게 둡니다 — 지름길도, 군더더기도 없이.",
+    "statement.link": "브랜드 스토리 보기 →",
+    "about.eyebrow": "브랜드 스토리",
+    "about.title": "처음부터 끝까지, 의도를 담아 로스팅합니다.",
+    "about.p1": "가델로 커피 로스터스는 세 가지 원칙 위에 세워진 소규모 로스터리입니다: 신중하게 소싱한 좋은 생두, 블렌드와 네이밍에 담긴 창의성, 그리고 그 모든 과정 뒤에 있는 조용한 목적의식입니다.",
+    "about.p2": "로고스, 커버넌트, 굿윌을 비롯한 모든 블렌드의 이름은 마케팅이 아니라 의미로 지어졌습니다. 매주 소규모로 로스팅하기 때문에, 배송되는 원두는 언제나 로스팅 직후의 신선함을 유지합니다.",
+    "pill.1": "품질",
+    "pill.2": "창의성",
+    "pill.3": "신념",
+    "community.badge": "USFK 커뮤니티를 위해",
+    "community.title": "당신이 지키는 커뮤니티를 위해 만들었습니다.",
+    "community.p": "타지에서는 커피 한 잔이 조금 더 특별한 의미를 갖는다는 걸 압니다 — 일상이고, 위안이고, 작은 평범함이니까요. 가델로는 한국에 주둔 중인 장병, 배우자, 가족들과 직접 소통합니다.",
+    "community.li1": "부대, 사무실, 배우자 모임을 위한 대량·정기 주문",
+    "community.li2": "요청 시 케어 패키지에 적합한 포장 제공",
+    "community.li3": "영어 및 한국어 이중언어 고객 지원",
+    "community.li4": "가격은 달러(USD) 기준이며, 페이팔로 안전하게 결제할 수 있습니다",
+    "community.cta": "대량·부대 주문 문의하기",
+    "community.note": "배송 범위, APO/FPO 가능 여부, 미군·가족 감사 프로그램은 현재 확정 중입니다 — 오픈 전 세부사항이 안내될 예정입니다.",
+    "community.cap1": "핵심 가치 — 품질 · 창의성 · 신념",
+    "community.cap2": "로스터리, 한국 내 단일 매장",
+    "community.cap3": "이중언어 고객 지원",
+    "footer.shop": "쇼핑",
+    "footer.company": "컴퍼니",
+    "footer.support": "고객지원",
+    "footer.connect": "팔로우",
+    "footer.brandline": "한국에서 소규모로 로스팅한 커피, 미군 커뮤니티와 그 가족들을 위해 만들었습니다 — 임무가 향하는 곳이 어디든지요.",
+    "footer.link.coffee": "커피 소개",
+    "footer.link.gift": "기프트 카드",
+    "footer.link.wholesale": "도매 문의",
+    "footer.link.story": "브랜드 스토리",
+    "footer.link.military": "미군 가족 프로그램",
+    "footer.link.careers": "채용",
+    "footer.link.faq": "자주 묻는 질문",
+    "footer.link.shipping": "배송·반품 안내",
+    "footer.link.track": "주문 조회",
+    "footer.link.contact": "문의하기",
+    "footer.bottom": "© 2026 가델로 커피 로스터스 (GADELO Coffee Roasters). 모든 권리 보유.",
+    "address.title": "배송지 정보",
+    "address.note": "이 브라우저에만 저장되어 다음 주문 때 자동으로 입력됩니다 — 별도 회원가입은 필요 없습니다.",
+    "address.name": "이름",
+    "address.phone": "연락처",
+    "address.email": "이메일",
+    "address.line1": "주소",
+    "address.line2": "상세주소 · Unit/APO-FPO 정보",
+    "address.city": "도시 · APO 또는 FPO",
+    "address.zip": "우편번호",
+    "address.countryKr": "대한민국",
+    "address.countryUs": "미국 (APO/FPO/DPO)",
+    "address.camp": "주한미군 근무 부대 (선택)",
+    "address.campPlaceholder": "근무 중인 캠프/기지를 선택하세요",
+    "address.campOther": "기타 / 주한미군 시설 아님",
+    "address.campNote": "영외에 거주하시더라도 상관없습니다 — 현재 거주지가 아닌, 근무 중인 캠프를 선택해 주세요.",
+    "fulfill.delivery": "택배 발송",
+    "fulfill.pickup": "매장 수령",
+    "fulfill.pickupNote": "픽업 장소와 시간은 주문 완료 후 개별적으로 안내해 드립니다.",
+    "cart.title": "장바구니",
+    "cart.empty": "장바구니가 비어 있습니다.<br>블렌드를 담아보세요.",
+    "cart.subtotal": "소계",
+    "cart.checkout": "페이팔로 결제하기",
+    "cart.hint": "가격은 달러(USD) 기준입니다. // 이 버튼은 예시이며, 오픈 전 실제 페이팔 Client ID 연동이 필요합니다.",
+    "cart.remove": "삭제",
+    "cart.emptyToast": "장바구니가 비어 있습니다.",
+    "cart.checkoutAlert": "이것은 작동하는 프로토타입입니다.\n\n오픈 전에 실제 페이팔 Business 계정의 Client ID로 페이팔 JS SDK 결제 버튼을 연동할 예정입니다.",
+    "pdp.breadcrumbHome": "홈",
+    "pdp.breadcrumbShop": "커피 소개",
+    "pdp.reviews": "아직 리뷰가 없습니다 — 첫 리뷰를 남겨보세요",
+    "pdp.sizeLabel": "용량",
+    "pdp.qtyLabel": "수량",
+    "pdp.note": "주문 후 소규모로 로스팅합니다. 한국 로스터리에서 발송되며, APO/FPO 및 해외 배송 세부사항은 오픈 전 확정될 예정입니다.",
+    "pdp.trust1": "매주 신선하게 로스팅",
+    "pdp.trust2": "페이팔 안전 결제",
+    "pdp.trust3": "영어 및 한국어 상담 지원",
+    "pdp.notFound": "블렌드를 찾을 수 없습니다. 돌아가기:",
+    "origin.logos": "브라질 65% · 과테말라 25% · 아체가요 10%",
+    "origin.covenant": "브라질 65% · 콜롬비아 15% · 과테말라 10% · 시다모 10%",
+    "origin.india": "마이소르 65% · 카피로얄(로부스타) 35%",
+    "origin.goodwill": "과테말라 와이칸 40% · 니카라과 세고비아 30% · 코스타리카 돈마요 30%",
+    "origin.fighttonight": "브라질 55% · 과테말라 25% · 로부스타 20% (임시값 — 배합비 확정 전)",
+    "origin.unclesam": "콜롬비아 45% · 브라질 35% · 에티오피아 시다모 20% (임시값 — 배합비 확정 전)",
+    "origin.freedom": "에티오피아 시다모 50% · 과테말라 30% · 콜롬비아 20% (임시값 — 배합비 확정 전)"
+  }
+};
+
+(function(){
+  function getLang(){
+    try { return localStorage.getItem('gadelo_lang') || 'en'; } catch(e){ return 'en'; }
+  }
+  function setLang(lang){
+    try { localStorage.setItem('gadelo_lang', lang); } catch(e){}
+  }
+
+  function applyLang(lang){
+    var dict = GADELO_I18N[lang] || GADELO_I18N.en;
+    document.documentElement.lang = (lang === 'ko') ? 'ko' : 'en';
+    document.body.classList.toggle('lang-ko', lang === 'ko');
+
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if(dict[key] !== undefined){ el.textContent = dict[key]; }
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-html');
+      if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-placeholder');
+      if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+    });
+
+    document.querySelectorAll('.flag-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    // Let other scripts (product cards, cart, PDP) re-render language-dependent bits.
+    document.dispatchEvent(new CustomEvent('gadelo:langchange', {detail:{lang: lang}}));
+  }
+
+  window.gadeloI18n = {
+    t: function(key){
+      var lang = getLang();
+      var dict = GADELO_I18N[lang] || GADELO_I18N.en;
+      return dict[key] !== undefined ? dict[key] : key;
+    },
+    getLang: getLang,
+    setLang: function(lang){ setLang(lang); applyLang(lang); }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.flag-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        window.gadeloI18n.setLang(btn.getAttribute('data-lang'));
+      });
+    });
+    applyLang(getLang());
+  });
+})();
