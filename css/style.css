@@ -205,6 +205,10 @@ nav.primary a:hover::after{transform:scaleX(1);}
 .hero-dot{
   width:8px;height:8px;padding:0;border:none;border-radius:50%;cursor:pointer;
   background:rgba(239,234,214,.35);transition:background .2s ease, transform .2s ease;
+  position:relative;
+}
+.hero-dot::before{ /* enlarges the tap target without changing the visible dot size */
+  content:'';position:absolute;inset:-11px;
 }
 .hero-dot.active{background:var(--brass);transform:scale(1.25);}
 .hero-bg-ring{
@@ -528,18 +532,43 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 /* ---------- Responsive ---------- */
 @media (max-width: 980px){
   .blend-grid{grid-template-columns:repeat(2,1fr);}
+  .blend-grid.blend-grid-3{grid-template-columns:repeat(2,1fr);max-width:640px;}
   .about{grid-template-columns:1fr;}
   .community-inner{grid-template-columns:1fr;}
   .footer-grid{grid-template-columns:1fr 1fr;}
   .pdp{grid-template-columns:1fr;gap:32px;}
 }
 @media (max-width: 720px){
+  .nav-row{position:relative;}
   nav.primary{display:none;}
+  nav.primary.nav-open{
+    display:flex;flex-direction:column;
+    position:absolute;top:100%;left:0;right:0;
+    background:var(--surface);
+    padding:18px 24px;
+    border-bottom:1px solid var(--sand-line);
+    gap:16px;z-index:59;
+    box-shadow:var(--shadow);
+  }
   .hamburger{display:flex;}
+  .icon-btn{width:44px;height:44px;} /* larger touch target on mobile */
   .hero-inner{padding-top:56px;}
   .hero-carousel-full{min-height:620px;}
+  .hero-ctas{flex-direction:column;align-items:stretch;}
+  .hero-ctas .btn{width:100%;}
   .blend-grid{grid-template-columns:1fr 1fr;gap:14px;}
+  .blend-grid.blend-grid-3{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
   .footer-grid{grid-template-columns:1fr;gap:36px;}
   .lang-toggle{position:static;transform:none;margin-top:6px;justify-content:center;}
   .announce-inner{flex-direction:column;gap:4px;}
+  section{padding:56px 0;}
+}
+@media (max-width: 560px){
+  .blend-grid{grid-template-columns:1fr;}
+  .blend-grid.blend-grid-3{grid-template-columns:1fr;}
+  .hero h1{font-size:clamp(28px,8vw,40px);}
+  .addr-row-split{flex-direction:column;gap:8px;}
+  .footer-bottom{justify-content:center;text-align:center;}
+  .pdp-trust{gap:12px;}
+  .pdp-pill-row{gap:6px;}
 }

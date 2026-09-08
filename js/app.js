@@ -71,26 +71,25 @@
   })();
 
   // ---------- Mobile menu ----------
+  // Uses a CSS class toggle (see .nav-open in the ≤720px media query) instead of
+  // inline styles, so the dropdown's colors always match the current theme and
+  // don't need to be duplicated/kept in sync here.
   var hamburger = document.getElementById('hamburgerBtn');
   var primaryNav = document.querySelector('nav.primary');
   if(hamburger && primaryNav){
     hamburger.addEventListener('click', function(){
-      var isOpen = primaryNav.style.display === 'flex';
-      primaryNav.style.display = isOpen ? 'none' : 'flex';
-      primaryNav.style.flexDirection = 'column';
-      primaryNav.style.position = 'absolute';
-      primaryNav.style.top = '100%';
-      primaryNav.style.left = '0';
-      primaryNav.style.right = '0';
-      primaryNav.style.background = 'var(--khaki)';
-      primaryNav.style.padding = '18px 24px';
-      primaryNav.style.borderBottom = '1px solid var(--sand-line)';
-      primaryNav.style.gap = '16px';
+      primaryNav.classList.toggle('nav-open');
     });
     primaryNav.querySelectorAll('a').forEach(function(link){
       link.addEventListener('click', function(){
-        if(window.innerWidth <= 720){ primaryNav.style.display = 'none'; }
+        primaryNav.classList.remove('nav-open');
       });
+    });
+    // Tapping/clicking outside the open dropdown closes it.
+    document.addEventListener('click', function(e){
+      if(!primaryNav.classList.contains('nav-open')) return;
+      if(primaryNav.contains(e.target) || hamburger.contains(e.target)) return;
+      primaryNav.classList.remove('nav-open');
     });
   }
 
