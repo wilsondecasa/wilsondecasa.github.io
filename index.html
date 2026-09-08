@@ -314,16 +314,20 @@
   </div>
   <div class="fulfill-choice">
     <label class="fulfill-option">
-      <input type="radio" name="fulfillMethod" value="delivery" checked>
-      <span data-i18n="fulfill.delivery">Courier Delivery</span>
+      <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="pickup" checked><span data-i18n="fulfill.pickup">Store Pickup</span></span>
+      <span class="fulfill-fee" data-i18n="fulfill.pickupFee">Free</span>
     </label>
     <label class="fulfill-option">
-      <input type="radio" name="fulfillMethod" value="pickup">
-      <span data-i18n="fulfill.pickup">Store Pickup</span>
+      <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="apofpo"><span data-i18n="fulfill.apofpo">USFK APO/FPO Mail</span></span>
+      <span class="fulfill-fee" data-i18n="fulfill.apofpoFee">+$5.00</span>
+    </label>
+    <label class="fulfill-option">
+      <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic"><span data-i18n="fulfill.domestic">Korea Domestic Delivery</span></span>
+      <span class="fulfill-fee" data-i18n="fulfill.domesticFee">+$4.00</span>
     </label>
   </div>
-  <p class="pickup-note" id="pickupNote" hidden data-i18n="fulfill.pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
-  <div class="cart-address" id="cartAddress">
+  <p class="pickup-note" id="pickupNote" data-i18n="fulfill.pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
+  <div class="cart-address" id="cartAddress" hidden>
     <h4 data-i18n="address.title">Shipping Address</h4>
     <p class="addr-note" data-i18n="address.note">Saved on this device only, so it's ready next time — no account needed.</p>
     <div class="addr-row">
@@ -343,13 +347,7 @@
       <input type="text" id="addrCity" data-i18n-placeholder="address.city" placeholder="City / APO or FPO">
       <input type="text" id="addrZip" data-i18n-placeholder="address.zip" placeholder="ZIP / Postal code">
     </div>
-    <div class="addr-row">
-      <select id="addrCountry">
-        <option value="kr" data-i18n="address.countryKr">South Korea</option>
-        <option value="us" data-i18n="address.countryUs">United States (APO/FPO/DPO)</option>
-      </select>
-    </div>
-    <div class="addr-row">
+    <div class="addr-row" id="addrCampBlock">
       <select id="addrCamp">
         <option value="" data-i18n="address.campPlaceholder">Select your camp / base</option>
         <option value="humphreys">Camp Humphreys</option>
@@ -367,15 +365,27 @@
       <p class="addr-note" data-i18n="address.campNote">Live off-post? Choose the camp you're stationed at / work out of — not your home address.</p>
     </div>
   </div>
+  <div class="cart-promo">
+    <input type="text" id="promoInput" data-i18n-placeholder="promo.placeholder" placeholder="Promo code">
+    <button type="button" class="btn btn-outline btn-sm" id="promoApplyBtn" data-i18n="promo.apply">Apply</button>
+  </div>
+  <div class="cart-promo-msg" id="promoMsg" hidden></div>
+  <div class="cart-summary">
+    <div class="cart-summary-row"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+    <div class="cart-summary-row discount-row" id="discountRow" hidden><span data-i18n="cart.discount">Discount</span><span id="cartDiscount">-$0.00</span></div>
+    <div class="cart-summary-row"><span data-i18n="cart.shipping">Shipping</span><span id="cartShipping">$0.00</span></div>
+    <div class="cart-summary-row total-row"><span data-i18n="cart.total">Total</span><span id="cartTotal">$0.00</span></div>
+  </div>
   <div class="cart-foot">
-    <div class="cart-subtotal"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotal">$0.00</span></div>
-    <button class="btn btn-brass btn-block" id="checkoutBtn" data-i18n="cart.checkout">Checkout with PayPal</button>
-    <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. // This button is a placeholder — connect your live PayPal Client ID before launch.</div>
+    <div id="paypal-button-container" class="paypal-button-container"></div>
+    <div class="cart-hint paypal-fallback" id="paypalFallback" hidden data-i18n="cart.paypalUnavailable">PayPal checkout couldn't load. Please refresh the page, or try again in a moment.</div>
+    <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
   </div>
 </aside>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://www.paypal.com/sdk/js?client-id=BAAJNXcoFa7qu2M8zfIpKXUVdTJUXMjq7JAZAhboPLTNgAwzKXEDI5BgUhcpSjo3LULbtF4xLnUO3bt_f0&currency=USD&components=buttons"></script>
 <script src="js/products.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/app.js"></script>

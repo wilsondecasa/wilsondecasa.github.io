@@ -132,9 +132,7 @@
       }).join('');
     }
     var totalQty = cart.reduce(function(s,i){return s + i.qty;}, 0);
-    var subtotal = cart.reduce(function(s,i){return s + i.unitPrice * i.qty;}, 0);
     if(cartCountEl) cartCountEl.textContent = totalQty;
-    if(cartSubtotalEl) cartSubtotalEl.textContent = fmtUSD(subtotal);
 
     cartItemsEl.querySelectorAll('.rm').forEach(function(btn){
       btn.addEventListener('click', function(){
@@ -142,8 +140,64 @@
         renderCart();
       });
     });
+
+    renderSummary();
   }
   document.addEventListener('gadelo:langchange', renderCart);
+
+  // ---------- Order summary: subtotal, promo discount, shipping, total ----------
+  // Shared by the cart drawer display and the PayPal/Telegram checkout flow below, so
+  // the amount shown to the customer and the amount actually charged always match.
+  var PROMO_CODES = { 'MILITARY10': 0.10 };
+  var appliedPromo = null; // { code, rate } | null
+  var discountRowEl = document.getElementById('discountRow');
+  var cartDiscountEl = document.getElementById('cartDiscount');
+  var cartShippingEl = document.getElementById('cartShipping');
+  var cartTotalEl = document.getElementById('cartTotal');
+
+  function computeTotals(){
+    var subtotal = cart.reduce(function(s,i){return s + i.unitPrice * i.qty;}, 0);
+    var discount = appliedPromo ? subtotal * appliedPromo.rate : 0;
+    var shipping = (cart.length && window.gadeloFulfillment) ? window.gadeloFulfillment.fee() : 0;
+    var total = Math.max(0, subtotal - discount + shipping);
+    return { subtotal: subtotal, discount: discount, shipping: shipping, total: total };
+  }
+  window.gadeloCartTotals = computeTotals;
+
+  function renderSummary(){
+    var t = computeTotals();
+    if(cartSubtotalEl) cartSubtotalEl.textContent = fmtUSD(t.subtotal);
+    if(discountRowEl) discountRowEl.hidden = !(appliedPromo && t.discount > 0);
+    if(cartDiscountEl) cartDiscountEl.textContent = '-' + fmtUSD(t.discount);
+    if(cartShippingEl) cartShippingEl.textContent = t.shipping > 0 ? fmtUSD(t.shipping) : window.gadeloI18n.t('cart.free');
+    if(cartTotalEl) cartTotalEl.textContent = fmtUSD(t.total);
+  }
+
+  // ---------- Promo code ----------
+  var promoInput = document.getElementById('promoInput');
+  var promoApplyBtn = document.getElementById('promoApplyBtn');
+  var promoMsgEl = document.getElementById('promoMsg');
+  function showPromoMsg(text, isError){
+    if(!promoMsgEl) return;
+    promoMsgEl.textContent = text;
+    promoMsgEl.hidden = false;
+    promoMsgEl.classList.toggle('is-error', !!isError);
+    promoMsgEl.classList.toggle('is-success', !isError);
+  }
+  if(promoApplyBtn){
+    promoApplyBtn.addEventListener('click', function(){
+      var code = (promoInput.value || '').trim().toUpperCase();
+      if(!code) return;
+      if(PROMO_CODES[code]){
+        appliedPromo = { code: code, rate: PROMO_CODES[code] };
+        showPromoMsg(window.gadeloI18n.t('promo.applied'), false);
+      } else {
+        appliedPromo = null;
+        showPromoMsg(window.gadeloI18n.t('promo.invalid'), true);
+      }
+      renderSummary();
+    });
+  }
 
   var cartDrawer = document.getElementById('cartDrawer');
   var overlay = document.getElementById('overlay');
@@ -220,7 +274,6 @@
       line2: document.getElementById('addrLine2'),
       city: document.getElementById('addrCity'),
       zip: document.getElementById('addrZip'),
-      country: document.getElementById('addrCountry'),
       camp: document.getElementById('addrCamp')
     };
     if(!fields.name) { window.gadeloAddress = { save: function(){} }; return; }
@@ -257,23 +310,36 @@
   // (No JS logic needed beyond what's already in the saved-address IIFE above; this
   // comment exists so the intent is documented next to the related code.)
 
-  // ---------- Store pickup vs. courier delivery (cart drawer) ----------
-  // Delivery shows the address + camp fields; pickup hides them (nothing to ship).
-  // Remembers the last choice on this device the same way the address is remembered.
+  // ---------- Fulfillment: store pickup / USFK APO-FPO / Korea domestic delivery ----------
+  // Pickup hides the whole address block (nothing to ship). Both shipping methods show
+  // the address block; only APO/FPO also shows the camp/base select (relevant only for
+  // on-post USFK mail, not a regular Korea domestic address). Each method carries its own
+  // flat shipping fee, read by computeTotals() above. Remembers the last choice on this
+  // device the same way the address is remembered.
   (function(){
     var FULFILL_KEY = 'gadelo_fulfillment';
+    var FULFILL_FEES = { pickup: 0, apofpo: 5.00, domestic: 4.00 };
     var radios = document.querySelectorAll('input[name="fulfillMethod"]');
     var addressBlock = document.getElementById('cartAddress');
+    var campBlock = document.getElementById('addrCampBlock');
     var pickupNote = document.getElementById('pickupNote');
     if(!radios.length) return;
 
-    function apply(method){
-      if(addressBlock) addressBlock.hidden = (method !== 'delivery');
-      if(pickupNote) pickupNote.hidden = (method !== 'pickup');
+    function currentMethod(){
+      var checked = document.querySelector('input[name="fulfillMethod"]:checked');
+      return checked ? checked.value : 'pickup';
     }
 
-    var saved = 'delivery';
-    try{ saved = localStorage.getItem(FULFILL_KEY) || 'delivery'; }catch(e){}
+    function apply(method){
+      if(addressBlock) addressBlock.hidden = (method === 'pickup');
+      if(campBlock) campBlock.hidden = (method !== 'apofpo');
+      if(pickupNote) pickupNote.hidden = (method !== 'pickup');
+      renderSummary();
+    }
+
+    var saved = 'pickup';
+    try{ saved = localStorage.getItem(FULFILL_KEY) || 'pickup'; }catch(e){}
+    if(!FULFILL_FEES.hasOwnProperty(saved)) saved = 'pickup'; // guard against a stale value from the old 2-option scheme
     radios.forEach(function(r){
       r.checked = (r.value === saved);
       r.addEventListener('change', function(){
@@ -283,15 +349,134 @@
       });
     });
     apply(saved);
+
+    window.gadeloFulfillment = {
+      current: currentMethod,
+      fee: function(){ return FULFILL_FEES[currentMethod()] || 0; },
+      label: function(){ return window.gadeloI18n.t('fulfill.' + currentMethod()); }
+    };
   })();
 
-  // ---------- Checkout placeholder ----------
-  var checkoutBtn = document.getElementById('checkoutBtn');
-  if(checkoutBtn){
-    checkoutBtn.addEventListener('click', function(){
-      if(cart.length === 0){ showToast(window.gadeloI18n.t('cart.emptyToast')); return; }
-      if(window.gadeloAddress) window.gadeloAddress.save();
-      alert(window.gadeloI18n.t('cart.checkoutAlert'));
+  // ---------- PayPal checkout — single combined-total button ----------
+  // Renders one PayPal Buttons instance for the whole cart (subtotal - discount +
+  // shipping) instead of a button per item. createOrder() reads the live total at click
+  // time via computeTotals(), so it always reflects the current cart, promo code, and
+  // shipping method with no need to re-render the button when any of those change.
+  (function(){
+    var container = document.getElementById('paypal-button-container');
+    var fallback = document.getElementById('paypalFallback');
+    if(!container) return;
+
+    if(!window.paypal || typeof paypal.Buttons !== 'function'){
+      // SDK failed to load (network/ad-blocker) — show a plain-language fallback instead
+      // of a silently broken button.
+      if(fallback) fallback.hidden = false;
+      return;
+    }
+
+    function requiredFieldsOk(method){
+      if(method === 'pickup') return true;
+      var get = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      var basicsOk = get('addrName') && get('addrPhone') && get('addrLine1') && get('addrCity') && get('addrZip');
+      if(!basicsOk){ showToast(window.gadeloI18n.t('cart.fillRequired')); return false; }
+      if(method === 'apofpo' && !get('addrCamp')){ showToast(window.gadeloI18n.t('cart.selectCamp')); return false; }
+      return true;
+    }
+
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
+      onClick: function(data, actions){
+        if(cart.length === 0){ showToast(window.gadeloI18n.t('cart.emptyToast')); return actions.reject(); }
+        var method = window.gadeloFulfillment ? window.gadeloFulfillment.current() : 'pickup';
+        if(!requiredFieldsOk(method)) return actions.reject();
+        return actions.resolve();
+      },
+      createOrder: function(data, actions){
+        var totals = computeTotals();
+        return actions.order.create({
+          purchase_units: [{
+            amount: { currency_code: 'USD', value: totals.total.toFixed(2) },
+            description: 'GADELO Coffee Roasters order'
+          }]
+        });
+      },
+      onApprove: function(data, actions){
+        return actions.order.capture().then(function(details){
+          sendTelegramNotification(details);
+          if(window.gadeloAddress) window.gadeloAddress.save();
+          cart = [];
+          renderCart();
+          closeCart();
+          showToast(window.gadeloI18n.t('cart.orderSuccess'));
+        });
+      },
+      onError: function(err){
+        console.error('[GADELO] PayPal checkout error:', err);
+        showToast(window.gadeloI18n.t('cart.orderError'));
+      }
+    }).render('#paypal-button-container');
+  })();
+
+  // ---------- Telegram order notification ----------
+  // ⚠️ Placeholder credentials — set these to your real bot token / chat id before launch.
+  // Security note: this is a static site with no backend (GitHub Pages), so whatever is
+  // written here is visible to anyone who views the page source or the Network tab. A
+  // Telegram bot token only grants "act as this bot" (send messages, read updates for
+  // chats it's in) rather than full account access, but a publicly-readable token can
+  // still be copied and used to spam through your bot. If that risk isn't acceptable,
+  // route this fetch through a small serverless relay (e.g. a Cloudflare Worker or a
+  // Google Apps Script Web App) that holds the real token server-side, and point the
+  // fetch below at that relay's URL instead of api.telegram.org directly.
+  var TELEGRAM_BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN';
+  var TELEGRAM_CHAT_ID = 'YOUR_TELEGRAM_CHAT_ID';
+
+  function sendTelegramNotification(paypalDetails){
+    if(TELEGRAM_BOT_TOKEN === 'YOUR_TELEGRAM_BOT_TOKEN' || !TELEGRAM_CHAT_ID){
+      console.warn('[GADELO] Telegram notification skipped — set TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID in js/app.js.');
+      return;
+    }
+    var totals = computeTotals();
+    var method = window.gadeloFulfillment ? window.gadeloFulfillment.label() : '';
+    var get = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    var itemLines = cart.map(function(item){
+      return '• ' + item.nameEn + ' (' + item.nameKo + ') — ' + item.size + ' x' + item.qty + ' — ' + fmtUSD(item.unitPrice * item.qty);
+    }).join('\n');
+
+    var addrBlock = document.getElementById('cartAddress');
+    var addrLines = '';
+    if(addrBlock && !addrBlock.hidden){
+      addrLines = [
+        get('addrName'), get('addrPhone'), get('addrEmail'),
+        get('addrLine1'), get('addrLine2'),
+        (get('addrCity') + ' ' + get('addrZip')).trim()
+      ].filter(Boolean).join('\n');
+      var camp = get('addrCamp');
+      if(camp) addrLines += '\nCamp/Base: ' + camp;
+    }
+
+    var textLines = [
+      '🛒 New GADELO order',
+      '',
+      'Order ID: ' + (paypalDetails && paypalDetails.id ? paypalDetails.id : 'n/a'),
+      'Fulfillment: ' + method,
+      '',
+      'Items:',
+      itemLines,
+      '',
+      'Subtotal: ' + fmtUSD(totals.subtotal)
+    ];
+    if(totals.discount > 0) textLines.push('Discount: -' + fmtUSD(totals.discount));
+    textLines.push('Shipping: ' + (totals.shipping > 0 ? fmtUSD(totals.shipping) : window.gadeloI18n.t('cart.free')));
+    textLines.push('Total: ' + fmtUSD(totals.total));
+    textLines.push('');
+    textLines.push(addrLines ? ('Ship to:\n' + addrLines) : 'Store pickup — no shipping address');
+
+    fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: textLines.join('\n') })
+    }).catch(function(err){
+      console.error('[GADELO] Telegram notification failed:', err);
     });
   }
 

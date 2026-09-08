@@ -449,22 +449,54 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 }
 .cart-address select{appearance:auto;}
 
-/* ---------- Fulfillment: store pickup vs. courier delivery ---------- */
+/* ---------- Fulfillment: pickup vs. USFK APO/FPO vs. Korea domestic delivery ---------- */
 .fulfill-choice{
-  display:flex;gap:10px;padding:16px 22px 4px;border-top:1px solid var(--sand-line);
+  display:flex;flex-direction:column;gap:8px;padding:16px 22px 4px;border-top:1px solid var(--sand-line);
 }
 .fulfill-option{
-  flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
   border:1px solid var(--sand-line);border-radius:2px;padding:10px 12px;
   font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.02em;
   background:var(--surface);transition:border-color .15s ease,background .15s ease;
 }
-.fulfill-option input{margin:0;accent-color:var(--field-rust);}
+.fulfill-option-main{display:flex;align-items:center;gap:8px;}
+.fulfill-option input{margin:0;accent-color:var(--field-rust);flex:none;}
 .fulfill-option:has(input:checked){border-color:var(--field-rust);background:var(--khaki-dim);}
+.fulfill-fee{color:var(--brass-dark);font-weight:700;white-space:nowrap;}
 .pickup-note{
   margin:0;padding:14px 22px 4px;font-size:12.5px;line-height:1.6;color:var(--olive-text);
   border-top:1px solid var(--sand-line);
 }
+
+/* ---------- Promo code ---------- */
+.cart-promo{
+  display:flex;gap:8px;padding:16px 22px 0;
+  border-top:1px solid var(--sand-line);padding-top:16px;
+}
+.cart-promo input{
+  flex:1;min-width:0;padding:9px 10px;border:1px solid var(--sand-line);border-radius:2px;
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.03em;
+  background:var(--surface);color:var(--ink);text-transform:uppercase;
+}
+.cart-promo-msg{
+  padding:8px 22px 0;font-family:'Space Mono',monospace;font-size:11px;line-height:1.5;
+}
+.cart-promo-msg.is-success{color:var(--brass-dark);}
+.cart-promo-msg.is-error{color:var(--field-rust);}
+
+/* ---------- Order summary + PayPal button ---------- */
+.cart-summary{padding:16px 22px 0;}
+.cart-summary-row{
+  display:flex;justify-content:space-between;gap:12px;
+  font-family:'Space Mono',monospace;font-size:13px;color:var(--olive-text);padding:4px 0;
+}
+.cart-summary-row.discount-row{color:var(--brass-dark);}
+.cart-summary-row.total-row{
+  font-size:16px;font-weight:700;color:var(--khaki);
+  border-top:1px solid var(--sand-line);margin-top:6px;padding-top:10px;
+}
+.paypal-button-container{padding:16px 22px 0;min-height:45px;}
+.paypal-fallback{color:var(--field-rust);}
 .cart-line{display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--sand-line);padding-bottom:14px;}
 .cart-line .swatch{width:50px;height:50px;border-radius:2px;flex:none;background:var(--od);}
 .cart-line .info{flex:1;}
