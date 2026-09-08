@@ -288,10 +288,6 @@ body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;lette
 .blend-art-photo{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
 }
-.blend-art.has-photo::before{
-  content:'';position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg, rgba(10,9,6,.08) 0%, rgba(10,9,6,.78) 100%);
-}
 .blend-art .mark{
   position:absolute;top:12px;left:12px;z-index:2;
   font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.1em;
@@ -299,6 +295,20 @@ body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;lette
 }
 .blend-art .name-kr{position:relative;z-index:2;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--brass);margin-bottom:6px;}
 .blend-art .name-en{position:relative;z-index:2;font-family:'Black Ops One',cursive;font-size:23px;line-height:1.2;}
+/* Photo cards: show the full photograph edge-to-edge — no caption overlay, no
+   darkening gradient, no padding. The blend name already appears in .blend-body
+   just below the art, so nothing is lost by hiding it here. The aspect-ratio
+   matches the actual product photos (≈0.78) so object-fit:cover shows the
+   whole image rather than cropping it to a square. */
+.blend-art.has-photo{
+  aspect-ratio:.78;
+  padding:0;
+}
+.blend-art.has-photo .mark,
+.blend-art.has-photo .name-kr,
+.blend-art.has-photo .name-en{
+  display:none;
+}
 .blend-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px;flex:1;}
 .blend-name-link{font-family:'Black Ops One',cursive;font-size:15px;color:var(--khaki);}
 .blend-name-link:hover{color:var(--brass-dark);}
@@ -489,13 +499,20 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .pdp-gallery-main-photo{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
 }
-.pdp-gallery-main.has-photo::before{
-  content:'';position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg, rgba(10,9,6,.08) 0%, rgba(10,9,6,.78) 100%);
-}
 .pdp-gallery-main .mark{position:absolute;top:16px;left:16px;z-index:2;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;background:rgba(0,0,0,.22);padding:5px 10px;border-radius:2px;}
 .pdp-gallery-main .name-kr{position:relative;z-index:2;font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.12em;color:var(--brass);margin-bottom:10px;}
 .pdp-gallery-main .name-en{position:relative;z-index:2;font-family:'Black Ops One',cursive;font-size:38px;line-height:1.2;}
+/* Photo products: full photo, no caption overlay/darkening/padding — the name
+   and badge already appear in .pdp-info beside the gallery, so nothing is lost. */
+.pdp-gallery-main.has-photo{
+  aspect-ratio:.78;
+  padding:0;
+}
+.pdp-gallery-main.has-photo .mark,
+.pdp-gallery-main.has-photo .name-kr,
+.pdp-gallery-main.has-photo .name-en{
+  display:none;
+}
 .pdp-thumbs{display:flex;gap:10px;margin-top:14px;}
 .pdp-thumbs .thumb{width:64px;height:64px;border-radius:2px;border:2px solid transparent;cursor:pointer;opacity:.7;}
 .pdp-thumbs .thumb.active{opacity:1;border-color:var(--brass);}
