@@ -24,14 +24,14 @@
   // ---- Configure before deploying ----
   // 1) Deploy /paypal-worker/worker.js to Cloudflare Workers (see its
   //    README.md) and put that Worker's address here.
-  var API_BASE = 'https://REPLACE-ME.workers.dev'; // <-- set this after deploying the Worker
+  var API_BASE = 'https://divine-recipe-157e.gadelo.workers.dev';
   // 2) Same PayPal Client ID the site already used — safe to keep in
   //    front-end code (this is the whole point of a "client ID").
-  var PAYPAL_CLIENT_ID = 'BAAJNXcoFa7qu2M8zfIpKXUVdTJUXMjq7JAZAhboPLTNgAwzKXEDI5BgUhcpSjo3LULbtF4xLnUO3bt_f0';
+  var PAYPAL_CLIENT_ID = 'BAAttir1PdzFexVlRfXKK86wWu38tFu9IzpdPdCExh8PO_4ymyKBNnqdwDJWUqSmegYPY8OTGrsQUXTV2o';
   // 3) Google Pay's own environment flag — switch to 'PRODUCTION' together
   //    with going live on the Worker + PayPal SDK script tag (see the
   //    Worker's README.md "테스트 방법" section).
-  var GOOGLE_PAY_ENVIRONMENT = 'TEST';
+  var GOOGLE_PAY_ENVIRONMENT = 'PRODUCTION';
 
   function fmtUSD(n) {
     return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
