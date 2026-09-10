@@ -12,14 +12,10 @@
 </head>
 <body>
 
-<!-- ================= Announcement bar + language toggle ================= -->
+<!-- ================= Announcement bar ================= -->
 <div class="announce">
   <div class="announce-inner wrap">
     <span id="announceText"></span>
-    <div class="lang-toggle">
-      <button data-lang="en" class="flag-btn" aria-label="English">🇺🇸<span>EN</span></button>
-      <button data-lang="ko" class="flag-btn" aria-label="한국어">🇰🇷<span>KR</span></button>
-    </div>
   </div>
 </div>
 
@@ -31,10 +27,10 @@
       <span class="word">GADELO<small>COFFEE ROASTERS · 가델로</small></span>
     </a>
     <nav class="primary">
-      <a href="index.html#blends" data-i18n="nav.coffee">Our Coffee</a>
-      <a href="index.html#about" data-i18n="nav.story">Our Story</a>
-      <a href="index.html#community" data-i18n="nav.community">For Military &amp; Families</a>
-      <a href="index.html#contact" data-i18n="nav.contact">Contact</a>
+      <a href="index.html#blends">Our Coffee</a>
+      <a href="index.html#about">Our Story</a>
+      <a href="index.html#community">For Military &amp; Families</a>
+      <a href="index.html#contact">Contact</a>
     </nav>
     <div class="nav-actions">
       <button class="icon-btn" aria-label="Search">
@@ -52,8 +48,8 @@
 </header>
 
 <div class="wrap breadcrumb">
-  <a href="index.html#top" data-i18n="pdp.breadcrumbHome">Home</a> /
-  <a href="index.html#blends" data-i18n="pdp.breadcrumbShop">Our Coffee</a> /
+  <a href="index.html#top">Home</a> /
+  <a href="index.html#blends">Our Coffee</a> /
   <span class="pdp-crumb-blend">Logos</span>
 </div>
 
@@ -67,7 +63,6 @@
         <img class="pdp-gallery-main-photo" id="pdpMainPhoto" src="" alt="" hidden>
         <span class="mark" id="pdpBadge">House Blend</span>
         <div>
-          <div class="name-kr" id="pdpMainNameKr">로고스</div>
           <div class="name-en" id="pdpMainNameEn">Logos</div>
         </div>
       </div>
@@ -82,7 +77,6 @@
     <div class="pdp-info">
       <span class="badge" id="pdpBadge2">House Blend</span>
       <span class="badge" id="pdpRoastBadge">Medium Roast</span>
-      <div class="name-kr" id="pdpInfoNameKr">로고스</div>
       <h1 id="pdpInfoNameEn">Logos</h1>
       <div class="pdp-rating" id="pdpRating">☆☆☆☆☆ No reviews yet — be the first</div>
 
@@ -96,14 +90,14 @@
 
       <div class="pdp-selectors">
         <div>
-          <span class="pdp-select-label" data-i18n="pdp.sizeLabel">Size</span>
+          <span class="pdp-select-label">Size</span>
           <div class="pdp-pill-row">
             <button class="pdp-pill pdp-size-opt active" data-size="400">14oz <span class="pill-sub">(2 x 7oz bags)</span></button>
             <button class="pdp-pill pdp-size-opt" data-size="1000">2.2lb</button>
           </div>
         </div>
         <div>
-          <span class="pdp-select-label" data-i18n="pdp.qtyLabel">Quantity</span>
+          <span class="pdp-select-label">Quantity</span>
           <div class="pdp-qty-row">
             <div class="qty-stepper">
               <button id="pdpQtyMinus" aria-label="Decrease quantity">&minus;</button>
@@ -114,14 +108,14 @@
         </div>
       </div>
 
-      <button class="btn btn-brass pdp-add" id="pdpAddBtn" data-i18n="add.cart">Add to Cart</button>
+      <button class="btn btn-brass pdp-add" id="pdpAddBtn">Add to Cart</button>
 
-      <div class="pdp-note" data-i18n="pdp.note">Roasted to order in small batches. Ships from our roastery in Korea; APO/FPO and international shipping details to be confirmed before launch.</div>
+      <div class="pdp-note">Roasted to order in small batches. Ships from our roastery in Korea; APO/FPO and international shipping details to be confirmed before launch.</div>
 
       <div class="pdp-trust">
-        <div class="item"><span class="dot"></span><span data-i18n="pdp.trust1">Fresh-roasted weekly</span></div>
-        <div class="item"><span class="dot"></span><span data-i18n="pdp.trust2">Secure checkout via PayPal</span></div>
-        <div class="item"><span class="dot"></span><span data-i18n="pdp.trust3">English &amp; 한국어 support</span></div>
+        <div class="item"><span class="dot"></span><span>Fresh-roasted weekly</span></div>
+        <div class="item"><span class="dot"></span><span>Secure checkout via PayPal</span></div>
+        <div class="item"><span class="dot"></span><span>English &amp; 한국어 support</span></div>
       </div>
     </div>
   </div>
@@ -132,38 +126,35 @@
   <div class="wrap footer-grid">
     <div class="footer-brand">
       <img src="images/logo-navy-crop.png" alt="GADELO Coffee Roasters">
-      <p data-i18n="footer.brandline">Small-batch coffee roasted in Korea, made for the U.S. military community and their families — wherever the mission takes you.</p>
+      <p>Small-batch coffee roasted in Korea, made for the U.S. military community and their families — wherever the mission takes you.</p>
     </div>
     <div class="footer-col">
-      <h4 data-i18n="footer.shop">Shop</h4>
-      <a href="index.html#blends" data-i18n="footer.link.coffee">Our Coffee</a>
-      <a href="#" data-i18n="footer.link.gift">Gift Cards</a>
-      <a href="#" data-i18n="footer.link.wholesale">Wholesale</a>
+      <h4>Shop</h4>
+      <a href="index.html#blends">Our Coffee</a>
     </div>
     <div class="footer-col">
-      <h4 data-i18n="footer.company">Company</h4>
-      <a href="index.html#about" data-i18n="footer.link.story">Our Story</a>
-      <a href="index.html#community" data-i18n="footer.link.military">Military &amp; Families</a>
-      <a href="#" data-i18n="footer.link.careers">Careers</a>
+      <h4>Company</h4>
+      <a href="index.html#about">Our Story</a>
+      <a href="index.html#community">Military &amp; Families</a>
     </div>
     <div class="footer-col">
-      <h4 data-i18n="footer.support">Support</h4>
-      <a href="#" data-i18n="footer.link.faq">FAQ</a>
-      <a href="#" data-i18n="footer.link.shipping">Shipping &amp; Returns</a>
-      <a href="#" data-i18n="footer.link.track">Track Order</a>
-      <a href="mailto:hello@gadelo.coffee" data-i18n="footer.link.contact">Contact Us</a>
+      <h4>Support</h4>
+      <a href="#">Shipping &amp; Returns</a>
+      <a href="#">Track Order</a>
+      <a href="mailto:hello@gadelo.coffee">Contact Us</a>
     </div>
     <div class="footer-col">
-      <h4 data-i18n="footer.connect">Connect</h4>
+      <h4>Connect</h4>
       <div class="social-row">
         <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 8h-2c-1.1 0-2 .9-2 2v2H9v3h2v7h3v-7h2.2l.8-3H14v-1.5c0-.5.3-1 1-1h1.5V8z"/></svg></a>
         <a href="#" aria-label="Threads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c4 0 7 2.5 7 7 0 5-3 11-7 11s-7-2-7-6c0-3 2-4.5 5-4.5s5 1.5 5 4"/></svg></a>
         <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></a>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <span data-i18n="footer.bottom">© 2026 GADELO Coffee Roasters (가델로 커피 로스터스). All rights reserved.</span>
+    <span>© 2026 GADELO Coffee Roasters (가델로 커피 로스터스). All rights reserved.</span>
     <div class="pay-icons">
       <span class="pay-badge">PayPal</span>
     </div>
@@ -171,99 +162,37 @@
 </footer>
 
 <!-- ================= Cart drawer ================= -->
+<!-- Single-step drawer: review items (with qty controls) + cross-sell, then one
+     "Checkout" button hands off to the dedicated checkout.html page. -->
 <div class="overlay" id="overlay"></div>
 <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
   <div class="cart-head">
-    <h3 data-i18n="cart.title">Your Cart</h3>
+    <h3>Your Cart</h3>
     <button class="close-x" id="cartClose">&times;</button>
   </div>
 
-  <!-- Step 1: review items, see free-shipping progress + other blends, choose how to pay -->
   <div class="cart-view" id="cartView">
     <div class="cart-scroll">
-      <div class="ship-progress" id="shipProgress" hidden>
-        <div class="ship-progress-label" id="shipProgressLabel"></div>
-        <div class="ship-progress-track"><div class="ship-progress-fill" id="shipProgressFill"></div></div>
-      </div>
       <div class="cart-items" id="cartItems">
-        <div class="cart-empty" data-i18n-html="cart.empty">Your cart is empty.<br>Add a blend to get started.</div>
+        <div class="cart-empty">Your cart is empty.<br>Add a blend to get started.</div>
       </div>
       <div class="cart-crosssell" id="cartCrosssell" hidden>
-        <h4 data-i18n="cart.crosssell">You Might Also Like</h4>
+        <h4>You Might Also Like</h4>
         <div id="crosssellList"></div>
       </div>
     </div>
     <div class="cart-foot">
-      <div class="cart-subtotal"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotalMini">$0.00</span></div>
-      <div class="cart-checkout-actions">
-        <button type="button" class="btn btn-brass btn-block" id="goCheckoutPaypal" data-i18n="cart.checkoutPaypal">Checkout (PayPal)</button>
-        <button type="button" class="btn btn-outline-light btn-block" id="goCheckoutCard" data-i18n="cart.checkoutCard">Debit / Credit Card</button>
-      </div>
-      <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
-    </div>
-  </div>
-
-  <!-- Step 2: fulfillment + address + promo + summary + actual payment -->
-  <div class="checkout-view" id="checkoutView" hidden>
-    <button type="button" class="checkout-back" id="checkoutBack">&larr; <span data-i18n="checkout.back">Back to cart</span></button>
-    <div class="checkout-scroll">
-      <div class="fulfill-choice">
-        <label class="fulfill-option">
-          <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="pickup" checked><span data-i18n="fulfill.pickup">Store Pickup</span></span>
-          <span class="fulfill-fee" data-i18n="fulfill.pickupFee">Free</span>
-        </label>
-        <label class="fulfill-option">
-          <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic"><span data-i18n="fulfill.domestic">Korea Domestic Delivery</span></span>
-          <span class="fulfill-fee" data-i18n="fulfill.domesticFee">+$4.00</span>
-        </label>
-      </div>
-      <p class="pickup-note" id="pickupNote" data-i18n="fulfill.pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
-      <div class="cart-address" id="cartAddress" hidden>
-        <h4 data-i18n="address.title">Shipping Address</h4>
-        <p class="addr-note" data-i18n="address.note">Saved on this device only, so it's ready next time — no account needed.</p>
-        <div class="addr-row">
-          <input type="text" id="addrName" data-i18n-placeholder="address.name" placeholder="Full name">
-        </div>
-        <div class="addr-row-split">
-          <input type="tel" id="addrPhone" data-i18n-placeholder="address.phone" placeholder="Phone">
-          <input type="email" id="addrEmail" data-i18n-placeholder="address.email" placeholder="Email">
-        </div>
-        <div class="addr-row">
-          <input type="text" id="addrLine1" data-i18n-placeholder="address.line1" placeholder="Address">
-        </div>
-        <div class="addr-row">
-          <input type="text" id="addrLine2" data-i18n-placeholder="address.line2" placeholder="Apt / Unit">
-        </div>
-        <div class="addr-row-split">
-          <input type="text" id="addrCity" data-i18n-placeholder="address.city" placeholder="City">
-          <input type="text" id="addrZip" data-i18n-placeholder="address.zip" placeholder="ZIP / Postal code">
-        </div>
-      </div>
-      <div class="cart-promo">
-        <input type="text" id="promoInput" data-i18n-placeholder="promo.placeholder" placeholder="Promo code">
-        <button type="button" class="btn btn-outline btn-sm" id="promoApplyBtn" data-i18n="promo.apply">Apply</button>
-      </div>
-      <div class="cart-promo-msg" id="promoMsg" hidden></div>
-      <div class="cart-summary">
-        <div class="cart-summary-row"><span data-i18n="cart.subtotal">Subtotal</span><span id="cartSubtotal">$0.00</span></div>
-        <div class="cart-summary-row discount-row" id="discountRow" hidden><span data-i18n="cart.discount">Discount</span><span id="cartDiscount">-$0.00</span></div>
-        <div class="cart-summary-row"><span data-i18n="cart.shipping">Shipping</span><span id="cartShipping">$0.00</span></div>
-        <div class="cart-summary-row total-row"><span data-i18n="cart.total">Total</span><span id="cartTotal">$0.00</span></div>
-      </div>
-    </div>
-    <div class="cart-foot">
-      <div id="paypal-button-container" class="paypal-button-container"></div>
-      <div class="cart-hint paypal-fallback" id="paypalFallback" hidden data-i18n="cart.paypalUnavailable">PayPal checkout couldn't load. Please refresh the page, or try again in a moment.</div>
-      <div class="cart-hint" data-i18n="cart.hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
+      <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotalMini">$0.00</span></div>
+      <button type="button" class="btn btn-brass btn-block" id="goCheckout">Checkout</button>
+      <div class="cart-hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
     </div>
   </div>
 </aside>
 
 <div class="toast" id="toast"></div>
 
-<script src="https://www.paypal.com/sdk/js?client-id=BAAJNXcoFa7qu2M8zfIpKXUVdTJUXMjq7JAZAhboPLTNgAwzKXEDI5BgUhcpSjo3LULbtF4xLnUO3bt_f0&currency=USD&components=buttons"></script>
 <script src="js/products.js"></script>
-<script src="js/i18n.js"></script>
+<script src="js/cart-store.js"></script>
 <script src="js/app.js"></script>
 <script src="js/pdp.js"></script>
 </body>

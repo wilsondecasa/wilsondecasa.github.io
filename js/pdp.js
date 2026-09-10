@@ -2,6 +2,9 @@
 (function(){
   function fmtUSD(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 
+  var BADGE_LABEL = { house: 'House Blend', premium: 'Premium Blend', flagship: 'Flagship Blend' };
+  var ROAST_LABEL = { light: 'Light Roast', medium: 'Medium Roast', dark: 'Dark Roast' };
+
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('blend') || 'logos';
   var product = GADELO_PRODUCTS[slug];
@@ -13,7 +16,7 @@
     if(root) root.style.display = 'none';
     if(notFoundEl){
       notFoundEl.style.display = 'block';
-      notFoundEl.innerHTML = '<p>' + window.gadeloI18n.t('pdp.notFound') + ' <a href="index.html#blends" style="text-decoration:underline;">' + window.gadeloI18n.t('pdp.breadcrumbShop') + '</a></p>';
+      notFoundEl.innerHTML = '<p>Blend not found. Back to <a href="index.html#blends" style="text-decoration:underline;">Our Coffee</a></p>';
     }
     return;
   }
@@ -21,12 +24,10 @@
   var state = { size: 400, qty: 1 };
 
   function render(){
-    var lang = window.gadeloI18n.getLang();
-
-    document.title = (lang === 'ko' ? product.nameKo + ' — ' : product.nameEn + ' — ') + 'GADELO Coffee Roasters';
+    document.title = product.nameEn + ' — GADELO Coffee Roasters';
 
     document.querySelectorAll('.pdp-crumb-blend').forEach(function(el){
-      el.textContent = lang === 'ko' ? product.nameKo : product.nameEn;
+      el.textContent = product.nameEn;
     });
 
     document.querySelectorAll('.pdp-gallery-main').forEach(function(el){
@@ -46,12 +47,10 @@
     document.querySelectorAll('.pdp-thumb-swatch').forEach(function(el){
       el.style.background = product.color;
     });
-    var mainNameKr = document.getElementById('pdpMainNameKr');
     var mainNameEn = document.getElementById('pdpMainNameEn');
-    if(mainNameKr) mainNameKr.textContent = product.nameKo;
     if(mainNameEn) mainNameEn.textContent = product.nameEn;
 
-    var badgeText = window.gadeloI18n.t('badge.' + product.badge);
+    var badgeText = BADGE_LABEL[product.badge] || product.badge;
     ['pdpBadge', 'pdpBadge2'].forEach(function(id){
       var el = document.getElementById(id);
       if(el) el.textContent = badgeText;
@@ -59,24 +58,21 @@
 
     var roastBadge = document.getElementById('pdpRoastBadge');
     if(roastBadge && product.roastLevel){
-      roastBadge.textContent = window.gadeloI18n.t('roast.' + product.roastLevel);
+      roastBadge.textContent = ROAST_LABEL[product.roastLevel] || product.roastLevel;
     }
 
-    var infoKr = document.getElementById('pdpInfoNameKr');
     var infoEn = document.getElementById('pdpInfoNameEn');
-    if(infoKr) infoKr.textContent = product.nameKo;
     if(infoEn) infoEn.textContent = product.nameEn;
 
     var ratingEl = document.getElementById('pdpRating');
-    if(ratingEl) ratingEl.textContent = '☆☆☆☆☆ ' + window.gadeloI18n.t('pdp.reviews');
+    if(ratingEl) ratingEl.textContent = '☆☆☆☆☆ No reviews yet — be the first';
 
     var originEl = document.getElementById('pdpOrigin');
-    if(originEl) originEl.textContent = lang === 'ko' ? product.originKo : product.originEn;
+    if(originEl) originEl.textContent = product.originEn;
 
     var descEl = document.getElementById('pdpDesc');
     if(descEl){
-      var paras = lang === 'ko' ? product.descKo : product.descEn;
-      descEl.innerHTML = paras.map(function(p){ return '<p>' + p + '</p>'; }).join('');
+      descEl.innerHTML = product.descEn.map(function(p){ return '<p>' + p + '</p>'; }).join('');
     }
 
     var priceEl = document.getElementById('pdpPrice');
@@ -103,21 +99,19 @@
   var addBtn = document.getElementById('pdpAddBtn');
   if(addBtn){
     addBtn.addEventListener('click', function(){
-      var sizeLabel = window.gadeloSizeLabel(state.size);
-      for(var i = 0; i < state.qty; i++){
-        window.gadeloCart.add({
-          nameEn: product.nameEn,
-          nameKo: product.nameKo,
-          size: sizeLabel,
-          qty: 1,
-          unitPrice: product.prices[state.size],
-          color: product.color
-        });
-      }
+      window.gadeloCart.add({
+        slug: product.slug,
+        nameEn: product.nameEn,
+        sizeKey: state.size,
+        sizeLabel: window.gadeloCartStore.sizeLabel(state.size),
+        qty: state.qty,
+        unitPrice: product.prices[state.size],
+        color: product.color,
+        image: product.image
+      });
       window.gadeloCart.open();
     });
   }
 
-  document.addEventListener('gadelo:langchange', render);
   render();
 })();

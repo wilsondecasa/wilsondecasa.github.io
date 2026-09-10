@@ -38,7 +38,6 @@ body{
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
-body.lang-ko{ font-family:'Noto Serif KR', 'PT Serif', Georgia, serif; }
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
@@ -48,9 +47,6 @@ h1,h2,h3,.stencil{
   letter-spacing:.01em;
   text-wrap:balance;
 }
-body.lang-ko h1, body.lang-ko h2, body.lang-ko h3, body.lang-ko .stencil{
-  font-family:'Black Han Sans','Black Ops One',cursive;
-}
 .mono{font-family:'Space Mono',monospace;}
 .eyebrow{
   font-family:'Space Mono',monospace;
@@ -59,7 +55,6 @@ body.lang-ko h1, body.lang-ko h2, body.lang-ko h3, body.lang-ko .stencil{
   font-size:12px;
   color:var(--brass-dark);
 }
-body.lang-ko .eyebrow{letter-spacing:.04em;}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   padding:14px 28px;
@@ -72,7 +67,6 @@ body.lang-ko .eyebrow{letter-spacing:.04em;}
   cursor:pointer;
   transition:transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
 }
-body.lang-ko .btn{letter-spacing:.02em;font-family:'Noto Serif KR','Space Mono',monospace;font-size:13.5px;}
 .btn:active{transform:translateY(1px);}
 .btn-brass{background:var(--brass);color:var(--charcoal);border-color:var(--brass);}
 .btn-brass:hover{background:#c2903f;}
@@ -83,7 +77,7 @@ body.lang-ko .btn{letter-spacing:.02em;font-family:'Noto Serif KR','Space Mono',
 .btn-sm{padding:10px 18px;font-size:12px;}
 .btn-block{width:100%;}
 
-/* ---------- Announcement bar + language toggle ---------- */
+/* ---------- Announcement bar ---------- */
 .announce{
   background:var(--od);
   color:var(--khaki);
@@ -95,20 +89,6 @@ body.lang-ko .btn{letter-spacing:.02em;font-family:'Noto Serif KR','Space Mono',
 }
 .announce-inner{position:relative;display:flex;align-items:center;justify-content:center;min-height:20px;}
 .announce b{color:var(--brass);}
-.lang-toggle{
-  position:absolute;right:0;top:50%;transform:translateY(-50%);
-  display:flex;gap:4px;background:rgba(0,0,0,.18);border-radius:20px;padding:3px;
-}
-.flag-btn{
-  display:flex;align-items:center;gap:5px;
-  background:transparent;border:none;cursor:pointer;
-  padding:4px 9px;border-radius:16px;
-  font-family:'Space Mono',monospace;font-size:11px;color:#cfd3bd;
-  transition:background .15s ease, color .15s ease;
-}
-.flag-btn span{letter-spacing:.04em;}
-.flag-btn.active{background:var(--brass);color:var(--charcoal);}
-.flag-btn:not(.active):hover{color:var(--khaki);}
 
 /* ---------- Header ---------- */
 header{
@@ -126,7 +106,6 @@ header{
 .brand{display:flex;align-items:center;gap:10px;}
 .brand img{height:44px;width:auto;}
 .brand .word{font-family:'Black Ops One',cursive;font-size:14px;letter-spacing:.02em;line-height:1.1;color:var(--khaki);}
-body.lang-ko .brand .word{font-family:'Black Han Sans','Black Ops One',cursive;}
 .brand .word small{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--brass-dark);margin-top:2px;}
 nav.primary{display:flex;gap:26px;}
 nav.primary a{
@@ -138,7 +117,6 @@ nav.primary a{
   padding:4px 0;
   color:var(--ink);
 }
-body.lang-ko nav.primary a{font-family:'Noto Serif KR','Space Mono',monospace;letter-spacing:.01em;font-size:13px;}
 nav.primary a::after{
   content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--brass);
   transform:scaleX(0);transform-origin:left;transition:transform .2s ease;
@@ -163,7 +141,7 @@ nav.primary a:hover::after{transform:scaleX(1);}
 /* ---------- Breadcrumb (product page) ---------- */
 .breadcrumb{
   font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.04em;
-  color:var(--olive-text);padding:18px 0 0;
+  color:var(--olive-text);padding-top:18px;
 }
 .breadcrumb a:hover{color:var(--brass-dark);}
 
@@ -243,7 +221,6 @@ section{padding:80px 0;}
   padding:9px 18px;border:1px solid var(--sand-line);border-radius:20px;background:var(--surface);color:var(--olive-text);
   cursor:pointer;transition:background .2s ease, color .2s ease, border-color .2s ease;
 }
-body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;letter-spacing:.01em;}
 .roast-tab.active{background:var(--od);border-color:var(--od);color:var(--khaki);}
 .roast-tab:not(.active):hover{border-color:var(--brass);color:var(--brass);}
 
@@ -298,7 +275,6 @@ body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;lette
   font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.1em;
   background:rgba(0,0,0,.22);padding:4px 8px;border-radius:2px;
 }
-.blend-art .name-kr{position:relative;z-index:2;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--brass);margin-bottom:6px;}
 .blend-art .name-en{position:relative;z-index:2;font-family:'Black Ops One',cursive;font-size:23px;line-height:1.2;}
 /* Photo cards: show the full photograph edge-to-edge — no caption overlay, no
    darkening gradient, no padding. The blend name already appears in .blend-body
@@ -310,7 +286,6 @@ body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;lette
   padding:0;
 }
 .blend-art.has-photo .mark,
-.blend-art.has-photo .name-kr,
 .blend-art.has-photo .name-en{
   display:none;
 }
@@ -324,7 +299,7 @@ body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;lette
   font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;border-radius:2px;
   background:var(--khaki-dim);
 }
-.size-opt.active{background:var(--od);color:var(--khaki);border-color:var(--od);}
+.size-opt.active{background:var(--brass);color:var(--charcoal);border-color:var(--brass);}
 .size-opt .size-sub{display:block;font-size:9px;opacity:.75;margin-top:2px;}
 .price-row{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
 .price{font-family:'Space Mono',monospace;font-weight:700;font-size:18px;color:var(--brass-dark);}
@@ -333,7 +308,6 @@ body.lang-ko .roast-tab{font-family:'Noto Serif KR','Space Mono',monospace;lette
   font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
   padding:10px 14px;border-radius:2px;cursor:pointer;
 }
-body.lang-ko .add-btn{font-family:'Noto Serif KR','Space Mono',monospace;letter-spacing:0;}
 .add-btn:hover{background:#c2903f;}
 .grid-foot{text-align:center;margin-top:40px;}
 
@@ -438,30 +412,12 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--sand-line);flex:none;}
 .cart-head h3{margin:0;font-size:18px;}
 
-/* ---------- Cart drawer: two-step flow ----------
-   cartView (items + progress bar + cross-sell + a checkout button) and
-   checkoutView (fulfillment + address + promo + summary + payment) are two
-   panes inside the same drawer, toggled with [hidden]. Each pane pins its
-   own .cart-foot at the bottom and scrolls only the middle section, so the
-   checkout/payment button is always on screen no matter how much content is
-   above it — this is what fixes the drawer-doesn't-scroll / button-hidden
-   issue reported against the previous single-pane layout. */
-.cart-view, .checkout-view{flex:1;min-height:0;display:flex;flex-direction:column;}
-.cart-scroll, .checkout-scroll{flex:1;min-height:0;overflow-y:auto;}
-.checkout-back{
-  display:flex;align-items:center;gap:6px;flex:none;
-  background:none;border:none;cursor:pointer;text-align:left;
-  color:var(--olive-text);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.04em;
-  padding:16px 22px 4px;
-}
-.checkout-back:hover{color:var(--brass-dark);}
-
-/* ---------- Free/discounted shipping progress bar ---------- */
-.ship-progress{padding:16px 22px 4px;}
-.ship-progress-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--olive-text);line-height:1.5;}
-.ship-progress-label b{color:var(--brass-dark);}
-.ship-progress-track{height:6px;background:var(--khaki-dim);border-radius:4px;overflow:hidden;margin-top:8px;}
-.ship-progress-fill{height:100%;background:var(--brass);border-radius:4px;transition:width .3s ease;}
+/* ---------- Cart drawer: single step (items + cross-sell), then hand off ----------
+   Checking out now navigates to the dedicated checkout.html page — fulfillment,
+   address and payment method live there, not in the drawer. The drawer pins its
+   own .cart-foot at the bottom and scrolls only the middle section. */
+.cart-view{flex:1;min-height:0;display:flex;flex-direction:column;}
+.cart-scroll{flex:1;min-height:0;overflow-y:auto;}
 
 /* ---------- Cross-sell: other blends ---------- */
 .cart-crosssell{padding:18px 22px 4px;border-top:1px solid var(--sand-line);margin-top:6px;}
@@ -482,15 +438,13 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 }
 .crosssell-add:hover{border-color:var(--brass);color:var(--brass);}
 
-/* ---------- Cart view: item list + checkout entry points ---------- */
-.cart-checkout-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
-
+/* ---------- Cart view: item list ---------- */
 .cart-items{padding:16px 22px;display:flex;flex-direction:column;gap:16px;}
 .cart-empty{color:var(--olive-text);font-family:'Space Mono',monospace;font-size:13px;text-align:center;margin-top:40px;}
-.cart-address{padding:0 22px 18px;border-top:1px solid var(--sand-line);}
+.cart-address{margin-top:16px;padding-top:16px;border-top:1px solid var(--sand-line);}
 .cart-address h4{
   font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--olive-text);margin:16px 0 4px;
+  color:var(--olive-text);margin:0 0 4px;
 }
 .addr-note{font-size:11.5px;color:var(--olive-text);margin:0 0 12px;line-height:1.5;}
 .addr-row{margin-bottom:8px;}
@@ -502,61 +456,57 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 }
 .cart-address select{appearance:auto;}
 
-/* ---------- Fulfillment: pickup vs. USFK APO/FPO vs. Korea domestic delivery ---------- */
+/* ---------- Fulfillment + address (checkout.html) ----------
+   Only used on the dedicated checkout page now — the cart drawer itself no
+   longer collects fulfillment/address. International/APO-FPO delivery is out
+   of scope for now — domestic (off-post) address only. */
 .fulfill-choice{
-  display:flex;flex-direction:column;gap:8px;padding:16px 22px 4px;border-top:1px solid var(--sand-line);
+  display:flex;flex-direction:column;gap:8px;
 }
 .fulfill-option{
   display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
-  border:1px solid var(--sand-line);border-radius:2px;padding:10px 12px;
-  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.02em;
+  border:1px solid var(--sand-line);border-radius:2px;padding:12px 14px;
+  font-family:'Space Mono',monospace;font-size:12.5px;letter-spacing:.02em;
   background:var(--surface);transition:border-color .15s ease,background .15s ease;
 }
-.fulfill-option-main{display:flex;align-items:center;gap:8px;}
+.fulfill-option-main{display:flex;align-items:center;gap:10px;}
 .fulfill-option input{margin:0;accent-color:var(--field-rust);flex:none;}
 .fulfill-option:has(input:checked){border-color:var(--field-rust);background:var(--khaki-dim);}
 .fulfill-fee{color:var(--brass-dark);font-weight:700;white-space:nowrap;}
 .pickup-note{
-  margin:0;padding:14px 22px 4px;font-size:12.5px;line-height:1.6;color:var(--olive-text);
-  border-top:1px solid var(--sand-line);
+  margin:0;padding-top:14px;font-size:12.5px;line-height:1.6;color:var(--olive-text);
 }
 
-/* ---------- Promo code ---------- */
-.cart-promo{
-  display:flex;gap:8px;padding:16px 22px 0;
-  border-top:1px solid var(--sand-line);padding-top:16px;
-}
-.cart-promo input{
-  flex:1;min-width:0;padding:9px 10px;border:1px solid var(--sand-line);border-radius:2px;
-  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.03em;
-  background:var(--surface);color:var(--ink);text-transform:uppercase;
-}
-.cart-promo-msg{
-  padding:8px 22px 0;font-family:'Space Mono',monospace;font-size:11px;line-height:1.5;
-}
-.cart-promo-msg.is-success{color:var(--brass-dark);}
-.cart-promo-msg.is-error{color:var(--field-rust);}
-
-/* ---------- Order summary + PayPal button ---------- */
-.cart-summary{padding:16px 22px 0;}
+/* ---------- Order summary + PayPal button (checkout.html sidebar) ---------- */
+.cart-summary{padding:16px 0 0;}
 .cart-summary-row{
   display:flex;justify-content:space-between;gap:12px;
   font-family:'Space Mono',monospace;font-size:13px;color:var(--olive-text);padding:4px 0;
 }
-.cart-summary-row.discount-row{color:var(--brass-dark);}
 .cart-summary-row.total-row{
   font-size:16px;font-weight:700;color:var(--khaki);
   border-top:1px solid var(--sand-line);margin-top:6px;padding-top:10px;
 }
-.paypal-button-container{padding:16px 22px 0;min-height:45px;}
+.paypal-button-container{padding:16px 0 0;min-height:45px;}
+.checkout-pay-buttons{display:flex;flex-direction:column;gap:10px;padding-top:16px;}
+.checkout-pay-buttons paypal-button,
+.checkout-pay-buttons paypal-basic-card-container,
+.checkout-pay-buttons paypal-basic-card-button{display:block;width:100%;min-height:45px;}
+.checkout-pay-buttons #googlepayButtonContainer{display:flex;}
+.checkout-pay-buttons #googlepayButtonContainer > *{width:100%;}
 .paypal-fallback{color:var(--field-rust);}
 .cart-line{display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--sand-line);padding-bottom:14px;}
-.cart-line .swatch{width:50px;height:50px;border-radius:2px;flex:none;background:var(--od);}
-.cart-line .info{flex:1;}
+.cart-line .swatch{width:50px;height:50px;border-radius:2px;flex:none;background:var(--od);background-size:cover;background-position:center;}
+.cart-line .info{flex:1;min-width:0;}
 .cart-line .info .nm{font-family:'Black Ops One',cursive;font-size:13px;}
 .cart-line .info .meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--olive-text);}
-.cart-line .qty-price{text-align:right;}
-.cart-line .rm{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--field-rust);cursor:pointer;background:none;border:none;padding:0;margin-top:4px;}
+.cart-line .qty-price{text-align:right;white-space:nowrap;}
+.cart-line-qty{display:flex;align-items:center;gap:12px;margin-top:6px;}
+.cart-line .rm{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--field-rust);cursor:pointer;background:none;border:none;padding:0;}
+/* Small qty stepper used inside cart lines (the full-size .qty-stepper is for the PDP) */
+.qty-stepper.sm{border-radius:2px;}
+.qty-stepper.sm button{width:24px;height:24px;font-size:13px;}
+.qty-stepper.sm span{width:22px;font-size:12px;}
 .cart-foot{padding:18px 22px 24px;border-top:1px solid var(--sand-line);flex:none;}
 .cart-subtotal{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:14px;margin-bottom:14px;}
 .cart-hint{font-size:11px;color:var(--olive-text);font-family:'Space Mono',monospace;margin-top:10px;line-height:1.5;}
@@ -585,7 +535,6 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
 }
 .pdp-gallery-main .mark{position:absolute;top:16px;left:16px;z-index:2;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;background:rgba(0,0,0,.22);padding:5px 10px;border-radius:2px;}
-.pdp-gallery-main .name-kr{position:relative;z-index:2;font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.12em;color:var(--brass);margin-bottom:10px;}
 .pdp-gallery-main .name-en{position:relative;z-index:2;font-family:'Black Ops One',cursive;font-size:38px;line-height:1.2;}
 /* Photo products: full photo, no caption overlay/darkening/padding — the name
    and badge already appear in .pdp-info beside the gallery, so nothing is lost. */
@@ -594,7 +543,6 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   padding:0;
 }
 .pdp-gallery-main.has-photo .mark,
-.pdp-gallery-main.has-photo .name-kr,
 .pdp-gallery-main.has-photo .name-en{
   display:none;
 }
@@ -606,8 +554,7 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   background:var(--khaki-dim);border:1px solid var(--sand-line);padding:5px 12px;border-radius:20px;color:var(--olive-text);margin-bottom:14px;
 }
 .pdp-info .badge + .badge{margin-left:8px;}
-.pdp-info .name-kr{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.1em;color:var(--brass-dark);margin-bottom:4px;}
-.pdp-info h1{font-size:clamp(28px,3.4vw,42px);margin:0 0 10px;color:var(--khaki);}
+.pdp-info h1{font-size:clamp(28px,3.4vw,42px);margin:4px 0 10px;color:var(--khaki);}
 .pdp-rating{font-family:'Space Mono',monospace;font-size:12px;color:var(--olive-text);margin-bottom:18px;}
 .pdp-origin{font-family:'Space Mono',monospace;font-size:12px;color:var(--olive-text);margin-bottom:22px;padding-bottom:22px;border-bottom:1px dashed var(--sand-line);}
 .pdp-desc p{color:var(--olive-text);margin-bottom:14px;font-size:15px;}
@@ -619,7 +566,7 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   padding:10px 18px;border:1px solid var(--sand-line);border-radius:20px;cursor:pointer;
   font-family:'Space Mono',monospace;font-size:12.5px;background:var(--surface);color:var(--ink);
 }
-.pdp-pill.active{background:var(--od);border-color:var(--od);color:var(--khaki);}
+.pdp-pill.active{background:var(--brass);border-color:var(--brass);color:var(--charcoal);}
 .pdp-pill .pill-sub{opacity:.75;font-size:10.5px;margin-left:2px;}
 .pdp-qty-row{display:flex;align-items:center;gap:16px;}
 .qty-stepper{display:flex;align-items:center;border:1px solid var(--sand-line);border-radius:2px;}
@@ -631,6 +578,30 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .pdp-trust .item{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--olive-text);}
 .pdp-trust .dot{width:6px;height:6px;border-radius:50%;background:var(--brass);}
 
+/* ---------- Checkout page (checkout.html) ---------- */
+.checkout-header-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;max-width:var(--maxw);margin:0 auto;gap:20px;
+}
+.checkout-back-link{
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--olive-text);
+}
+.checkout-back-link:hover{color:var(--brass-dark);}
+.checkout-page{padding-top:48px;padding-bottom:100px;}
+.checkout-title{font-size:clamp(26px,3.2vw,36px);margin:0 0 32px;}
+.checkout-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start;}
+.checkout-main{display:flex;flex-direction:column;gap:36px;}
+.checkout-section-title{font-family:'Black Ops One',cursive;font-size:16px;margin:0 0 16px;color:var(--khaki);}
+.checkout-summary{
+  background:var(--surface);border:1px solid var(--sand-line);border-radius:var(--radius);
+  padding:24px;position:sticky;top:96px;
+}
+.checkout-items{display:flex;flex-direction:column;gap:14px;margin-bottom:4px;}
+.checkout-empty, .checkout-success{text-align:center;padding:80px 24px;max-width:520px;margin:0 auto;}
+.checkout-empty p, .checkout-success p{color:var(--olive-text);margin-bottom:24px;}
+.checkout-success h2{margin-bottom:14px;}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 980px){
   .blend-grid{grid-template-columns:repeat(2,1fr);}
@@ -639,6 +610,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .community-inner{grid-template-columns:1fr;}
   .footer-grid{grid-template-columns:1fr 1fr;}
   .pdp{grid-template-columns:1fr;gap:32px;}
+  .checkout-grid{grid-template-columns:1fr;}
+  .checkout-summary{position:static;}
 }
 @media (max-width: 720px){
   .nav-row{position:relative;}
@@ -661,13 +634,28 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid{grid-template-columns:1fr 1fr;gap:14px;}
   .blend-grid.blend-grid-3{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
   .footer-grid{grid-template-columns:1fr;gap:36px;}
-  .lang-toggle{position:static;transform:none;margin-top:6px;justify-content:center;}
   .announce-inner{flex-direction:column;gap:4px;}
   section{padding:56px 0;}
+  /* Header: drop the small "COFFEE ROASTERS · 가델로" tagline under the wordmark —
+     at phone widths it wraps across 2-3 lines and makes the header uneven. Just
+     "GADELO" plus the icons keeps it to a single line. The search icon has no
+     handler wired up (dead button) and is the easiest thing to drop for room —
+     cart and menu stay since both work. */
+  .brand .word small{display:none;}
+  .icon-btn[aria-label="Search"]{display:none;}
+  .checkout-back-link{white-space:nowrap;font-size:11.5px;}
 }
 @media (max-width: 560px){
-  .blend-grid{grid-template-columns:1fr;}
-  .blend-grid.blend-grid-3{grid-template-columns:1fr;}
+  /* Keep the blend grid at 2 columns all the way down instead of collapsing to 1 —
+     the cards are compact enough (image + name + price + button) to stay legible. */
+  .blend-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  .blend-grid.blend-grid-3{grid-template-columns:1fr 1fr;gap:10px;}
+  .blend-body{padding:12px 12px 14px;gap:8px;}
+  /* Price + "Add to Cart" stack instead of sharing the row — at 2-column card
+     widths the button only had ~half the card to work with, so its label
+     wrapped onto 3 lines. Full-width fixes that without shrinking the text. */
+  .price-row{flex-direction:column;align-items:stretch;gap:8px;}
+  .add-btn{width:100%;padding:9px 10px;}
   .hero h1{font-size:clamp(28px,8vw,40px);}
   .addr-row-split{flex-direction:column;gap:8px;}
   .footer-bottom{justify-content:center;text-align:center;}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — GADELO Coffee Roasters</title>
+<meta name="description" content="GADELO Coffee Roasters — secure checkout.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Black+Han+Sans&family=Noto+Serif+KR:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= Minimal checkout header ================= -->
+<!-- Deliberately stripped of the full site nav (Our Coffee / Story / Community) —
+     a checkout page is meant to keep the shopper on task, not invite browsing away. -->
+<header class="checkout-header">
+  <div class="wrap checkout-header-row">
+    <a class="brand" href="index.html#top">
+      <img src="images/logo-navy-crop.png" alt="GADELO Coffee Roasters logo">
+      <span class="word">GADELO<small>COFFEE ROASTERS</small></span>
+    </a>
+    <a class="checkout-back-link" href="index.html#blends">&larr; Continue Shopping</a>
+  </div>
+</header>
+
+<main class="wrap checkout-page">
+  <h1 class="checkout-title">Checkout</h1>
+
+  <!-- Empty-cart state: shown instead of the form if checkout.html is opened with nothing in the cart -->
+  <div class="checkout-empty" id="checkoutEmpty" hidden>
+    <p>Your cart is empty.</p>
+    <a href="index.html#blends" class="btn btn-brass">Shop Our Blends</a>
+  </div>
+
+  <!-- Order-success state: shown after PayPal capture succeeds, replaces the form -->
+  <div class="checkout-success" id="checkoutSuccess" hidden>
+    <h2>Order placed — thank you!</h2>
+    <p>A receipt from PayPal is on its way to your email. We'll follow up directly with pickup or delivery details.</p>
+    <a href="index.html#top" class="btn btn-brass">Back to Home</a>
+  </div>
+
+  <div class="checkout-grid" id="checkoutGrid">
+    <div class="checkout-main">
+      <section class="checkout-section">
+        <h2 class="checkout-section-title">1. Fulfillment</h2>
+        <div class="fulfill-choice">
+          <label class="fulfill-option">
+            <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="pickup" checked><span>Store Pickup</span></span>
+            <span class="fulfill-fee">Free</span>
+          </label>
+          <label class="fulfill-option">
+            <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic"><span>Korea Domestic Delivery</span></span>
+            <span class="fulfill-fee">+$4.00</span>
+          </label>
+        </div>
+        <p class="pickup-note" id="pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
+        <div class="cart-address" id="cartAddress" hidden>
+          <h4>Delivery Address</h4>
+          <p class="addr-note">Domestic (South Korea) addresses only for now — off-post/off-base delivery. International and APO/FPO delivery are coming later. Saved on this device only, so it's ready next time — no account needed.</p>
+          <div class="addr-row">
+            <input type="text" id="addrName" placeholder="Full name">
+          </div>
+          <div class="addr-row-split">
+            <input type="tel" id="addrPhone" placeholder="Phone">
+            <input type="email" id="addrEmail" placeholder="Email">
+          </div>
+          <div class="addr-row">
+            <input type="text" id="addrLine1" placeholder="Address">
+          </div>
+          <div class="addr-row">
+            <input type="text" id="addrLine2" placeholder="Apt / Unit">
+          </div>
+          <div class="addr-row-split">
+            <input type="text" id="addrCity" placeholder="City">
+            <input type="text" id="addrZip" placeholder="ZIP / Postal code">
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <aside class="checkout-summary">
+      <h2 class="checkout-section-title">Order Summary</h2>
+      <div class="checkout-items" id="checkoutItems"></div>
+      <div class="cart-summary">
+        <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+        <div class="cart-summary-row"><span>Shipping</span><span id="cartShipping">$0.00</span></div>
+        <div class="cart-summary-row total-row"><span>Total</span><span id="cartTotal">$0.00</span></div>
+      </div>
+
+      <h2 class="checkout-section-title">2. Payment</h2>
+      <!-- All three buttons below are shown/hidden automatically based on what
+           PayPal reports as eligible for this buyer/currency — see js/checkout.js. -->
+      <div class="checkout-pay-buttons">
+        <paypal-button id="ppButton" type="pay" hidden></paypal-button>
+        <paypal-basic-card-container>
+          <paypal-basic-card-button id="cardGuestButton" hidden></paypal-basic-card-button>
+        </paypal-basic-card-container>
+        <div id="googlepayButtonContainer"></div>
+      </div>
+      <div class="cart-hint paypal-fallback" id="paypalFallback" hidden>PayPal checkout couldn't load. Please refresh the page, or try again in a moment.</div>
+      <div class="cart-hint">Prices shown in USD. Secure checkout powered by PayPal.</div>
+    </aside>
+  </div>
+</main>
+
+<footer id="contact">
+  <div class="wrap footer-bottom" style="border-top:1px solid rgba(239,234,214,.1);">
+    <span>© 2026 GADELO Coffee Roasters (가델로 커피 로스터스). All rights reserved.</span>
+    <div class="pay-icons">
+      <span class="pay-badge">PayPal</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- Google's own Google Pay button widget — only used if the shopper is
+     eligible; harmless to load unconditionally. -->
+<script src="https://pay.google.com/gp/p/js/pay.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart-store.js"></script>
+<script src="js/checkout.js"></script>
+<!-- PayPal JS SDK v6. Swap to https://www.sandbox.paypal.com/web-sdk/v6/core
+     while testing with a Sandbox Client ID/Secret — see paypal-worker/README.md. -->
+<script async src="https://www.paypal.com/web-sdk/v6/core" onload="onPayPalWebSdkLoaded()" onerror="onPayPalWebSdkFailed()"></script>
+</body>
+</html>
