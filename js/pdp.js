@@ -152,7 +152,8 @@
     }
 
     renderThumbs();
-    setMainImage(thumbs.length ? (product.images.bags[state.size] || thumbs[0].src) : null);
+    var defaultBagSrc = product.images && product.images.bags && product.images.bags[state.size];
+    setMainImage(thumbs.length ? (defaultBagSrc || thumbs[0].src) : null);
     renderSizePills();
     renderPrice();
 
