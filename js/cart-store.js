@@ -33,7 +33,7 @@
     notify();
   }
 
-  // item: {slug, nameEn, sizeKey (400|1000), sizeLabel, unitPrice, color, image, qty}
+  // item: {slug, nameEn, sizeKey (200|400|1000), sizeLabel, unitPrice, color, image, qty}
   function add(item){
     var items = readItems();
     var existing = items.find(function(i){ return i.slug === item.slug && i.sizeKey === item.sizeKey; });
@@ -97,8 +97,13 @@
     return { subtotal: sub, shipping: ship, total: sub + ship };
   }
 
+  var SIZE_LABELS = {
+    200: '7.05 oz (200g)',
+    400: '14.11 oz (400g)',
+    1000: '2.20 lb (1kg)'
+  };
   function sizeLabelFor(sizeKey){
-    return (sizeKey === 1000 || sizeKey === '1000') ? '2.2lb' : '14oz (2 x 7oz bags)';
+    return SIZE_LABELS[Number(sizeKey)] || (sizeKey + 'g');
   }
 
   window.gadeloCartStore = {

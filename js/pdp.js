@@ -1,12 +1,17 @@
-// GADELO — product detail page renderer (product.html?blend=logos)
+// GADELO — product detail page renderer (product.html?blend=fighttonight)
 (function(){
   function fmtUSD(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 
   var BADGE_LABEL = { house: 'House Blend', premium: 'Premium Blend', flagship: 'Flagship Blend' };
   var ROAST_LABEL = { light: 'Light Roast', medium: 'Medium Roast', dark: 'Dark Roast' };
+  var SIZE_PILL_LABEL = {
+    200: {main: '7oz', sub: '(200g)'},
+    400: {main: '14oz', sub: '(400g)'},
+    1000: {main: '2.2lb', sub: '(1kg)'}
+  };
 
   var params = new URLSearchParams(window.location.search);
-  var slug = params.get('blend') || 'logos';
+  var slug = params.get('blend') || 'fighttonight';
   var product = GADELO_PRODUCTS[slug];
 
   var root = document.getElementById('pdpRoot');
@@ -21,7 +26,91 @@
     return;
   }
 
-  var state = { size: 400, qty: 1 };
+  // Sizes this product actually sells, ascending (Freedom has no 1000/1kg).
+  var sizeKeys = Object.keys(product.prices).map(Number).sort(function(a, b){ return a - b; });
+
+  // Gallery: this product's bag photo for every size it sells, plus its two
+  // card-format thumbnails — clicking any of them swaps the big photo, and
+  // picking a size (or a bag thumb) keeps the size selector in sync.
+  var thumbs = [];
+  sizeKeys.forEach(function(sz){
+    var src = product.images && product.images.bags && product.images.bags[sz];
+    if(src) thumbs.push({src: src, sizeKey: sz});
+  });
+  if(product.images && product.images.card1) thumbs.push({src: product.images.card1});
+  if(product.images && product.images.card2) thumbs.push({src: product.images.card2});
+
+  var state = { size: sizeKeys[0] === 400 ? 400 : sizeKeys[0], qty: 1, mainSrc: null };
+  if(sizeKeys.indexOf(400) !== -1) state.size = 400;
+
+  function setMainImage(src){
+    state.mainSrc = src;
+    var mainPhoto = document.getElementById('pdpMainPhoto');
+    if(mainPhoto){
+      if(src){ mainPhoto.src = src; mainPhoto.hidden = false; }
+      else { mainPhoto.hidden = true; mainPhoto.removeAttribute('src'); }
+    }
+    document.querySelectorAll('.pdp-thumbs .thumb').forEach(function(el){
+      el.classList.toggle('active', el.getAttribute('data-src') === src);
+    });
+  }
+
+  function renderThumbs(){
+    var wrap = document.getElementById('pdpThumbs');
+    if(!wrap) return;
+    wrap.innerHTML = thumbs.map(function(t){
+      return '<img class="thumb" src="' + t.src + '" data-src="' + t.src + '"' +
+        (t.sizeKey ? ' data-size="' + t.sizeKey + '"' : '') + ' alt="' + product.nameEn + '">';
+    }).join('');
+    wrap.querySelectorAll('.thumb').forEach(function(el){
+      el.addEventListener('click', function(){
+        setMainImage(el.getAttribute('data-src'));
+        var sz = el.getAttribute('data-size');
+        if(sz) selectSize(parseInt(sz, 10));
+      });
+    });
+  }
+
+  function renderSizePills(){
+    var wrap = document.getElementById('pdpSizeRow');
+    if(!wrap) return;
+    wrap.innerHTML = sizeKeys.map(function(sz){
+      var label = SIZE_PILL_LABEL[sz] || {main: sz + 'g', sub: ''};
+      return '<button class="pdp-pill pdp-size-opt' + (sz === state.size ? ' active' : '') + '" data-size="' + sz + '">' +
+        label.main + ' <span class="pill-sub">' + label.sub + '</span></button>';
+    }).join('');
+    wrap.querySelectorAll('.pdp-size-opt').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selectSize(parseInt(btn.getAttribute('data-size'), 10));
+      });
+    });
+  }
+
+  function selectSize(size){
+    state.size = size;
+    document.querySelectorAll('.pdp-size-opt').forEach(function(b){
+      b.classList.toggle('active', parseInt(b.getAttribute('data-size'), 10) === size);
+    });
+    var bagSrc = product.images && product.images.bags && product.images.bags[size];
+    if(bagSrc) setMainImage(bagSrc);
+    renderPrice();
+  }
+
+  function renderPrice(){
+    var priceEl = document.getElementById('pdpPrice');
+    if(!priceEl) return;
+    var compare = product.compareAtPrices && product.compareAtPrices[state.size];
+    var final = product.prices[state.size];
+    var html = '';
+    if(compare && compare > final){
+      html += '<span class="pdp-price-compare">' + fmtUSD(compare) + '</span>';
+      html += '<span class="pdp-price-final">' + fmtUSD(final) + '</span>';
+      html += '<span class="discount-badge">Military 10% Off</span>';
+    } else {
+      html += '<span class="pdp-price-final">' + fmtUSD(final) + '</span>';
+    }
+    priceEl.innerHTML = html;
+  }
 
   function render(){
     document.title = product.nameEn + ' — GADELO Coffee Roasters';
@@ -32,20 +121,7 @@
 
     document.querySelectorAll('.pdp-gallery-main').forEach(function(el){
       el.style.setProperty('--card-bg', product.color);
-      el.classList.toggle('has-photo', !!product.image);
-    });
-    var mainPhoto = document.getElementById('pdpMainPhoto');
-    if(mainPhoto){
-      if(product.image){
-        mainPhoto.src = product.image;
-        mainPhoto.hidden = false;
-      } else {
-        mainPhoto.hidden = true;
-        mainPhoto.removeAttribute('src');
-      }
-    }
-    document.querySelectorAll('.pdp-thumb-swatch').forEach(function(el){
-      el.style.background = product.color;
+      el.classList.toggle('has-photo', !!(product.images && product.images.bags));
     });
     var mainNameEn = document.getElementById('pdpMainNameEn');
     if(mainNameEn) mainNameEn.textContent = product.nameEn;
@@ -75,26 +151,19 @@
       descEl.innerHTML = product.descEn.map(function(p){ return '<p>' + p + '</p>'; }).join('');
     }
 
-    var priceEl = document.getElementById('pdpPrice');
-    if(priceEl) priceEl.textContent = fmtUSD(product.prices[state.size]);
+    renderThumbs();
+    setMainImage(thumbs.length ? (product.images.bags[state.size] || thumbs[0].src) : null);
+    renderSizePills();
+    renderPrice();
 
     var qtyEl = document.getElementById('pdpQtyValue');
     if(qtyEl) qtyEl.textContent = state.qty;
   }
 
-  document.querySelectorAll('.pdp-size-opt').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.pdp-size-opt').forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      state.size = parseInt(btn.getAttribute('data-size'), 10);
-      render();
-    });
-  });
-
   var qtyMinus = document.getElementById('pdpQtyMinus');
   var qtyPlus = document.getElementById('pdpQtyPlus');
-  if(qtyMinus) qtyMinus.addEventListener('click', function(){ state.qty = Math.max(1, state.qty - 1); render(); });
-  if(qtyPlus) qtyPlus.addEventListener('click', function(){ state.qty = Math.min(20, state.qty + 1); render(); });
+  if(qtyMinus) qtyMinus.addEventListener('click', function(){ state.qty = Math.max(1, state.qty - 1); document.getElementById('pdpQtyValue').textContent = state.qty; });
+  if(qtyPlus) qtyPlus.addEventListener('click', function(){ state.qty = Math.min(20, state.qty + 1); document.getElementById('pdpQtyValue').textContent = state.qty; });
 
   var addBtn = document.getElementById('pdpAddBtn');
   if(addBtn){

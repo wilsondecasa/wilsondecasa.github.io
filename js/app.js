@@ -245,7 +245,20 @@
     var addBtn = card.querySelector('.add-btn');
     var currentSize = 400;
 
-    function updatePrice(){ if(priceEl) priceEl.textContent = fmtUSD(product.prices[currentSize]); }
+    function updatePrice(){
+      if(!priceEl) return;
+      var compare = product.compareAtPrices && product.compareAtPrices[currentSize];
+      var final = product.prices[currentSize];
+      var html = '';
+      if(compare && compare > final){
+        html += '<span class="price-compare">' + fmtUSD(compare) + '</span>';
+        html += '<span class="price-final">' + fmtUSD(final) + '</span>';
+        html += '<span class="discount-badge">Military 10% Off</span>';
+      } else {
+        html += '<span class="price-final">' + fmtUSD(final) + '</span>';
+      }
+      priceEl.innerHTML = html;
+    }
 
     sizeOpts.forEach(function(opt){
       opt.addEventListener('click', function(){
@@ -255,6 +268,7 @@
         updatePrice();
       });
     });
+    updatePrice();
 
     if(addBtn){
       addBtn.addEventListener('click', function(){

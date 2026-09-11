@@ -102,13 +102,13 @@
       <button class="roast-tab" data-roast="dark">Dark Roast</button>
     </div>
 
-    <!-- ⚠️ Fight Tonight / Uncle Sam / Freedom: recipe & pricing are unconfirmed placeholders, see js/products.js -->
-    <div class="blend-grid blend-grid-3" id="blendGrid">
+    <!-- Military Exclusive Lineup — 5 blends, confirmed recipes/pricing, see js/products.js -->
+    <div class="blend-grid blend-grid-5" id="blendGrid">
       <!-- Card 1: Fight Tonight -->
       <article class="blend-card" data-slug="fighttonight">
         <a class="blend-art-link" href="product.html?blend=fighttonight">
           <div class="blend-art has-photo" style="--card-bg:#4B3A2A;">
-            <img class="blend-art-photo" src="images/blend-fighttonight.jpg" alt="">
+            <img class="blend-art-photo" src="images/products/fighttonight/card1.webp" alt="Fight Tonight">
             <span class="mark">Flagship Blend</span>
             <div>
               <div class="name-en">Fight Tonight</div>
@@ -117,14 +117,15 @@
         </a>
         <div class="blend-body">
           <a class="blend-name-link" href="product.html?blend=fighttonight">Fight Tonight</a>
-          <div class="roast-tag">Dark Roast</div>
-          <div class="blend-origin">Brazil 55% · Guatemala 25% · Robusta 20% (placeholder — recipe TBD)</div>
+          <div class="roast-tag">Medium Roast</div>
+          <div class="blend-origin">Guatemala Waikan 55% · Indonesia Aceh Gayo 30% · India Mysore 15%</div>
           <div class="size-select">
-            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(2x7oz)</span></div>
-            <div class="size-opt" data-size="1000">2.2lb</div>
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb <span class="size-sub">(1kg)</span></div>
           </div>
           <div class="price-row">
-            <span class="price">$21.99</span>
+            <span class="price"><span class="price-compare">$19.99</span><span class="price-final">$17.99</span></span>
             <button class="add-btn">Add to Cart</button>
           </div>
         </div>
@@ -134,7 +135,7 @@
       <article class="blend-card" data-slug="unclesam">
         <a class="blend-art-link" href="product.html?blend=unclesam">
           <div class="blend-art has-photo" style="--card-bg:#2F3B52;">
-            <img class="blend-art-photo" src="images/blend-unclesam.jpg" alt="">
+            <img class="blend-art-photo" src="images/products/unclesam/card1.webp" alt="Uncle Sam">
             <span class="mark">Flagship Blend</span>
             <div>
               <div class="name-en">Uncle Sam</div>
@@ -143,23 +144,79 @@
         </a>
         <div class="blend-body">
           <a class="blend-name-link" href="product.html?blend=unclesam">Uncle Sam</a>
-          <div class="roast-tag">Medium Roast</div>
-          <div class="blend-origin">Colombia 45% · Brazil 35% · Ethiopia Sidamo 20% (placeholder — recipe TBD)</div>
+          <div class="roast-tag">Dark Roast</div>
+          <div class="blend-origin">Indonesia Aceh Gayo 70% · Kenya 30%</div>
           <div class="size-select">
-            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(2x7oz)</span></div>
-            <div class="size-opt" data-size="1000">2.2lb</div>
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb <span class="size-sub">(1kg)</span></div>
           </div>
           <div class="price-row">
-            <span class="price">$21.99</span>
+            <span class="price"><span class="price-compare">$19.99</span><span class="price-final">$17.99</span></span>
             <button class="add-btn">Add to Cart</button>
           </div>
         </div>
       </article>
 
-      <!-- Card 3: Freedom -->
+      <!-- Card 3: Roll Out (formerly Good Will) -->
+      <article class="blend-card" data-slug="goodwill">
+        <a class="blend-art-link" href="product.html?blend=goodwill">
+          <div class="blend-art has-photo" style="--card-bg:#8C6A26;">
+            <img class="blend-art-photo" src="images/products/goodwill/card1.webp" alt="Roll Out">
+            <span class="mark">Premium Blend</span>
+            <div>
+              <div class="name-en">Roll Out</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=goodwill">Roll Out</a>
+          <div class="roast-tag">Dark Roast</div>
+          <div class="blend-origin">Guatemala Waikan 40% · Nicaragua Segovia 30% · Costa Rica Don Mayo 30%</div>
+          <div class="size-select">
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb <span class="size-sub">(1kg)</span></div>
+          </div>
+          <div class="price-row">
+            <span class="price"><span class="price-compare">$20.99</span><span class="price-final">$18.99</span></span>
+            <button class="add-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4: Indian Head (formerly India) -->
+      <article class="blend-card" data-slug="india">
+        <a class="blend-art-link" href="product.html?blend=india">
+          <div class="blend-art has-photo" style="--card-bg:#4B5330;">
+            <img class="blend-art-photo" src="images/products/india/card1.webp" alt="Indian Head">
+            <span class="mark">House Blend</span>
+            <div>
+              <div class="name-en">Indian Head</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=india">Indian Head</a>
+          <div class="roast-tag">Dark Roast</div>
+          <div class="blend-origin">India Arabica (Mysore) 65% · India Robusta (Kaapi Royale) 35%</div>
+          <div class="size-select">
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
+            <div class="size-opt" data-size="1000">2.2lb <span class="size-sub">(1kg)</span></div>
+          </div>
+          <div class="price-row">
+            <span class="price"><span class="price-compare">$16.99</span><span class="price-final">$14.99</span></span>
+            <button class="add-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 5: Freedom (200g/400g only — no 1kg) -->
       <article class="blend-card" data-slug="freedom">
         <a class="blend-art-link" href="product.html?blend=freedom">
-          <div class="blend-art" style="--card-bg:#7A2E2E;">
+          <div class="blend-art has-photo" style="--card-bg:#7A2E2E;">
+            <img class="blend-art-photo" src="images/products/freedom/card1.webp" alt="Freedom">
             <span class="mark">Flagship Blend</span>
             <div>
               <div class="name-en">Freedom</div>
@@ -168,14 +225,14 @@
         </a>
         <div class="blend-body">
           <a class="blend-name-link" href="product.html?blend=freedom">Freedom</a>
-          <div class="roast-tag">Light Roast</div>
-          <div class="blend-origin">Ethiopia Sidamo 50% · Guatemala 30% · Colombia 20% (placeholder — recipe TBD)</div>
+          <div class="roast-tag">Medium Roast</div>
+          <div class="blend-origin">Thailand 42.3% · Colombia 34.1% · Ethiopia 23.5%</div>
           <div class="size-select">
-            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(2x7oz)</span></div>
-            <div class="size-opt" data-size="1000">2.2lb</div>
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
           </div>
           <div class="price-row">
-            <span class="price">$23.99</span>
+            <span class="price"><span class="price-compare">$33.99</span><span class="price-final">$30.99</span></span>
             <button class="add-btn">Add to Cart</button>
           </div>
         </div>
@@ -208,7 +265,7 @@
       <span class="eyebrow">OUR STORY</span>
       <h2>Roasted with intention, from the ground up.</h2>
       <p>GADELO Coffee Roasters is a small-batch roastery built on three things: quality green beans sourced carefully, creativity in how we blend and name every roast, and a quiet sense of purpose behind the whole operation.</p>
-      <p>Every blend — Logos, Covenant, Good Will, and the rest of the lineup — is named with meaning, not marketing. We roast weekly in small batches so what ships to you is never far from the drum.</p>
+      <p>Every blend — Fight Tonight, Uncle Sam, Roll Out, Indian Head, Freedom — is named with meaning, not marketing. We roast weekly in small batches so what ships to you is never far from the drum.</p>
       <div class="value-pills">
         <span class="pill">Quality</span>
         <span class="pill">Creativity</span>

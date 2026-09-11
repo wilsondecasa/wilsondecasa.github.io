@@ -50,7 +50,7 @@
 <div class="wrap breadcrumb">
   <a href="index.html#top">Home</a> /
   <a href="index.html#blends">Our Coffee</a> /
-  <span class="pdp-crumb-blend">Logos</span>
+  <span class="pdp-crumb-blend">Fight Tonight</span>
 </div>
 
 <div id="pdpNotFound" class="wrap" style="display:none;padding:60px 0;"></div>
@@ -63,21 +63,17 @@
         <img class="pdp-gallery-main-photo" id="pdpMainPhoto" src="" alt="" hidden>
         <span class="mark" id="pdpBadge">House Blend</span>
         <div>
-          <div class="name-en" id="pdpMainNameEn">Logos</div>
+          <div class="name-en" id="pdpMainNameEn">Fight Tonight</div>
         </div>
       </div>
-      <div class="pdp-thumbs">
-        <div class="thumb pdp-thumb-swatch active" style="opacity:1;"></div>
-        <div class="thumb pdp-thumb-swatch" style="opacity:.6;"></div>
-        <div class="thumb pdp-thumb-swatch" style="opacity:.4;"></div>
-      </div>
+      <div class="pdp-thumbs" id="pdpThumbs"></div>
     </div>
 
     <!-- Info -->
     <div class="pdp-info">
       <span class="badge" id="pdpBadge2">House Blend</span>
       <span class="badge" id="pdpRoastBadge">Medium Roast</span>
-      <h1 id="pdpInfoNameEn">Logos</h1>
+      <h1 id="pdpInfoNameEn">Fight Tonight</h1>
       <div class="pdp-rating" id="pdpRating">☆☆☆☆☆ No reviews yet — be the first</div>
 
       <div class="pdp-origin" id="pdpOrigin">Brazil 65% · Guatemala 25% · Aceh Gayo 10%</div>
@@ -86,15 +82,12 @@
         <p>Loading…</p>
       </div>
 
-      <div class="pdp-price" id="pdpPrice">$18.99</div>
+      <div class="pdp-price" id="pdpPrice">$17.99</div>
 
       <div class="pdp-selectors">
         <div>
           <span class="pdp-select-label">Size</span>
-          <div class="pdp-pill-row">
-            <button class="pdp-pill pdp-size-opt active" data-size="400">14oz <span class="pill-sub">(2 x 7oz bags)</span></button>
-            <button class="pdp-pill pdp-size-opt" data-size="1000">2.2lb</button>
-          </div>
+          <div class="pdp-pill-row" id="pdpSizeRow"></div>
         </div>
         <div>
           <span class="pdp-select-label">Quantity</span>
