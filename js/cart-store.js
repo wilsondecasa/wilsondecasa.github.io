@@ -13,7 +13,7 @@
 (function(){
   var STORAGE_KEY = 'gadelo_cart_v2';
   var FULFILL_KEY = 'gadelo_fulfillment';
-  var FULFILL_FEES = { pickup: 0, domestic: 4.00 };
+  var FULFILL_FEES = { domestic: 4.00 };
   var FREE_SHIP_THRESHOLD = 50; // USD subtotal — domestic delivery fee waived at/above this
 
   function notify(){
@@ -72,13 +72,13 @@
 
   function subtotal(){ return readItems().reduce(function(s, i){ return s + i.unitPrice * i.qty; }, 0); }
 
-  // ---------- Fulfillment (pickup / Korea domestic delivery) ----------
-  // Scoped to these two for now, per current shipping coverage — international/APO
-  // delivery is out of scope until that coverage is added later.
+  // ---------- Fulfillment (Korea domestic delivery only — store pickup retired) ----------
+  // Scoped to domestic delivery only for now, per current shipping coverage —
+  // international/APO delivery is out of scope until that coverage is added later.
   function getFulfillment(){
-    var saved = 'pickup';
-    try{ saved = localStorage.getItem(FULFILL_KEY) || 'pickup'; }catch(e){}
-    return FULFILL_FEES.hasOwnProperty(saved) ? saved : 'pickup';
+    var saved = 'domestic';
+    try{ saved = localStorage.getItem(FULFILL_KEY) || 'domestic'; }catch(e){}
+    return FULFILL_FEES.hasOwnProperty(saved) ? saved : 'domestic';
   }
   function setFulfillment(method){
     if(!FULFILL_FEES.hasOwnProperty(method)) return;

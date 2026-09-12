@@ -37,7 +37,7 @@
   <!-- Order-success state: shown after PayPal capture succeeds, replaces the form -->
   <div class="checkout-success" id="checkoutSuccess" hidden>
     <h2>Order placed — thank you!</h2>
-    <p>A receipt from PayPal is on its way to your email. We'll follow up directly with pickup or delivery details.</p>
+    <p>A receipt from PayPal is on its way to your email. We'll follow up directly with delivery details.</p>
     <a href="index.html#top" class="btn btn-brass">Back to Home</a>
   </div>
 
@@ -47,15 +47,11 @@
         <h2 class="checkout-section-title">1. Fulfillment</h2>
         <div class="fulfill-choice">
           <label class="fulfill-option">
-            <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="pickup" checked><span>Store Pickup</span></span>
-            <span class="fulfill-fee">Free</span>
-          </label>
-          <label class="fulfill-option">
-            <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic"><span>Korea Domestic Delivery</span></span>
+            <span class="fulfill-option-main"><input type="radio" name="fulfillMethod" value="domestic" checked><span>Korea Domestic Delivery</span></span>
             <span class="fulfill-fee">+$4.00</span>
           </label>
         </div>
-        <p class="pickup-note" id="pickupNote">Pickup location and time will be confirmed with you directly after you place your order.</p>
+        <p class="addr-note" style="margin:14px 0 0;">$50 이상 구매 시 배송비 무료. 매장 픽업은 더 이상 제공하지 않으며, 택배 배송으로만 발송됩니다.</p>
         <div class="cart-address" id="cartAddress" hidden>
           <h4>Delivery Address</h4>
           <p class="addr-note">Domestic (South Korea) addresses only for now — off-post/off-base delivery. International and APO/FPO delivery are coming later. Saved on this device only, so it's ready next time — no account needed.</p>

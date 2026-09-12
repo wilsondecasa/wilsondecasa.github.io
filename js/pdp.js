@@ -29,17 +29,9 @@
   // Sizes this product actually sells, ascending (Freedom has no 1000/1kg).
   var sizeKeys = Object.keys(product.prices).map(Number).sort(function(a, b){ return a - b; });
 
-  // Gallery: this product's bag photo for every size it sells, plus its two
-  // card-format thumbnails — clicking any of them swaps the big photo, and
-  // picking a size (or a bag thumb) keeps the size selector in sync.
-  var thumbs = [];
-  sizeKeys.forEach(function(sz){
-    var src = product.images && product.images.bags && product.images.bags[sz];
-    if(src) thumbs.push({src: src, sizeKey: sz});
-  });
-  if(product.images && product.images.card1) thumbs.push({src: product.images.card1});
-  if(product.images && product.images.card2) thumbs.push({src: product.images.card2});
-
+  // Gallery: a single actual product photo (the bag for the selected size) —
+  // no bean-card marketing thumbnails, no clickable thumbnail strip. Picking a
+  // size swaps the main photo directly (see selectSize()).
   var state = { size: sizeKeys[0] === 400 ? 400 : sizeKeys[0], qty: 1, mainSrc: null };
   if(sizeKeys.indexOf(400) !== -1) state.size = 400;
 
@@ -50,25 +42,6 @@
       if(src){ mainPhoto.src = src; mainPhoto.hidden = false; }
       else { mainPhoto.hidden = true; mainPhoto.removeAttribute('src'); }
     }
-    document.querySelectorAll('.pdp-thumbs .thumb').forEach(function(el){
-      el.classList.toggle('active', el.getAttribute('data-src') === src);
-    });
-  }
-
-  function renderThumbs(){
-    var wrap = document.getElementById('pdpThumbs');
-    if(!wrap) return;
-    wrap.innerHTML = thumbs.map(function(t){
-      return '<img class="thumb" src="' + t.src + '" data-src="' + t.src + '"' +
-        (t.sizeKey ? ' data-size="' + t.sizeKey + '"' : '') + ' alt="' + product.nameEn + '">';
-    }).join('');
-    wrap.querySelectorAll('.thumb').forEach(function(el){
-      el.addEventListener('click', function(){
-        setMainImage(el.getAttribute('data-src'));
-        var sz = el.getAttribute('data-size');
-        if(sz) selectSize(parseInt(sz, 10));
-      });
-    });
   }
 
   function renderSizePills(){
@@ -151,9 +124,8 @@
       descEl.innerHTML = product.descEn.map(function(p){ return '<p>' + p + '</p>'; }).join('');
     }
 
-    renderThumbs();
     var defaultBagSrc = product.images && product.images.bags && product.images.bags[state.size];
-    setMainImage(thumbs.length ? (defaultBagSrc || thumbs[0].src) : null);
+    setMainImage(defaultBagSrc || product.image || null);
     renderSizePills();
     renderPrice();
 
