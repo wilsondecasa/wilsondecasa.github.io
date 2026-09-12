@@ -9,20 +9,31 @@
 (function(){
 
   // ---------- Announcement bar rotation ----------
-  var ANNOUNCEMENTS = [
-    'Freshly roasted in small batches — never sitting on a shelf.',
-    'Checkout securely with PayPal — pay the way you trust.',
-    "Ask us about bulk orders for your unit or spouses' club."
-  ];
-  var ai = 0;
-  var announceEl = document.getElementById('announceText');
-  if(announceEl){
-    announceEl.textContent = ANNOUNCEMENTS[ai];
-    setInterval(function(){
-      ai = (ai + 1) % ANNOUNCEMENTS.length;
+  // Auto-rotates on a timer; the </>  buttons (announcePrev/announceNext, if
+  // present on this page) step manually and reset the timer so a manual
+  // click doesn't get immediately overridden by the next auto-advance.
+  (function(){
+    var ANNOUNCEMENTS = [
+      'Freshly roasted in small batches — never sitting on a shelf.',
+      'Checkout securely with PayPal — pay the way you trust.',
+      "Ask us about bulk orders for your unit or spouses' club."
+    ];
+    var announceEl = document.getElementById('announceText');
+    if(!announceEl) return;
+    var ai = 0;
+    var timer;
+    function show(i){
+      ai = ((i % ANNOUNCEMENTS.length) + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length;
       announceEl.textContent = ANNOUNCEMENTS[ai];
-    }, 4500);
-  }
+    }
+    function start(){ clearInterval(timer); timer = setInterval(function(){ show(ai + 1); }, 4500); }
+    show(0);
+    start();
+    var prevBtn = document.getElementById('announcePrev');
+    var nextBtn = document.getElementById('announceNext');
+    if(prevBtn) prevBtn.addEventListener('click', function(){ show(ai - 1); start(); });
+    if(nextBtn) nextBtn.addEventListener('click', function(){ show(ai + 1); start(); });
+  })();
 
   // ---------- Hero carousel (whole hero section rotates through slides; no reload) ----------
   // Slide count is read from the markup (index.html) — this never needs
@@ -61,11 +72,16 @@
       idx = next;
     }
     function nextSlide(){ goTo((idx + 1) % slides.length); }
+    function prevSlide(){ goTo((idx - 1 + slides.length) % slides.length); }
     function start(){ stop(); timer = setInterval(nextSlide, 6000); }
     function stop(){ clearInterval(timer); }
     dots.forEach(function(dot, i){
       dot.addEventListener('click', function(){ goTo(i); start(); });
     });
+    var prevBtn = document.getElementById('heroPrev');
+    var nextBtn = document.getElementById('heroNext');
+    if(prevBtn) prevBtn.addEventListener('click', function(){ prevSlide(); start(); });
+    if(nextBtn) nextBtn.addEventListener('click', function(){ nextSlide(); start(); });
     var carousel = document.getElementById('heroCarouselFull');
     if(carousel){
       carousel.addEventListener('mouseenter', stop);
