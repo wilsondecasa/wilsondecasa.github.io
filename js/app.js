@@ -25,11 +25,29 @@
   }
 
   // ---------- Hero carousel (whole hero section rotates through slides; no reload) ----------
+  // Slide count is read from the markup (index.html) — this never needs
+  // editing when a slide is added, removed, or reordered. Dots are built
+  // here to match, one per slide, so the HTML never hand-lists them either.
   (function(){
     var slides = document.querySelectorAll('#heroCarouselFull .hero-slide-full');
-    var dots = document.querySelectorAll('#heroDots .hero-dot');
+    var dotsWrap = document.getElementById('heroDots');
     if(!slides.length) return;
-    var idx = 0;
+
+    var startIdx = 0;
+    slides.forEach(function(s, i){ if(s.classList.contains('active')) startIdx = i; });
+
+    if(dotsWrap){
+      dotsWrap.innerHTML = '';
+      slides.forEach(function(s, i){
+        var dot = document.createElement('button');
+        dot.className = 'hero-dot' + (i === startIdx ? ' active' : '');
+        dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+        dotsWrap.appendChild(dot);
+      });
+    }
+    var dots = dotsWrap ? dotsWrap.querySelectorAll('.hero-dot') : [];
+
+    var idx = startIdx;
     var timer;
     function goTo(next){
       if(next === idx) return;

@@ -50,11 +50,27 @@
 <div id="top"></div>
 
 <!-- ================= Hero ================= -->
+<!--
+  To add, remove, or reorder a slide, edit ONLY the .hero-slide-full blocks
+  below — no JS or CSS changes needed. js/app.js reads however many slides
+  are here and builds/rotates the dots in #heroDots automatically.
+    - Add a slide:    copy a whole <div class="hero-slide-full">...</div>
+                       block, paste it before </div> (closing #heroCarouselFull),
+                       and edit its eyebrow/h1/lead/buttons.
+    - Remove a slide:  delete its whole <div class="hero-slide-full">...</div>
+                       block.
+    - Edit a slide:    change the text/links inside one block; leave the
+                       surrounding <div class="hero-slide-full" ...> as is.
+    - Background photo: set style="background-image:url('images/your-photo.jpg')"
+                       on that slide's <div class="hero-slide-bg">.
+  Exactly one slide should have class="hero-slide-full active" (the one
+  shown first on page load) — every other slide should have no "active".
+-->
 <section class="hero" style="padding:0;">
   <div class="hero-bg-ring"></div>
   <div class="hero-bg-ring small"></div>
   <div class="hero-carousel-full" id="heroCarouselFull">
-    <div class="hero-slide-full active" data-slide="0">
+    <div class="hero-slide-full active">
       <!-- To add a background image to this slide, set style="background-image:url('images/your-photo.jpg')" below. -->
       <div class="hero-slide-bg"></div>
       <div class="hero-inner">
@@ -67,7 +83,7 @@
         </div>
       </div>
     </div>
-    <div class="hero-slide-full" data-slide="1">
+    <div class="hero-slide-full">
       <div class="hero-slide-bg"></div>
       <div class="hero-inner">
         <span class="eyebrow">FOR THE USFK COMMUNITY</span>
@@ -79,11 +95,20 @@
         </div>
       </div>
     </div>
+    <div class="hero-slide-full">
+      <div class="hero-slide-bg"></div>
+      <div class="hero-inner">
+        <span class="eyebrow">GADELO GIVES BACK</span>
+        <h1>Coffee support for<br><em>your next formation.</em></h1>
+        <p class="lead">GADELO sponsors coffee and roasted-bean donations for squad- and company-sized unit events — hails and farewells, dining-ins, dedication ceremonies, and more. If your unit has something coming up, let us know.</p>
+        <div class="hero-ctas">
+          <a href="#contact" class="btn btn-brass">협찬·지원 문의/신청</a>
+          <a href="#contact" class="btn btn-outline-light">Contact Us</a>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="hero-dots" id="heroDots">
-    <button class="hero-dot active" data-i="0" aria-label="Slide 1"></button>
-    <button class="hero-dot" data-i="1" aria-label="Slide 2"></button>
-  </div>
+  <div class="hero-dots" id="heroDots"></div>
 </section>
 
 <!-- ================= Featured Blends (core lineup) ================= -->
