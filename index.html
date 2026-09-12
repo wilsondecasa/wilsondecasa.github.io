@@ -57,70 +57,25 @@
 
 <!-- ================= Hero ================= -->
 <!--
-  To add, remove, or reorder a slide, edit ONLY the .hero-slide-full blocks
-  below — no JS or CSS changes needed. js/app.js reads however many slides
-  are here and builds/rotates the dots in #heroDots automatically.
-    - Add a slide:    copy a whole <div class="hero-slide-full">...</div>
-                       block, paste it before </div> (closing #heroCarouselFull),
-                       and edit its eyebrow/h1/lead/buttons.
-    - Remove a slide:  delete its whole <div class="hero-slide-full">...</div>
-                       block.
-    - Edit a slide:    change the text/links inside one block; leave the
-                       surrounding <div class="hero-slide-full" ...> as is.
-    - Background photo: set style="background-image:url('images/your-photo.jpg')"
-                       on that slide's <div class="hero-slide-bg">.
-  Exactly one slide should have class="hero-slide-full active" (the one
-  shown first on page load) — every other slide should have no "active".
+  Hero is a single, static frame — a slot for one photo or video, not a
+  carousel. There's nothing to add/remove here; just set the media:
+    - Photo:  add a background-image style to .hero-media below, e.g.
+              <div class="hero-media" id="heroMedia" style="background-image:url('images/your-photo.jpg')">
+              It layers under the same dark gradient defined in css/style.css
+              (.hero-media) so the title stays readable over any photo.
+    - Video:  put a <video class="hero-media-video" autoplay muted loop
+              playsinline poster="images/your-poster.jpg"><source src="images/your-video.mp4" type="video/mp4"></video>
+              as the FIRST child inside .hero-media, and leave the
+              background-image off (the video covers the frame itself).
 -->
-<section class="hero" style="padding:0;">
+<section class="hero">
   <div class="hero-bg-ring"></div>
   <div class="hero-bg-ring small"></div>
-  <div class="hero-carousel-full" id="heroCarouselFull">
-    <div class="hero-slide-full active">
-      <!-- To add a background image to this slide, set style="background-image:url('images/your-photo.jpg')" below. -->
-      <div class="hero-slide-bg"></div>
-      <div class="hero-inner">
-        <span class="eyebrow">GADELO COFFEE ROASTERS · ROASTED IN KOREA</span>
-        <h1>Every bean<br><em>carries a story.</em></h1>
-        <p class="lead">Small-batch specialty coffee, roasted fresh and delivered wherever you are stationed.</p>
-        <div class="hero-ctas">
-          <a href="#blends" class="btn btn-brass">Shop Our Blends</a>
-          <a href="#about" class="btn btn-outline-light">Read Our Story</a>
-        </div>
-      </div>
-    </div>
-    <div class="hero-slide-full">
-      <div class="hero-slide-bg"></div>
-      <div class="hero-inner">
-        <span class="eyebrow">FOR THE USFK COMMUNITY</span>
-        <h1>Made for the <em>Military Community</em></h1>
-        <p class="lead">Bulk orders for units and Spouses' Clubs, care-package-friendly packaging, and bilingual support — wherever the mission takes you.</p>
-        <div class="hero-ctas">
-          <a href="#community" class="btn btn-brass">Military &amp; Family Program</a>
-          <a href="#contact" class="btn btn-outline-light">Ask About Bulk Orders</a>
-        </div>
-      </div>
-    </div>
-    <div class="hero-slide-full">
-      <div class="hero-slide-bg"></div>
-      <div class="hero-inner">
-        <span class="eyebrow">GADELO GIVES BACK</span>
-        <h1>Coffee support for<br><em>your next formation.</em></h1>
-        <p class="lead">GADELO sponsors coffee and roasted-bean donations for squad- and company-sized unit events — hails and farewells, dining-ins, dedication ceremonies, and more. If your unit has something coming up, let us know.</p>
-        <div class="hero-ctas">
-          <a href="#contact" class="btn btn-brass">협찬·지원 문의/신청</a>
-          <a href="#contact" class="btn btn-outline-light">Contact Us</a>
-        </div>
-      </div>
-    </div>
-    <button class="hero-nav prev" id="heroPrev" aria-label="Previous slide">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#EFEAD6" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-    <button class="hero-nav next" id="heroNext" aria-label="Next slide">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#EFEAD6" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    </button>
+  <div class="hero-media" id="heroMedia"></div>
+  <div class="hero-inner">
+    <span class="eyebrow">GADELO COFFEE ROASTERS</span>
+    <h1>Roasted in Korea.<br><em>Made for the mission.</em></h1>
   </div>
-  <div class="hero-dots" id="heroDots"></div>
 </section>
 
 <!-- ================= Featured Blends (core lineup) ================= -->
@@ -128,8 +83,8 @@
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">OUR CORE LINEUP</span>
-      <h2>Three Bold Blends, Each Named on Purpose</h2>
-      <p>Every GADELO blend carries a name with meaning and a recipe we don't cut corners on. Pick a size below — pricing updates instantly.</p>
+      <h2>Every Blend, Named on Purpose</h2>
+      <p>Every bean carries a story — and every GADELO blend carries a name with meaning and a recipe we don't cut corners on. Small-batch, roasted fresh, and delivered wherever you're stationed.</p>
     </div>
 
     <div class="roast-filter" id="roastFilter" role="tablist" aria-label="Filter by roast level">
@@ -282,6 +237,26 @@
   </div>
 </section>
 
+<!-- ================= GADELO Gives Back (unit sponsorship) ================= -->
+<section class="giveback" id="giveback">
+  <div class="wrap giveback-inner">
+    <div>
+      <span class="giveback-badge">GADELO Gives Back</span>
+      <h2>Coffee support for your next formation.</h2>
+      <p>GADELO sponsors coffee and roasted-bean donations for squad- and company-sized unit events — hails and farewells, dining-ins, dedication ceremonies, and more. If your unit has something coming up, let us know.</p>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn btn-brass">협찬·지원 문의/신청</a>
+        <a href="#contact" class="btn btn-outline-light">Contact Us</a>
+      </div>
+    </div>
+    <div class="giveback-visual">
+      <div class="item"><span class="num">01</span><span class="cap">Hails &amp; Farewells</span></div>
+      <div class="item"><span class="num">02</span><span class="cap">Dining-Ins</span></div>
+      <div class="item"><span class="num">03</span><span class="cap">Dedication Ceremonies</span></div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= Statement banner ================= -->
 <section class="statement">
   <div class="wrap">
@@ -317,8 +292,8 @@
   <div class="wrap community-inner">
     <div>
       <span class="community-badge">For the USFK Community</span>
-      <h2>Made for the community you serve.</h2>
-      <p>We know coffee means a little more when you're far from home — it's routine, comfort, and a small piece of normal. GADELO works directly with service members, spouses, and families stationed in Korea.</p>
+      <h2>Made for the Military Community.</h2>
+      <p>Bulk orders for units and Spouses' Clubs, care-package-friendly packaging, and bilingual support — wherever the mission takes you. GADELO works directly with service members, spouses, and families stationed in Korea.</p>
       <ul class="community-list">
         <li>Bulk &amp; recurring orders for units, offices, and Spouses' Clubs</li>
         <li>Care-package-friendly packaging on request</li>
@@ -327,7 +302,6 @@
       </ul>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <a href="#contact" class="btn btn-brass">Ask About Bulk &amp; Unit Orders</a>
-        <a href="#contact" class="btn btn-outline-light">후원 문의 신청</a>
       </div>
       <div class="community-note">
         Shipping coverage, APO/FPO availability, and any military/family appreciation program are being finalized — details to be confirmed before launch.

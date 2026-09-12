@@ -35,61 +35,6 @@
     if(nextBtn) nextBtn.addEventListener('click', function(){ show(ai + 1); start(); });
   })();
 
-  // ---------- Hero carousel (whole hero section rotates through slides; no reload) ----------
-  // Slide count is read from the markup (index.html) — this never needs
-  // editing when a slide is added, removed, or reordered. Dots are built
-  // here to match, one per slide, so the HTML never hand-lists them either.
-  (function(){
-    var slides = document.querySelectorAll('#heroCarouselFull .hero-slide-full');
-    var dotsWrap = document.getElementById('heroDots');
-    if(!slides.length) return;
-
-    var startIdx = 0;
-    slides.forEach(function(s, i){ if(s.classList.contains('active')) startIdx = i; });
-
-    if(dotsWrap){
-      dotsWrap.innerHTML = '';
-      slides.forEach(function(s, i){
-        var dot = document.createElement('button');
-        dot.className = 'hero-dot' + (i === startIdx ? ' active' : '');
-        dot.setAttribute('aria-label', 'Slide ' + (i + 1));
-        dotsWrap.appendChild(dot);
-      });
-    }
-    var dots = dotsWrap ? dotsWrap.querySelectorAll('.hero-dot') : [];
-
-    var idx = startIdx;
-    var timer;
-    function goTo(next){
-      if(next === idx) return;
-      slides[idx].classList.remove('active');
-      slides[idx].classList.add('exit-left');
-      slides[next].classList.add('active');
-      if(dots[idx]) dots[idx].classList.remove('active');
-      if(dots[next]) dots[next].classList.add('active');
-      var leaving = slides[idx];
-      setTimeout(function(){ leaving.classList.remove('exit-left'); }, 720);
-      idx = next;
-    }
-    function nextSlide(){ goTo((idx + 1) % slides.length); }
-    function prevSlide(){ goTo((idx - 1 + slides.length) % slides.length); }
-    function start(){ stop(); timer = setInterval(nextSlide, 6000); }
-    function stop(){ clearInterval(timer); }
-    dots.forEach(function(dot, i){
-      dot.addEventListener('click', function(){ goTo(i); start(); });
-    });
-    var prevBtn = document.getElementById('heroPrev');
-    var nextBtn = document.getElementById('heroNext');
-    if(prevBtn) prevBtn.addEventListener('click', function(){ prevSlide(); start(); });
-    if(nextBtn) nextBtn.addEventListener('click', function(){ nextSlide(); start(); });
-    var carousel = document.getElementById('heroCarouselFull');
-    if(carousel){
-      carousel.addEventListener('mouseenter', stop);
-      carousel.addEventListener('mouseleave', start);
-    }
-    start();
-  })();
-
   // ---------- Roast level filter (Our Coffee section) ----------
   // Roast level is looked up from GADELO_PRODUCTS by slug rather than duplicated
   // in a data-roast attribute, so the product data stays the single source of truth.
