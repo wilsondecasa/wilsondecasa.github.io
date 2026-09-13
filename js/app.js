@@ -100,6 +100,88 @@
   if(cartClose) cartClose.addEventListener('click', closeCart);
   if(overlay) overlay.addEventListener('click', closeCart);
 
+  // ---------- Copy-to-clipboard buttons ----------
+  // Used both inside contact modals (index.html) and inline on the static
+  // contact.html page, so this is wired unconditionally — not gated on any
+  // modal markup being present. Falls back to a manual-select copy for
+  // browsers/contexts where the Clipboard API is unavailable.
+  document.querySelectorAll('.copy-btn[data-copy]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.getAttribute('data-copy');
+      function done(){ showToast('Copied — ' + text); }
+      function fallbackCopy(){
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try{ document.execCommand('copy'); done(); }
+        catch(err){ showToast(text); }
+        document.body.removeChild(ta);
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+    });
+  });
+
+  // ---------- Contact modals (sponsorship / bulk orders) ----------
+  // A trigger button opens the modal named in its data-contact-modal attribute
+  // (falls back to a fixed id map for the two buttons that ship on index.html).
+  // #contactOverlay is shared by every contact modal on the page. Pages with
+  // no modal markup (e.g. contact.html) simply skip this block.
+  (function(){
+    var contactOverlay = document.getElementById('contactOverlay');
+    var modals = document.querySelectorAll('.contact-modal');
+    if(!contactOverlay || !modals.length) return;
+
+    var openModal = null;
+
+    function closeContactModal(){
+      if(openModal) openModal.classList.remove('open');
+      contactOverlay.classList.remove('open');
+      openModal = null;
+    }
+    function openContactModal(modal){
+      if(!modal) return;
+      closeContactModal();
+      modal.classList.add('open');
+      contactOverlay.classList.add('open');
+      openModal = modal;
+    }
+
+    var triggerMap = {
+      sponsorContactBtn: 'emailModal',
+      bulkContactBtn: 'bulkModal'
+    };
+    Object.keys(triggerMap).forEach(function(btnId){
+      var btn = document.getElementById(btnId);
+      if(!btn) return;
+      btn.addEventListener('click', function(){
+        openContactModal(document.getElementById(triggerMap[btnId]));
+      });
+    });
+    // Generic hook: any element with data-contact-modal="someModalId" opens it too.
+    document.querySelectorAll('[data-contact-modal]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        openContactModal(document.getElementById(btn.getAttribute('data-contact-modal')));
+      });
+    });
+
+    modals.forEach(function(modal){
+      modal.querySelectorAll('.contact-modal-close').forEach(function(btn){
+        btn.addEventListener('click', closeContactModal);
+      });
+    });
+    contactOverlay.addEventListener('click', closeContactModal);
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closeContactModal();
+    });
+  })();
+
   function addToCart(item){
     store.add(item);
     showToast(item.nameEn + ' (' + item.sizeLabel + ') — added to cart');

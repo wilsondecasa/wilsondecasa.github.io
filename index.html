@@ -36,7 +36,7 @@
       <a href="#blends">Our Coffee</a>
       <a href="#about">Our Story</a>
       <a href="#community">For Military &amp; Families</a>
-      <a href="#contact">Contact</a>
+      <a href="contact.html">Contact</a>
     </nav>
     <div class="nav-actions">
       <button class="icon-btn" aria-label="Search">
@@ -248,7 +248,7 @@
       <h2>Coffee support for your next formation.</h2>
       <p>GADELO sponsors coffee and roasted-bean donations for unit training, offices, and events — welcomes, farewells, dedication ceremonies, and more. If your unit has something coming up, let us know.</p>
       <div class="hero-ctas">
-        <a href="mailto:gadelo@gadelocoffeeroasters.com?subject=Unit%20Sponsorship%20Inquiry" class="btn btn-brass">Apply for Sponsorship</a>
+        <button type="button" id="sponsorContactBtn" class="btn btn-brass">Apply for Sponsorship</button>
       </div>
     </div>
     <div class="giveback-visual">
@@ -303,7 +303,7 @@
         <li>Prices shown in USD — pay securely with PayPal</li>
       </ul>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <a href="mailto:gadelo@gadelocoffeeroasters.com?subject=Bulk%20%26%20Unit%20Order%20Inquiry" class="btn btn-brass">Ask About Bulk &amp; Unit Orders</a>
+        <button type="button" id="bulkContactBtn" class="btn btn-brass">Ask About Bulk &amp; Unit Orders</button>
       </div>
       <div class="community-note">
         Shipping coverage, APO/FPO availability, and any military/family appreciation program are being finalized — details to be confirmed before launch.
@@ -390,6 +390,51 @@
     </div>
   </div>
 </aside>
+
+<!-- ================= Contact modals ================= -->
+<!-- Share one backdrop overlay; JS opens whichever modal matches the button
+     clicked (#sponsorContactBtn / #bulkContactBtn). Add a new trigger the
+     same way: a button with a data-contact-modal="<id>" attribute pointing
+     at one of these modal ids, no JS changes needed. -->
+<div class="overlay" id="contactOverlay"></div>
+
+<div class="contact-modal" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+  <button type="button" class="close-x contact-modal-close" aria-label="Close">&times;</button>
+  <h3 id="emailModalTitle">Sponsorship Inquiry</h3>
+  <p class="sub">Copy the address below or open it in your mail app.</p>
+  <div class="contact-option">
+    <div class="meta">
+      <span class="label">Email</span>
+      <span class="value">gadelo@gadelocoffeeroasters.com</span>
+    </div>
+    <button type="button" class="copy-btn" data-copy="gadelo@gadelocoffeeroasters.com">Copy</button>
+  </div>
+  <a class="contact-option link-row" href="mailto:gadelo@gadelocoffeeroasters.com?subject=Unit%20Sponsorship%20Inquiry">
+    <div class="meta">
+      <span class="label">Or</span>
+      <span class="value">Open in mail app</span>
+    </div>
+  </a>
+</div>
+
+<div class="contact-modal" id="bulkModal" role="dialog" aria-modal="true" aria-labelledby="bulkModalTitle">
+  <button type="button" class="close-x contact-modal-close" aria-label="Close">&times;</button>
+  <h3 id="bulkModalTitle">Bulk &amp; Unit Orders</h3>
+  <p class="sub">Reach us by email or WhatsApp — whichever's easier.</p>
+  <div class="contact-option">
+    <div class="meta">
+      <span class="label">Email</span>
+      <span class="value">gadelo@gadelocoffeeroasters.com</span>
+    </div>
+    <button type="button" class="copy-btn" data-copy="gadelo@gadelocoffeeroasters.com">Copy</button>
+  </div>
+  <a class="contact-option link-row" href="https://wa.me/821084808942?text=Hi%20GADELO%2C%20I%27d%20like%20to%20ask%20about%20bulk%2Funit%20orders." target="_blank" rel="noopener">
+    <div class="meta">
+      <span class="label">WhatsApp</span>
+      <span class="value">+82 10-8480-8942</span>
+    </div>
+  </a>
+</div>
 
 <div class="toast" id="toast"></div>
 

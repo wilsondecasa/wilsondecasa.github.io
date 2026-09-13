@@ -166,7 +166,13 @@ nav.primary a:hover::after{transform:scaleX(1);}
 /* Single static frame — a slot for one photo or video, no carousel. */
 .hero{
   position:relative;
-  min-height:480px;
+  /* Scales with the viewport instead of a flat px value, so it stays
+     proportional on any phone/tablet rather than being tuned for one
+     screen size — ~62% of viewport height, never shorter than 420px
+     (still substantial on a short phone in landscape-ish aspect) or
+     taller than 720px (so it doesn't push products too far down on a
+     tall desktop viewport). */
+  min-height:clamp(420px, 62vh, 720px);
   color:var(--khaki);
   overflow:hidden;
   display:flex;align-items:center;
@@ -443,6 +449,74 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .cart-drawer.open{transform:translateX(0);}
 .cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--sand-line);flex:none;}
 .cart-head h3{margin:0;font-size:18px;}
+
+/* ---------- Contact modal (email / email+WhatsApp popovers) ----------
+   Small centered dialog, reusing .overlay's backdrop pattern but with its
+   own overlay element (#contactOverlay) so it doesn't fight the cart
+   drawer's open/close state. Two variants share this markup/CSS — which
+   options show is decided in the HTML, not here. */
+.contact-modal{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.96);
+  width:360px;max-width:88vw;
+  background:var(--surface);border:1px solid var(--sand-line);border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:28px 24px 24px;
+  z-index:101;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;
+}
+.contact-modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+.contact-modal .close-x{position:absolute;top:12px;right:14px;}
+.contact-modal h3{margin:0 0 6px;font-size:18px;padding-right:24px;}
+.contact-modal .sub{color:var(--olive-text);font-size:13px;margin:0 0 20px;}
+.contact-option{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;border:1px solid var(--sand-line);border-radius:6px;
+  margin-bottom:10px;
+}
+.contact-option:last-child{margin-bottom:0;}
+.contact-option .meta{min-width:0;}
+.contact-option .label{
+  display:block;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--olive-text);margin-bottom:3px;
+}
+.contact-option .value{font-size:13.5px;color:var(--khaki);word-break:break-all;}
+.contact-option .copy-btn{
+  flex:none;background:var(--brass);color:var(--charcoal);border:none;
+  font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+  padding:9px 13px;border-radius:2px;cursor:pointer;
+}
+.contact-option.link-row{
+  text-decoration:none;color:inherit;cursor:pointer;transition:border-color .15s ease;
+}
+.contact-option.link-row:hover{border-color:var(--brass);}
+
+/* ---------- Contact page (contact.html) ----------
+   .contact-card is the static, in-page twin of .contact-modal: same look,
+   but laid out in normal document flow instead of a fixed centered dialog.
+   It shares .contact-option/.copy-btn styling and JS wiring above. */
+.contact-page-intro{max-width:60ch;margin:0 0 36px;}
+.contact-page-intro p{color:var(--olive-text);font-size:15.5px;}
+.contact-cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px;}
+.contact-card{
+  background:var(--surface);border:1px solid var(--sand-line);border-radius:var(--radius);
+  padding:28px 24px 24px;
+}
+.contact-card h3{margin:0 0 6px;font-size:18px;}
+.contact-card .sub{color:var(--olive-text);font-size:13px;margin:0 0 20px;}
+.contact-social-card{grid-column:1 / -1;}
+.contact-social-card .social-row{margin-top:4px;}
+.contact-social-card .social-row a{
+  width:42px;height:42px;border:1px solid var(--sand-line);border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;margin-right:10px;
+  color:var(--khaki);transition:border-color .15s ease,color .15s ease;
+}
+.contact-social-card .social-row a:hover{border-color:var(--brass);color:var(--brass);}
+.contact-social-card .social-row svg{width:19px;height:19px;}
+@media(max-width:720px){
+  .contact-cards{grid-template-columns:1fr;}
+}
 
 /* ---------- Cart drawer: single step (items + cross-sell), then hand off ----------
    Checking out now navigates to the dedicated checkout.html page — fulfillment,
