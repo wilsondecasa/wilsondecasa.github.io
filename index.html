@@ -61,17 +61,22 @@
   carousel. There's nothing to add/remove here; just set the media:
     - Photo:  add a background-image style to .hero-media below, e.g.
               <div class="hero-media" id="heroMedia" style="background-image:url('images/your-photo.jpg')">
-              It layers under the same dark gradient defined in css/style.css
-              (.hero-media) so the title stays readable over any photo.
-    - Video:  put a <video class="hero-media-video" autoplay muted loop
-              playsinline poster="images/your-poster.jpg"><source src="images/your-video.mp4" type="video/mp4"></video>
-              as the FIRST child inside .hero-media, and leave the
-              background-image off (the video covers the frame itself).
+              (remove the <video> below first) — the .hero::after dark
+              gradient in css/style.css still layers over it so the title
+              stays readable over any photo.
+    - Video:  keep the <video class="hero-media-video"> as the FIRST child
+              inside .hero-media, swap its poster/source, and leave any
+              background-image off .hero-media (the video covers the frame
+              itself).
 -->
 <section class="hero">
   <div class="hero-bg-ring"></div>
   <div class="hero-bg-ring small"></div>
-  <div class="hero-media" id="heroMedia"></div>
+  <div class="hero-media" id="heroMedia">
+    <video class="hero-media-video" autoplay muted loop playsinline poster="images/hero-poster.jpg">
+      <source src="videos/hero-coffee-farm.mp4" type="video/mp4">
+    </video>
+  </div>
   <div class="hero-inner">
     <span class="eyebrow">GADELO COFFEE ROASTERS</span>
     <h1>Roasted in Korea.<br><em>Made for the mission.</em></h1>
