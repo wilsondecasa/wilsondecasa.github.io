@@ -41,6 +41,12 @@ body{
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+/* Screen-reader/SEO-only text: kept in the DOM (so the page still has a
+   proper <h1> landmark) but never shown on screen. */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
 h1,h2,h3,.stencil{
   font-family:'Black Ops One',cursive;
   font-weight:400;
@@ -191,27 +197,6 @@ nav.primary a:hover::after{transform:scaleX(1);}
   position:absolute;inset:0;
   width:100%;height:100%;object-fit:cover;
 }
-.hero-inner{
-  max-width:680px;margin:0 auto;
-  padding:120px 24px;
-  text-align:center;
-  position:relative;z-index:2;
-  width:100%;
-}
-.hero h1{
-  font-size:clamp(34px,4.8vw,62px);
-  line-height:1.18;
-  margin:14px 0 0;
-  color:var(--khaki);
-}
-.hero h1 em{font-style:normal;color:var(--brass);}
-.hero-bg-ring{
-  position:absolute;right:-120px;top:-120px;
-  width:520px;height:520px;border:1px solid rgba(239,234,214,.14);
-  border-radius:50%;
-  z-index:1;
-}
-.hero-bg-ring.small{right:60px;top:220px;width:260px;height:260px;}
 
 /* ---------- Section shells ---------- */
 section{padding:80px 0;}
@@ -300,10 +285,23 @@ section{padding:80px 0;}
 .blend-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px;flex:1;}
 .blend-name-link{font-family:'Black Ops One',cursive;font-size:15px;color:var(--khaki);}
 .blend-name-link:hover{color:var(--brass-dark);}
-.blend-origin{font-family:'Space Mono',monospace;font-size:10.8px;color:var(--olive-text);letter-spacing:.02em;}
+.blend-origin{
+  font-family:'Space Mono',monospace;font-size:10.8px;color:var(--olive-text);letter-spacing:.02em;
+  /* Cup-notes text runs from one short line to three long ones depending on
+     the blend, which used to push the size buttons below it to a different
+     height on every card. Reserving a fixed 3-line block (and clipping
+     anything longer) keeps the size-select row at the same position on
+     every card in the grid regardless of how long that blend's note is. */
+  line-height:1.5;
+  min-height:calc(1.5em * 3);
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
 .size-select{display:flex;gap:6px;}
 .size-opt{
-  flex:1;text-align:center;padding:7px 4px;border:1px solid var(--sand-line);
+  flex:1;min-width:0;text-align:center;padding:7px 4px;border:1px solid var(--sand-line);
   font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;border-radius:2px;
   background:var(--khaki-dim);
 }
@@ -664,7 +662,6 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   }
   .hamburger{display:flex;}
   .icon-btn{width:44px;height:44px;} /* larger touch target on mobile */
-  .hero-inner{padding-top:56px;}
   .hero-ctas{flex-direction:column;align-items:stretch;}
   .hero-ctas .btn{width:100%;}
   .blend-grid{grid-template-columns:1fr 1fr;gap:14px;}
@@ -694,9 +691,22 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
      wrapped onto 3 lines. Full-width fixes that without shrinking the text. */
   .price-row{flex-direction:column;align-items:stretch;gap:8px;}
   .add-btn{width:100%;padding:9px 10px;}
-  .hero h1{font-size:clamp(28px,8vw,40px);}
   .addr-row-split{flex-direction:column;gap:8px;}
   .footer-bottom{justify-content:center;text-align:center;}
   .pdp-trust{gap:12px;}
   .pdp-pill-row{gap:6px;}
+  /* At 2-column card width, three size buttons plus their "(400g)"-style
+     sub-label were wider than the card's own content box — the row
+     overflowed and .blend-card's overflow:hidden clipped the rightmost
+     button. Tightening the gap/padding/font here buys back just enough
+     width to fit all three without clipping. */
+  .size-select{gap:4px;}
+  .size-opt{padding:6px 2px;font-size:10px;}
+}
+@media (max-width:380px){
+  /* Still too tight on the smallest phones even after the shrink above —
+     drop the gram sub-label (e.g. "(200g)") and keep only "7oz"/"14oz"/
+     "2.2lb". The size is still unambiguous and the grams are one tap away
+     on the product page. */
+  .size-opt .size-sub{display:none;}
 }

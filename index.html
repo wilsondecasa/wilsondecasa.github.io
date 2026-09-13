@@ -70,17 +70,15 @@
               itself).
 -->
 <section class="hero">
-  <div class="hero-bg-ring"></div>
-  <div class="hero-bg-ring small"></div>
   <div class="hero-media" id="heroMedia">
     <video class="hero-media-video" autoplay muted loop playsinline poster="images/hero-poster.jpg">
       <source src="videos/hero-coffee-farm.mp4" type="video/mp4">
     </video>
   </div>
-  <div class="hero-inner">
-    <span class="eyebrow">GADELO COFFEE ROASTERS</span>
-    <h1>Roasted in Korea.<br><em>Made for the mission.</em></h1>
-  </div>
+  <!-- No visible text/shapes over the video, per request — this h1 is
+       screen-reader/SEO only (.sr-only in css/style.css), so the page still
+       has exactly one <h1> without showing anything on screen. -->
+  <h1 class="sr-only">GADELO Coffee Roasters — Roasted in Korea</h1>
 </section>
 
 <!-- ================= Featured Blends (core lineup) ================= -->
@@ -248,16 +246,15 @@
     <div>
       <span class="giveback-badge">GADELO Gives Back</span>
       <h2>Coffee support for your next formation.</h2>
-      <p>GADELO sponsors coffee and roasted-bean donations for squad- and company-sized unit events — hails and farewells, dining-ins, dedication ceremonies, and more. If your unit has something coming up, let us know.</p>
+      <p>GADELO sponsors coffee and roasted-bean donations for unit training, offices, and events — welcomes, farewells, dedication ceremonies, and more. If your unit has something coming up, let us know.</p>
       <div class="hero-ctas">
-        <a href="#contact" class="btn btn-brass">협찬·지원 문의/신청</a>
-        <a href="#contact" class="btn btn-outline-light">Contact Us</a>
+        <a href="#contact" class="btn btn-brass">Apply for Sponsorship</a>
       </div>
     </div>
     <div class="giveback-visual">
-      <div class="item"><span class="num">01</span><span class="cap">Hails &amp; Farewells</span></div>
-      <div class="item"><span class="num">02</span><span class="cap">Dining-Ins</span></div>
-      <div class="item"><span class="num">03</span><span class="cap">Dedication Ceremonies</span></div>
+      <div class="item"><span class="num">01</span><span class="cap">훈련</span></div>
+      <div class="item"><span class="num">02</span><span class="cap">사무실</span></div>
+      <div class="item"><span class="num">03</span><span class="cap">행사(환영, 작별, 헌정식 등)</span></div>
     </div>
   </div>
 </section>
