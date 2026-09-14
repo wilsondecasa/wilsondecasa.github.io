@@ -652,8 +652,9 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 
 /* ---------- Fulfillment + address (checkout.html) ----------
    Only used on the dedicated checkout page now — the cart drawer itself no
-   longer collects fulfillment/address. International/APO-FPO delivery is out
-   of scope for now — domestic (off-post) address only. */
+   longer collects fulfillment/address. Two methods: domestic (Korea, flat
+   fee) and international (APO/FPO — Japan/Okinawa/Hawaii/Guam, weight-based
+   tier lookup, see js/cart-store.js). */
 .fulfill-choice{
   display:flex;flex-direction:column;gap:8px;
 }
@@ -669,6 +670,37 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .fulfill-fee{color:var(--brass-dark);font-weight:700;white-space:nowrap;}
 .pickup-note{
   margin:0;padding-top:14px;font-size:12.5px;line-height:1.6;color:var(--olive-text);
+}
+
+/* ---------- International (APO/FPO) address block — added 2026-09-14 ---------- */
+.addr-warning{
+  display:block;margin:0 0 14px;padding:12px 14px;
+  background:rgba(208,112,71,.14);border:1px solid var(--field-rust);border-radius:2px;
+  font-size:12.5px;line-height:1.6;color:var(--ink);
+}
+.addr-warning-en{display:block;margin-top:6px;color:var(--olive-text);font-size:11.5px;}
+.addr-review{
+  margin-top:14px;padding:14px;border:1px solid var(--sand-line);border-radius:2px;background:var(--khaki-dim);
+}
+.addr-review h5{
+  margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--olive-text);
+}
+.addr-review-text{font-size:13px;line-height:1.6;color:var(--ink);margin-bottom:12px;white-space:pre-line;}
+.addr-confirm-check{
+  display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.5;color:var(--ink);cursor:pointer;
+}
+.addr-confirm-check input{
+  width:auto;padding:0;margin:3px 0 0;accent-color:var(--field-rust);flex:none;
+}
+.addr-manual-quote{
+  margin-top:14px;padding:12px 14px;border:1px solid var(--field-rust);border-radius:2px;
+  background:rgba(208,112,71,.14);color:var(--ink);
+}
+.addr-manual-quote a{color:var(--brass-dark);text-decoration:underline;}
+.checkout-blocked{
+  padding:12px 14px;border:1px solid var(--sand-line);border-radius:2px;background:var(--khaki-dim);
+  color:var(--olive-text);margin-top:16px;
 }
 
 /* ---------- Order summary + PayPal button (checkout.html sidebar) ---------- */

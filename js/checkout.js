@@ -1,9 +1,9 @@
 // GADELO — checkout page (checkout.html), PayPal JS SDK v6
 //
 // Reached from the cart drawer's single "Checkout" button. Reads the cart from
-// the shared store (js/cart-store.js). Fulfillment is Korea domestic delivery
-// only (store pickup has been retired — international & APO/FPO coming
-// later), then shows whichever payment buttons PayPal reports as eligible: PayPal,
+// the shared store (js/cart-store.js), lets the shopper pick fulfillment
+// (pickup / Korea domestic delivery — international & APO/FPO coming later),
+// then shows whichever payment buttons PayPal reports as eligible: PayPal,
 // a hosted "Debit or Credit Card" guest-checkout button, and Google Pay.
 //
 // Order creation + capture happen on a small separate backend (a Cloudflare
@@ -104,12 +104,14 @@
   }
   document.addEventListener('gadelo:cartchange', renderSummary);
 
-  // ---------- Fulfillment: Korea domestic delivery only (store pickup retired) ----------
+  // ---------- Fulfillment: pickup / Korea domestic delivery ----------
   var fulfillRadios = document.querySelectorAll('input[name="fulfillMethod"]');
-  var addressBlock = document.getElementById('cartAddress'); // pickupNote element was removed — retired with store pickup
+  var addressBlock = document.getElementById('cartAddress');
+  var pickupNote = document.getElementById('pickupNote');
 
-  function applyFulfillment() {
-    if (addressBlock) addressBlock.hidden = false;
+  function applyFulfillment(method) {
+    if (addressBlock) addressBlock.hidden = method === 'pickup';
+    if (pickupNote) pickupNote.hidden = method !== 'pickup';
     renderTotals();
   }
   fulfillRadios.forEach(function (r) {
@@ -167,9 +169,10 @@
 
   function currentFulfillMethod() {
     var checked = document.querySelector('input[name="fulfillMethod"]:checked');
-    return checked ? checked.value : 'domestic';
+    return checked ? checked.value : 'pickup';
   }
   function requiredFieldsOk(method) {
+    if (method === 'pickup') return true;
     var basicsOk = val('addrName') && val('addrPhone') && val('addrLine1') && val('addrCity') && val('addrZip');
     if (!basicsOk) {
       showToast('Please fill in your name, phone, address, city and ZIP first.');
