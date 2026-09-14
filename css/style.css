@@ -365,12 +365,13 @@ section{padding:80px 0;}
 .giveback-visual .item .cap{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.04em;color:#e3e5d1;}
 
 /* ---------- Sponsor logo banner (fire departments, etc.) ----------
-   White ribbon strip below Give Back, infinite left-to-right scrolling logo
-   row. .sponsor-track holds the logo list TWICE back-to-back (two
-   .sponsor-track-set groups) and animates from -50% to 0% so the loop is
-   seamless — the two groups must always stay identical; edit both the same
-   way. Items below are placeholders (flame badge + generic label) — swap in
-   real fire-department logo images when they're provided. */
+   White ribbon strip below Give Back. Shows ONE logo at a time, sliding
+   right-to-left across the full width of the banner — it enters fully
+   off-screen on the right, crosses the whole strip, and exits fully
+   off-screen on the left before the animation loops, so the loop is
+   invisible (no jump/cut mid-screen). To add a second sponsor later, this
+   single-logo approach would need to become a short list that takes turns
+   crossing the strip — ask and it can be extended. */
 .sponsor-banner{
   background:#fff;
   overflow:hidden;
@@ -385,19 +386,38 @@ section{padding:80px 0;}
   margin-bottom:16px;
 }
 .sponsor-track{
-  display:flex;width:max-content;
-  animation:sponsor-scroll 26s linear infinite;
+  position:relative;
+  width:100%;
+  height:78px;
+  overflow:hidden;
 }
-.sponsor-banner:hover .sponsor-track{animation-play-state:paused;}
+.sponsor-item{
+  position:absolute;
+  top:50%;
+  left:100%;
+  width:max-content;
+  display:flex;align-items:center;
+  transform:translateY(-50%) translateX(0);
+  animation:sponsor-scroll 13s linear infinite;
+  will-change:transform;
+}
+.sponsor-banner:hover .sponsor-item{animation-play-state:paused;}
 @keyframes sponsor-scroll{
-  from{transform:translateX(-50%);}
-  to{transform:translateX(0);}
+  from{transform:translateY(-50%) translateX(0);}
+  to{transform:translateY(-50%) translateX(calc(-100vw - 100%));}
 }
-.sponsor-track-set{display:flex;align-items:center;gap:64px;flex:none;padding-right:64px;}
-.sponsor-item{display:flex;align-items:center;flex:none;}
-.sponsor-item img{height:52px;width:auto;display:block;}
+/* max-width:none overrides the site-wide img{max-width:100%} reset — inside
+   an absolutely-positioned auto-width parent that reset creates a circular
+   sizing bug (parent width depends on image, image width capped by parent)
+   that some browsers resolve as 0 width. This logo has no container to
+   overflow, so the cap isn't needed. */
+.sponsor-item img{height:78px;width:auto;max-width:none;display:block;}
 @media(prefers-reduced-motion:reduce){
-  .sponsor-track{animation:none;}
+  .sponsor-item{
+    animation:none;
+    left:50%;
+    transform:translateY(-50%) translateX(-50%);
+  }
 }
 
 /* ---------- Statement banner ---------- */
