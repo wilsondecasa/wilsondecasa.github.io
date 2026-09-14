@@ -1,9 +1,9 @@
 // GADELO — checkout page (checkout.html), PayPal JS SDK v6
 //
 // Reached from the cart drawer's single "Checkout" button. Reads the cart from
-// the shared store (js/cart-store.js), lets the shopper pick fulfillment
-// (pickup / Korea domestic delivery — international & APO/FPO coming later),
-// then shows whichever payment buttons PayPal reports as eligible: PayPal,
+// the shared store (js/cart-store.js). Fulfillment is Korea domestic delivery
+// only (store pickup has been retired — international & APO/FPO coming
+// later), then shows whichever payment buttons PayPal reports as eligible: PayPal,
 // a hosted "Debit or Credit Card" guest-checkout button, and Google Pay.
 //
 // Order creation + capture happen on a small separate backend (a Cloudflare
@@ -91,11 +91,41 @@
       .join('');
   }
 
+  var cartDestRowEl = document.getElementById('cartDestRow');
+  var cartDestValueEl = document.getElementById('cartDestValue');
+
   function renderTotals() {
     var t = store.totals();
     if (cartSubtotalEl) cartSubtotalEl.textContent = fmtUSD(t.subtotal);
-    if (cartShippingEl) cartShippingEl.textContent = t.shipping > 0 ? fmtUSD(t.shipping) : 'Free';
-    if (cartTotalEl) cartTotalEl.textContent = fmtUSD(t.total);
+    if (cartShippingEl) {
+      if (t.manualQuoteRequired) {
+        cartShippingEl.textContent = 'See note below';
+      } else if (t.needsDestination) {
+        cartShippingEl.textContent = 'Select destination';
+      } else {
+        cartShippingEl.textContent = t.shipping > 0 ? fmtUSD(t.shipping) : 'Free';
+      }
+    }
+    if (cartTotalEl) cartTotalEl.textContent = fmtUSD(t.subtotal + (t.manualQuoteRequired || t.needsDestination ? 0 : t.shipping));
+
+    if (cartDestRowEl && cartDestValueEl) {
+      var method = currentFulfillMethod();
+      if (method === 'international') {
+        var dest = store.getIntlDestination();
+        if (dest) {
+          var zoneLabel = t.zone ? store.zoneLabels[t.zone] : '';
+          var baseTxt = store.baseLabel(dest.base);
+          cartDestValueEl.textContent = (baseTxt || store.regionLabels[dest.region] || '') + (zoneLabel ? ' (' + zoneLabel + ')' : '');
+          cartDestRowEl.hidden = false;
+        } else {
+          cartDestRowEl.hidden = true;
+        }
+      } else {
+        cartDestRowEl.hidden = true;
+      }
+    }
+
+    updatePaymentGate();
   }
 
   function renderSummary() {
@@ -104,14 +134,15 @@
   }
   document.addEventListener('gadelo:cartchange', renderSummary);
 
-  // ---------- Fulfillment: pickup / Korea domestic delivery ----------
+  // ---------- Fulfillment: Korea domestic delivery, or International (APO/FPO) ----------
   var fulfillRadios = document.querySelectorAll('input[name="fulfillMethod"]');
   var addressBlock = document.getElementById('cartAddress');
-  var pickupNote = document.getElementById('pickupNote');
+  var addressBlockIntl = document.getElementById('cartAddressIntl');
 
-  function applyFulfillment(method) {
-    if (addressBlock) addressBlock.hidden = method === 'pickup';
-    if (pickupNote) pickupNote.hidden = method !== 'pickup';
+  function applyFulfillment() {
+    var method = currentFulfillMethod();
+    if (addressBlock) addressBlock.hidden = method !== 'domestic';
+    if (addressBlockIntl) addressBlockIntl.hidden = method !== 'international';
     renderTotals();
   }
   fulfillRadios.forEach(function (r) {
@@ -167,12 +198,348 @@
     window.gadeloAddress = { save: saveCurrent };
   })();
 
+  // ---------- CAMP (APO/FPO) address — region + mandatory base, then an
+  // explicit on-base/off-base choice picks the matching address fields ----------
+  // Japan (Mainland) / Okinawa / Guam ("military" regions below) require a
+  // base to be picked (that's also how the shopper sees an estimated fee
+  // up front), then a residency radio (on-base vs off-base) swaps in either
+  // APO/FPO-style fields or a regular local-address field set. Hawaii is a
+  // real US state with no APO/FPO addressing at all, so it keeps its own
+  // separate standard street-address field set (added 2026-09-14, 9차) with
+  // no base/residency choice. Korea (on-post) is planned (2026-09-14, 10차
+  // decision) but not yet enabled here — its base list is still pending.
+  var intlRegionEl = document.getElementById('intlRegion');
+  var intlBaseEl = document.getElementById('intlBase');
+  var intlBaseFeeHintEl = document.getElementById('intlBaseFeeHint');
+  var intlFieldsMilitaryEl = document.getElementById('intlFieldsMilitary');
+  var intlFieldsHawaiiEl = document.getElementById('intlFieldsHawaii');
+  var intlFieldsOnBaseEl = document.getElementById('intlFieldsOnBase');
+  var intlFieldsOffBaseEl = document.getElementById('intlFieldsOffBase');
+  var intlResidencyRadios = document.querySelectorAll('input[name="intlResidency"]');
+  var intlReviewBlock = document.getElementById('intlAddressReview');
+  var intlReviewText = document.getElementById('intlAddressReviewText');
+  var intlConfirmCheck = document.getElementById('intlConfirmCheck');
+  var intlManualQuoteEl = document.getElementById('intlManualQuote');
+  var intlFields = {
+    name: document.getElementById('intlName'),
+    phone: document.getElementById('intlPhone'),
+    email: document.getElementById('intlEmail'),
+    pscCmr: document.getElementById('intlPscCmr'),
+    box: document.getElementById('intlBox'),
+    apoCode: document.getElementById('intlApoCode'),
+    offStreet: document.getElementById('intlOffStreet'),
+    offLine2: document.getElementById('intlOffLine2'),
+    offCity: document.getElementById('intlOffCity'),
+    offPostal: document.getElementById('intlOffPostal'),
+    hiStreet: document.getElementById('intlHiStreet'),
+    hiLine2: document.getElementById('intlHiLine2'),
+    hiCity: document.getElementById('intlHiCity'),
+    hiZip: document.getElementById('intlHiZip')
+  };
+
+  function isHawaiiRegion(region) {
+    return region === 'hawaii';
+  }
+  function isMilitaryRegion(region) {
+    return region === 'japan_mainland' || region === 'okinawa' || region === 'guam';
+  }
+  function currentResidency() {
+    var checked = document.querySelector('input[name="intlResidency"]:checked');
+    return checked ? checked.value : '';
+  }
+
+  (function () {
+    if (!intlRegionEl) return; // page without the international block (shouldn't happen on checkout.html)
+
+    var STORAGE_KEY = 'gadelo_last_address_intl';
+
+    function populateBaseOptions(region, selectedBaseId) {
+      if (!intlBaseEl) return;
+      intlBaseEl.innerHTML = '';
+      var bases = store.baseList.filter(function (b) { return b.region === region; });
+      if (!region || bases.length === 0) {
+        intlBaseEl.disabled = true;
+        var opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = region ? 'No bases listed yet' : 'Base…';
+        intlBaseEl.appendChild(opt);
+        return;
+      }
+      intlBaseEl.disabled = false;
+      var placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Base…';
+      intlBaseEl.appendChild(placeholder);
+      bases.forEach(function (b) {
+        var o = document.createElement('option');
+        o.value = b.id;
+        o.textContent = b.label;
+        if (b.id === selectedBaseId) o.selected = true;
+        intlBaseEl.appendChild(o);
+      });
+    }
+
+    // Base selection doesn't change the fee (it's the same weight-tier fee
+    // for the whole region/zone), but showing it right where the shopper
+    // picks their base is what actually answers "how much will this cost".
+    function updateBaseFeeHint(region) {
+      if (!intlBaseFeeHintEl) return;
+      if (!isMilitaryRegion(region)) {
+        intlBaseFeeHintEl.textContent = '';
+        return;
+      }
+      var zone = store.zoneForRegion(region);
+      var t = store.totals();
+      if (t.manualQuoteRequired) {
+        intlBaseFeeHintEl.textContent = 'This order is over 5kg — see the manual quote note below.';
+      } else if (zone && t.shipping != null) {
+        intlBaseFeeHintEl.textContent = 'Estimated shipping for this order: ' + fmtUSD(t.shipping) + ' (' + (store.zoneLabels[zone] || zone) + ')';
+      } else {
+        intlBaseFeeHintEl.textContent = '';
+      }
+    }
+
+    function toggleRegionFields(region) {
+      if (intlFieldsMilitaryEl) intlFieldsMilitaryEl.hidden = !isMilitaryRegion(region);
+      if (intlFieldsHawaiiEl) intlFieldsHawaiiEl.hidden = !isHawaiiRegion(region);
+      updateBaseFeeHint(region);
+    }
+
+    function toggleResidencyFields(residency) {
+      if (intlFieldsOnBaseEl) intlFieldsOnBaseEl.hidden = residency !== 'onbase';
+      if (intlFieldsOffBaseEl) intlFieldsOffBaseEl.hidden = residency !== 'offbase';
+    }
+
+    // Restore saved region/base + address fields (device-local, same pattern as domestic)
+    var savedRegion = '';
+    var savedBase = '';
+    try {
+      var dest = store.getIntlDestination();
+      if (dest) {
+        savedRegion = dest.region || '';
+        savedBase = dest.base || '';
+      }
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var data = JSON.parse(raw);
+        Object.keys(intlFields).forEach(function (key) {
+          if (intlFields[key] && data[key]) intlFields[key].value = data[key];
+        });
+        if (data.residency) {
+          intlResidencyRadios.forEach(function (r) { r.checked = r.value === data.residency; });
+        }
+      }
+    } catch (e) {
+      /* storage unavailable or corrupt — form just stays blank */
+    }
+    if (savedRegion) intlRegionEl.value = savedRegion;
+    toggleRegionFields(savedRegion);
+    populateBaseOptions(savedRegion, savedBase);
+    toggleResidencyFields(currentResidency());
+
+    function saveIntlAddress() {
+      try {
+        var data = {};
+        Object.keys(intlFields).forEach(function (key) {
+          if (intlFields[key]) data[key] = intlFields[key].value;
+        });
+        data.residency = currentResidency();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        /* private browsing, storage full, or disabled — ignore */
+      }
+    }
+    window.gadeloIntlAddress = { save: saveIntlAddress };
+
+    function onIntlChange() {
+      // Any edit invalidates a previous "yes this is correct" confirmation —
+      // the shopper must re-confirm after changing anything.
+      if (intlConfirmCheck) intlConfirmCheck.checked = false;
+      updateIntlReview();
+      renderTotals();
+    }
+
+    function updateIntlReview() {
+      var region = intlRegionEl.value;
+      if (!intlReviewBlock || !intlReviewText) return;
+      var lines;
+      if (isHawaiiRegion(region)) {
+        var hasMinimumHi = val('intlName') && val('intlPhone') && val('intlHiStreet') && val('intlHiCity') && val('intlHiZip');
+        if (!hasMinimumHi) {
+          intlReviewBlock.hidden = true;
+          return;
+        }
+        lines = [
+          val('intlName'),
+          val('intlHiStreet'),
+          val('intlHiLine2'),
+          (val('intlHiCity') ? val('intlHiCity') + ', HI ' + val('intlHiZip') : ''),
+          val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
+        ].filter(Boolean);
+      } else if (isMilitaryRegion(region)) {
+        var baseId = intlBaseEl ? intlBaseEl.value : '';
+        var residency = currentResidency();
+        var baseLabel = baseId ? store.baseLabel(baseId) : '';
+        var regionLine = [baseLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
+        if (residency === 'onbase') {
+          var hasMinimumOn = val('intlName') && val('intlPhone') && baseId && val('intlPscCmr') && val('intlApoCode');
+          if (!hasMinimumOn) {
+            intlReviewBlock.hidden = true;
+            return;
+          }
+          lines = [
+            val('intlName'),
+            val('intlPscCmr'),
+            val('intlBox') ? 'Box ' + val('intlBox') : '',
+            val('intlApoCode'),
+            regionLine,
+            val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
+          ].filter(Boolean);
+        } else if (residency === 'offbase') {
+          var hasMinimumOff = val('intlName') && val('intlPhone') && baseId && val('intlOffStreet') && val('intlOffCity') && val('intlOffPostal');
+          if (!hasMinimumOff) {
+            intlReviewBlock.hidden = true;
+            return;
+          }
+          lines = [
+            val('intlName'),
+            val('intlOffStreet'),
+            val('intlOffLine2'),
+            [val('intlOffCity'), val('intlOffPostal')].filter(Boolean).join(' '),
+            regionLine,
+            val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
+          ].filter(Boolean);
+        } else {
+          intlReviewBlock.hidden = true;
+          return;
+        }
+      } else {
+        intlReviewBlock.hidden = true;
+        return;
+      }
+      intlReviewText.textContent = lines.join('\n');
+      intlReviewBlock.hidden = false;
+    }
+
+    intlRegionEl.addEventListener('change', function () {
+      toggleRegionFields(intlRegionEl.value);
+      populateBaseOptions(intlRegionEl.value, '');
+      intlResidencyRadios.forEach(function (r) { r.checked = false; });
+      toggleResidencyFields('');
+      store.setIntlDestination(intlRegionEl.value, '');
+      onIntlChange();
+    });
+    if (intlBaseEl) {
+      intlBaseEl.addEventListener('change', function () {
+        store.setIntlDestination(intlRegionEl.value, intlBaseEl.value);
+        onIntlChange();
+      });
+    }
+    intlResidencyRadios.forEach(function (r) {
+      r.addEventListener('change', function () {
+        if (!r.checked) return;
+        toggleResidencyFields(r.value);
+        onIntlChange();
+      });
+    });
+    Object.keys(intlFields).forEach(function (key) {
+      if (intlFields[key]) intlFields[key].addEventListener('input', onIntlChange);
+    });
+    if (intlConfirmCheck) {
+      intlConfirmCheck.addEventListener('change', function () {
+        renderTotals();
+      });
+    }
+    // Cart weight (and so the estimated fee shown next to Base) can change
+    // from the drawer/other tabs without touching this form.
+    document.addEventListener('gadelo:cartchange', function () {
+      updateBaseFeeHint(intlRegionEl.value);
+    });
+
+    updateIntlReview();
+  })();
+
   function currentFulfillMethod() {
     var checked = document.querySelector('input[name="fulfillMethod"]:checked');
-    return checked ? checked.value : 'pickup';
+    return checked ? checked.value : 'domestic';
   }
+
+  function intlConfirmed() {
+    return !!(intlConfirmCheck && intlConfirmCheck.checked);
+  }
+
+  // Whether checkout can proceed right now — used by requiredFieldsOk() to
+  // block order creation, and by updatePaymentGate() to hide/disable the
+  // payment buttons with an explanatory message instead.
+  function checkoutBlockReason() {
+    var method = currentFulfillMethod();
+    if (method === 'domestic') return null;
+    // international
+    var t = store.totals();
+    if (t.manualQuoteRequired) {
+      return 'This order is over 5kg, outside our automatic shipping calculator. Please contact us for a manual quote before ordering.';
+    }
+    var region = intlRegionEl ? intlRegionEl.value : '';
+    if (!region) {
+      return 'Please select your delivery region.';
+    }
+    var basicsOk;
+    if (isHawaiiRegion(region)) {
+      basicsOk = val('intlName') && val('intlPhone') && val('intlHiStreet') && val('intlHiCity') && val('intlHiZip');
+      if (!basicsOk) {
+        return 'Please fill in your name, phone, street address, city, and ZIP code first.';
+      }
+    } else {
+      var baseId = intlBaseEl ? intlBaseEl.value : '';
+      if (!baseId) {
+        return 'Please select your base.';
+      }
+      var residency = currentResidency();
+      if (!residency) {
+        return 'Please choose on-base (APO/FPO) or off-base (local address).';
+      }
+      if (residency === 'onbase') {
+        basicsOk = val('intlName') && val('intlPhone') && val('intlPscCmr') && val('intlApoCode');
+        if (!basicsOk) {
+          return 'Please fill in your name, phone, PSC/CMR, and APO/FPO code first.';
+        }
+      } else {
+        basicsOk = val('intlName') && val('intlPhone') && val('intlOffStreet') && val('intlOffCity') && val('intlOffPostal');
+        if (!basicsOk) {
+          return 'Please fill in your name, phone, street address, city, and postal code first.';
+        }
+      }
+    }
+    if (!intlConfirmed()) {
+      return 'Please review your address above and check the confirmation box.';
+    }
+    return null;
+  }
+
+  function updatePaymentGate() {
+    var payButtons = document.getElementById('checkoutPayButtons');
+    var blockedEl = document.getElementById('checkoutBlocked');
+    var reason = checkoutBlockReason();
+    if (payButtons) payButtons.hidden = !!reason;
+    if (blockedEl) {
+      blockedEl.hidden = !reason;
+      if (reason) blockedEl.textContent = reason;
+    }
+    if (intlManualQuoteEl) {
+      var t = store.totals();
+      intlManualQuoteEl.hidden = !t.manualQuoteRequired;
+    }
+  }
+
   function requiredFieldsOk(method) {
-    if (method === 'pickup') return true;
+    if (method === 'international') {
+      var reason = checkoutBlockReason();
+      if (reason) {
+        showToast(reason);
+        return false;
+      }
+      return true;
+    }
     var basicsOk = val('addrName') && val('addrPhone') && val('addrLine1') && val('addrCity') && val('addrZip');
     if (!basicsOk) {
       showToast('Please fill in your name, phone, address, city and ZIP first.');
@@ -184,21 +551,57 @@
   // ---------- Talk to our own backend (paypal-worker) ----------
   function cartPayload() {
     var method = currentFulfillMethod();
+    var address;
+    if (method === 'domestic') {
+      address = {
+        name: val('addrName'),
+        line1: val('addrLine1'),
+        line2: val('addrLine2'),
+        city: val('addrCity'),
+        zip: val('addrZip')
+      };
+    } else if (method === 'international') {
+      var region = intlRegionEl ? intlRegionEl.value : '';
+      if (isHawaiiRegion(region)) {
+        address = {
+          name: val('intlName'),
+          phone: val('intlPhone'),
+          email: val('intlEmail'),
+          street: val('intlHiStreet'),
+          line2: val('intlHiLine2'),
+          city: val('intlHiCity'),
+          zip: val('intlHiZip')
+        };
+      } else if (currentResidency() === 'onbase') {
+        address = {
+          name: val('intlName'),
+          phone: val('intlPhone'),
+          email: val('intlEmail'),
+          pscCmr: val('intlPscCmr'),
+          box: val('intlBox'),
+          apoCode: val('intlApoCode')
+        };
+      } else {
+        address = {
+          name: val('intlName'),
+          phone: val('intlPhone'),
+          email: val('intlEmail'),
+          street: val('intlOffStreet'),
+          line2: val('intlOffLine2'),
+          city: val('intlOffCity'),
+          postal: val('intlOffPostal')
+        };
+      }
+    }
     return {
       items: store.items().map(function (i) {
         return { slug: i.slug, sizeKey: i.sizeKey, qty: i.qty };
       }),
       fulfillment: method,
-      address:
-        method === 'domestic'
-          ? {
-              name: val('addrName'),
-              line1: val('addrLine1'),
-              line2: val('addrLine2'),
-              city: val('addrCity'),
-              zip: val('addrZip')
-            }
-          : undefined
+      region: method === 'international' && intlRegionEl ? intlRegionEl.value : undefined,
+      base: method === 'international' && intlBaseEl ? intlBaseEl.value : undefined,
+      residency: method === 'international' && !isHawaiiRegion(intlRegionEl ? intlRegionEl.value : '') ? currentResidency() : undefined,
+      address: address
     };
   }
 
@@ -236,7 +639,11 @@
   }
 
   function onOrderComplete() {
+    var wasInternational = currentFulfillMethod() === 'international';
     if (window.gadeloAddress) window.gadeloAddress.save();
+    if (window.gadeloIntlAddress) window.gadeloIntlAddress.save();
+    var successApoWarning = document.getElementById('successApoWarning');
+    if (successApoWarning) successApoWarning.hidden = !wasInternational;
     store.clear();
     if (checkoutGrid) checkoutGrid.hidden = true;
     if (checkoutSuccess) checkoutSuccess.hidden = false;

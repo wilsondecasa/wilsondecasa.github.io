@@ -698,6 +698,20 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   background:rgba(208,112,71,.14);color:var(--ink);
 }
 .addr-manual-quote a{color:var(--brass-dark);text-decoration:underline;}
+/* On-base / off-base residency choice (added 2026-09-14, 10차) — same
+   flex-radio pattern as .addr-confirm-check above, for the same reason:
+   the generic .cart-address input{width:100%;padding:10px 12px} rule would
+   otherwise stretch these radio inputs into full-width boxes. */
+.addr-residency-choice{display:flex;flex-direction:column;gap:8px;margin:0 0 12px;}
+.addr-radio{
+  display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.5;color:var(--ink);cursor:pointer;
+}
+.addr-radio input{
+  width:auto;padding:0;margin:3px 0 0;accent-color:var(--field-rust);flex:none;
+}
+.addr-base-fee-hint{
+  font-size:11.5px;color:var(--brass-dark);margin:-2px 0 12px;line-height:1.5;
+}
 .checkout-blocked{
   padding:12px 14px;border:1px solid var(--sand-line);border-radius:2px;background:var(--khaki-dim);
   color:var(--olive-text);margin-top:16px;
