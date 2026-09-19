@@ -224,7 +224,6 @@
     name: document.getElementById('intlName'),
     phone: document.getElementById('intlPhone'),
     email: document.getElementById('intlEmail'),
-    pscCmr: document.getElementById('intlPscCmr'),
     box: document.getElementById('intlBox'),
     apoCode: document.getElementById('intlApoCode'),
     offStreet: document.getElementById('intlOffStreet'),
@@ -382,15 +381,14 @@
         var baseLabel = baseId ? store.baseLabel(baseId) : '';
         var regionLine = [baseLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
         if (residency === 'onbase') {
-          var hasMinimumOn = val('intlName') && val('intlPhone') && baseId && val('intlPscCmr') && val('intlApoCode');
+          var hasMinimumOn = val('intlName') && val('intlPhone') && baseId && val('intlBox') && val('intlApoCode');
           if (!hasMinimumOn) {
             intlReviewBlock.hidden = true;
             return;
           }
           lines = [
             val('intlName'),
-            val('intlPscCmr'),
-            val('intlBox') ? 'Box ' + val('intlBox') : '',
+            'Box ' + val('intlBox'),
             val('intlApoCode'),
             regionLine,
             val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
@@ -499,9 +497,9 @@
         return 'Please choose on-base (APO/FPO) or off-base (local address).';
       }
       if (residency === 'onbase') {
-        basicsOk = val('intlName') && val('intlPhone') && val('intlPscCmr') && val('intlApoCode');
+        basicsOk = val('intlName') && val('intlPhone') && val('intlBox') && val('intlApoCode');
         if (!basicsOk) {
-          return 'Please fill in your name, phone, PSC/CMR, and APO/FPO code first.';
+          return 'Please fill in your name, phone, Post Box number, and APO/FPO code first.';
         }
       } else {
         basicsOk = val('intlName') && val('intlPhone') && val('intlOffStreet') && val('intlOffCity') && val('intlOffPostal');
@@ -577,7 +575,6 @@
           name: val('intlName'),
           phone: val('intlPhone'),
           email: val('intlEmail'),
-          pscCmr: val('intlPscCmr'),
           box: val('intlBox'),
           apoCode: val('intlApoCode')
         };

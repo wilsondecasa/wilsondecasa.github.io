@@ -712,6 +712,24 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .addr-base-fee-hint{
   font-size:11.5px;color:var(--brass-dark);margin:-2px 0 12px;line-height:1.5;
 }
+/* Exception-contact buttons under the Post-Box-only on-base form (added
+   2026-09-14) — for shoppers whose situation doesn't fit Post Box delivery.
+   Each button uses that platform's own brand color so they're recognizable
+   without reading the label. */
+.addr-contact-alt{margin-top:2px;padding-top:12px;border-top:1px dashed var(--sand-line);}
+.addr-contact-alt-label{font-size:11.5px;color:var(--olive-text);line-height:1.5;margin:0 0 10px;}
+.social-contact-row{display:flex;flex-wrap:wrap;gap:8px;}
+.social-contact-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 14px;border-radius:20px;border:none;
+  font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.02em;
+  color:#fff;text-decoration:none;cursor:pointer;transition:opacity .15s ease;
+}
+.social-contact-btn:hover{opacity:.88;}
+.social-contact-btn svg{width:15px;height:15px;flex:none;}
+.sc-instagram{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4);}
+.sc-facebook{background:#1877F2;}
+.sc-whatsapp{background:#25D366;}
 .checkout-blocked{
   padding:12px 14px;border:1px solid var(--sand-line);border-radius:2px;background:var(--khaki-dim);
   color:var(--olive-text);margin-top:16px;

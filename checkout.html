@@ -38,8 +38,8 @@
     <h2>Order placed — thank you!</h2>
     <p>A receipt from PayPal is on its way to your email. We'll follow up directly with delivery details.</p>
     <div class="addr-warning" id="successApoWarning" hidden>
-      정확한 수취 주소(PSC/CMR, Box 번호, APO/FPO 코드 포함)를 입력해 주셨는지 다시 한 번 확인해주세요. 주소가 불명확하거나 형식이 맞지 않으면 우편물이 발송인에게 반송될 수 있으며, 이 경우 재배송 비용은 고객 부담입니다.
-      <span class="addr-warning-en">Please double-check that your address included your complete PSC/CMR, box number, and APO/FPO code. Incomplete or incorrectly formatted addresses may result in the package being returned to sender, and reshipping costs will be the customer's responsibility.</span>
+      정확한 수취 주소(Post Box 번호, APO/FPO 코드 포함)를 입력해 주셨는지 다시 한 번 확인해주세요. 주소가 불명확하거나 형식이 맞지 않으면 우편물이 발송인에게 반송될 수 있으며, 이 경우 재배송 비용은 고객 부담입니다.
+      <span class="addr-warning-en">Please double-check that your address included your complete Post Box number and APO/FPO code. Incomplete or incorrectly formatted addresses may result in the package being returned to sender, and reshipping costs will be the customer's responsibility.</span>
     </div>
     <a href="index.html#top" class="btn btn-brass">Back to Home</a>
   </div>
@@ -125,13 +125,33 @@
               <label class="addr-radio"><input type="radio" name="intlResidency" value="offbase"><span>영외(Off-base) — 현지 일반 주소로 받습니다 / I receive mail at a regular local address</span></label>
             </div>
 
+            <!-- On-base is Post Box only for now (2026-09-14, real-world
+                 feedback: an on-post servicemember can't receive mail at
+                 their PSC/CMR address and uses a Post Box instead). Direct
+                 PSC/CMR delivery may be added back later as order volume
+                 grows — for now those cases are routed to the contact
+                 buttons below. -->
             <div id="intlFieldsOnBase" hidden>
-              <div class="addr-row">
-                <input type="text" id="intlPscCmr" placeholder="PSC / CMR / Unit number">
-              </div>
               <div class="addr-row-split">
-                <input type="text" id="intlBox" placeholder="Box number">
+                <input type="text" id="intlBox" placeholder="Post Box number">
                 <input type="text" id="intlApoCode" placeholder="APO / FPO code">
+              </div>
+              <div class="addr-contact-alt">
+                <p class="addr-contact-alt-label">포스트 박스로 받기 어려운 상황이신가요? 편하신 방법으로 문의해주세요.<br><span class="addr-warning-en">Can't receive delivery at a Post Box? Reach out however's easiest for you.</span></p>
+                <div class="social-contact-row">
+                  <a class="social-contact-btn sc-instagram" href="https://www.instagram.com/gadelo_coffee_roasters/" target="_blank" rel="noopener" aria-label="Contact us on Instagram">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+                    <span>Instagram</span>
+                  </a>
+                  <a class="social-contact-btn sc-facebook" href="https://www.facebook.com/gadelocoffee?locale=ko_KR" target="_blank" rel="noopener" aria-label="Contact us on Facebook">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 8h-2c-1.1 0-2 .9-2 2v2H9v3h2v7h3v-7h2.2l.8-3H14v-1.5c0-.5.3-1 1-1h1.5V8z"/></svg>
+                    <span>Facebook</span>
+                  </a>
+                  <a class="social-contact-btn sc-whatsapp" href="https://wa.me/821084808942?text=Hi%20GADELO%2C%20I%20have%20a%20question%20about%20Post%20Box%20delivery%20for%20my%20order." target="_blank" rel="noopener" aria-label="Contact us on WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.07L2 22l5.06-1.35A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.6 0-3.13-.43-4.46-1.22l-.32-.19-3.02.8.81-2.94-.21-.32A7.94 7.94 0 0 1 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8zm4.4-5.9c-.24-.12-1.43-.7-1.65-.79-.22-.08-.38-.12-.54.12-.16.24-.62.79-.76.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.19-.46-.39-.4-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.43-.58 1.63-1.15.2-.57.2-1.05.14-1.15-.06-.1-.22-.16-.46-.28z"/></svg>
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
               </div>
             </div>
 
