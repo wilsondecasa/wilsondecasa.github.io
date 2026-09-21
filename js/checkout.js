@@ -163,9 +163,30 @@
     name: document.getElementById('intlName'),
     phone: document.getElementById('intlPhone'),
     email: document.getElementById('intlEmail'),
-    addressFree: document.getElementById('intlAddressFree'),
+    city: document.getElementById('intlCity'),
+    address: document.getElementById('intlAddress'),
+    addressDetail: document.getElementById('intlAddressDetail'),
     baseOther: intlBaseOtherEl
   };
+
+  // 14차: City / Address / 상세주소(detail) are three separate inputs on the
+  // page, but worker.js still only understands one newline-joined free-text
+  // address string (see the big comment above #cartAddressIntl in
+  // checkout.html) — this composes them into that same shape so the backend
+  // needs no changes. Address is line 1 (→ address_line_1); City and detail
+  // are joined onto line 2 (→ address_line_2). Blank fields are dropped, so
+  // an APO/FPO shopper who leaves City blank still gets a clean two-line
+  // address instead of a stray leading comma.
+  function composeIntlAddressText() {
+    var address = val('intlAddress');
+    var city = val('intlCity');
+    var detail = val('intlAddressDetail');
+    var lines = [];
+    if (address) lines.push(address);
+    var rest = [city, detail].filter(Boolean).join(', ');
+    if (rest) lines.push(rest);
+    return lines.join('\n');
+  }
 
   (function () {
     if (!intlRegionEl) return; // page without the international block (shouldn't happen on checkout.html)
@@ -254,6 +275,15 @@
         Object.keys(intlFields).forEach(function (key) {
           if (intlFields[key] && data[key]) intlFields[key].value = data[key];
         });
+        // 14차: a device that saved an address under 13차's single
+        // "addressFree" box won't have city/address/addressDetail keys —
+        // split its old free text into the new fields once, on first load,
+        // so returning customers don't just see an empty form.
+        if (data.addressFree && intlFields.address && !intlFields.address.value) {
+          var legacyLines = String(data.addressFree).split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+          if (legacyLines.length) intlFields.address.value = legacyLines[0];
+          if (legacyLines.length > 1 && intlFields.addressDetail) intlFields.addressDetail.value = legacyLines.slice(1).join(', ');
+        }
       }
     } catch (e) {
       /* storage unavailable or corrupt — form just stays blank */
@@ -294,12 +324,13 @@
       var baseId = intlBaseEl ? intlBaseEl.value : '';
       var campLabel = baseId === 'other' ? val('intlBaseOther') : store.baseLabel(baseId);
       var regionLine = [campLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
-      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && val('intlAddressFree');
+      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && val('intlAddress');
       if (!hasMinimum) {
         intlReviewBlock.hidden = true;
         return;
       }
-      var lines = [val('intlName'), val('intlAddressFree'), regionLine, val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')].filter(Boolean);
+      var addressSummary = [val('intlAddress'), val('intlCity'), val('intlAddressDetail')].filter(Boolean).join(', ');
+      var lines = [val('intlName'), addressSummary, regionLine, val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')].filter(Boolean);
       intlReviewText.textContent = lines.join('\n');
       intlReviewBlock.hidden = false;
     }
@@ -366,7 +397,7 @@
     if (baseId === 'other' && !val('intlBaseOther')) {
       return 'Please enter your camp name.';
     }
-    var basicsOk = val('intlName') && val('intlPhone') && val('intlAddressFree');
+    var basicsOk = val('intlName') && val('intlPhone') && val('intlAddress');
     if (!basicsOk) {
       return 'Please fill in your name, phone, and delivery address first.';
     }
@@ -412,7 +443,7 @@
       name: val('intlName'),
       phone: val('intlPhone'),
       email: val('intlEmail'),
-      text: val('intlAddressFree')
+      text: composeIntlAddressText()
     };
     return {
       items: store.items().map(function (i) {
