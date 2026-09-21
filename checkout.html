@@ -38,8 +38,7 @@
     <h2>Order placed — thank you!</h2>
     <p>A receipt from PayPal is on its way to your email. We'll follow up directly with delivery details.</p>
     <div class="addr-warning" id="successApoWarning" hidden>
-      정확한 배송 주소를 입력해 주셨는지 다시 한 번 확인해주세요. 주소가 불명확하거나 형식이 맞지 않으면 우편물이 발송인에게 반송될 수 있으며, 이 경우 재배송 비용은 고객 부담입니다.
-      <span class="addr-warning-en">Please double-check that your delivery address is complete and accurate. Incomplete or incorrectly formatted addresses may result in the package being returned to sender, and reshipping costs will be the customer's responsibility.</span>
+      Please double-check that your delivery address is complete and accurate. Incomplete or incorrectly formatted addresses may result in the package being returned to sender, and reshipping costs will be the customer's responsibility.
     </div>
     <a href="index.html#top" class="btn btn-brass">Back to Home</a>
   </div>
@@ -48,8 +47,7 @@
     <div class="checkout-main">
       <section class="checkout-section">
         <h2 class="checkout-section-title">1. Delivery</h2>
-        <p class="addr-note">받으시는 지역을 먼저 선택해주세요. 배송비는 지역 기준으로 자동 계산됩니다 (한국: 정액 $4, $50 이상 무료 / 그 외 지역: 장바구니 총 중량 기준). 캠프에 소속되어 계시면 선택해주시고, 아니라면 "No camp / regular address"를 선택하시면 됩니다 — 영외/영내, Post Box 등 받으시는 방식은 아래 주소칸에 자유롭게 적어주시면 됩니다.<br>
-        <span class="addr-warning-en">Please pick your delivery region first — shipping is calculated automatically from it (Korea: flat $4, free over $50 / other regions: based on total cart weight). If you're affiliated with a base, select it below; otherwise pick "No camp / regular address." However you'd like your package addressed — off-post, on-post, a Post Box, etc. — just write it in the address box below.</span></p>
+        <p class="addr-note">Please pick your delivery region first — shipping is calculated automatically from it (Korea: flat $4, free over $50 / other regions: based on total cart weight). If you're affiliated with a base, select it below; otherwise pick "No camp / regular address." However you'd like your package addressed — off-post, on-post, a Post Box, etc. — just write it in the address box below.</p>
 
         <!-- Unified delivery address (2026-09-21, 12차 → 13차 → 14차). Region +
              Camp are the structured pickers that drive the automatic
@@ -67,8 +65,7 @@
              one (그 경우 상세주소에 APO/FPO 코드를 적어주시면 됩니다). -->
         <div class="cart-address" id="cartAddressIntl">
           <div class="addr-warning">
-            정확한 배송 주소를 입력해주세요. 주소가 불명확할 경우 발송인에게 반송될 수 있습니다.
-            <span class="addr-warning-en">Please enter your complete and accurate mailing address. Incomplete or incorrectly formatted addresses may result in the package being returned to sender, and reshipping costs will be the customer's responsibility.</span>
+            Please enter your complete and accurate mailing address. Incomplete or incorrectly formatted addresses may result in the package being returned to sender, and reshipping costs will be the customer's responsibility.
           </div>
           <div class="addr-row">
             <input type="text" id="intlName" placeholder="Full name">
@@ -100,17 +97,17 @@
           <p class="addr-base-fee-hint" id="intlBaseFeeHint"></p>
 
           <div class="addr-row">
-            <input type="text" id="intlCity" placeholder="City / 도시 (leave blank for APO/FPO)">
+            <input type="text" id="intlCity" placeholder="City (leave blank for APO/FPO)">
           </div>
           <div class="addr-row">
-            <input type="text" id="intlAddress" placeholder="Address / 주소 (street address, camp name, PSC/CMR, Post Box, etc.)">
+            <input type="text" id="intlAddress" placeholder="Address (street address, camp name, PSC/CMR, Post Box, etc.)">
           </div>
           <div class="addr-row">
-            <textarea id="intlAddressDetail" rows="2" placeholder="상세주소 — APO/FPO 코드, 동/호수, 부대명 등 / Address detail — APO/FPO code, unit or apt number, building, etc. (optional)"></textarea>
+            <textarea id="intlAddressDetail" rows="2" placeholder="Address detail — APO/FPO code, unit or apt number, building, etc. (optional)"></textarea>
           </div>
 
           <div class="addr-contact-alt">
-            <p class="addr-contact-alt-label">주소 적는 게 헷갈리시면 편하게 문의해주세요.<br><span class="addr-warning-en">Not sure how to fill this in? Reach out however's easiest for you.</span></p>
+            <p class="addr-contact-alt-label">Not sure how to fill this in? Reach out however's easiest for you.</p>
             <div class="social-contact-row">
               <a class="social-contact-btn sc-instagram" href="https://www.instagram.com/gadelo_coffee_roasters/" target="_blank" rel="noopener" aria-label="Contact us on Instagram">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
@@ -132,13 +129,12 @@
             <div class="addr-review-text" id="intlAddressReviewText"></div>
             <label class="addr-confirm-check">
               <input type="checkbox" id="intlConfirmCheck">
-              <span>이 주소가 정확합니다. / Yes, this address is correct.</span>
+              <span>Yes, this address is correct.</span>
             </label>
           </div>
 
           <div class="cart-hint addr-manual-quote" id="intlManualQuote" hidden>
-            이 주문의 총 중량이 5kg를 초과해 자동 배송비 계산 범위를 벗어났습니다. 주문 전 <a href="contact.html">문의하기</a>로 배송비를 확인해주세요.<br>
-            <span class="addr-warning-en">This order's total weight is over 5kg, outside our automatic shipping calculator. Please contact us for a manual shipping quote before ordering.</span>
+            This order's total weight is over 5kg, outside our automatic shipping calculator. Please <a href="contact.html">contact us</a> for a manual shipping quote before ordering.
           </div>
         </div>
       </section>

@@ -667,7 +667,6 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   background:rgba(208,112,71,.14);border:1px solid var(--field-rust);border-radius:2px;
   font-size:12.5px;line-height:1.6;color:var(--ink);
 }
-.addr-warning-en{display:block;margin-top:6px;color:var(--olive-text);font-size:11.5px;}
 .addr-review{
   margin-top:14px;padding:14px;border:1px solid var(--sand-line);border-radius:2px;background:var(--khaki-dim);
 }
