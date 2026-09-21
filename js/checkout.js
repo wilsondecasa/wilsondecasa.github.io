@@ -1,10 +1,13 @@
 // GADELO — checkout page (checkout.html), PayPal JS SDK v6
 //
 // Reached from the cart drawer's single "Checkout" button. Reads the cart from
-// the shared store (js/cart-store.js). Fulfillment is Korea domestic delivery
-// only (store pickup has been retired — international & APO/FPO coming
-// later), then shows whichever payment buttons PayPal reports as eligible: PayPal,
-// a hosted "Debit or Credit Card" guest-checkout button, and Google Pay.
+// the shared store (js/cart-store.js). Delivery is one unified flow for every
+// order (13차, 2026-09-21) — region + camp (with a "No camp / regular
+// address" option for shoppers with no base affiliation) drive the automatic
+// shipping-fee estimate, and a single free-text box collects however the
+// shopper wants their address written. Then whichever payment buttons PayPal
+// reports as eligible are shown: PayPal, a hosted "Debit or Credit Card"
+// guest-checkout button, and Google Pay.
 //
 // Order creation + capture happen on a small separate backend (a Cloudflare
 // Worker — see /paypal-worker/ next to this site's own folder), never
@@ -109,17 +112,12 @@
     if (cartTotalEl) cartTotalEl.textContent = fmtUSD(t.subtotal + (t.manualQuoteRequired || t.needsDestination ? 0 : t.shipping));
 
     if (cartDestRowEl && cartDestValueEl) {
-      var method = currentFulfillMethod();
-      if (method === 'international') {
-        var dest = store.getIntlDestination();
-        if (dest && dest.region) {
-          var zoneLabel = t.zone ? store.zoneLabels[t.zone] : '';
-          var campTxt = store.destinationCampLabel(dest);
-          cartDestValueEl.textContent = (campTxt || store.regionLabels[dest.region] || '') + (zoneLabel ? ' (' + zoneLabel + ')' : '');
-          cartDestRowEl.hidden = false;
-        } else {
-          cartDestRowEl.hidden = true;
-        }
+      var dest = store.getIntlDestination();
+      if (dest && dest.region) {
+        var zoneLabel = t.zone ? store.zoneLabels[t.zone] : '';
+        var campTxt = store.destinationCampLabel(dest);
+        cartDestValueEl.textContent = (campTxt || store.regionLabels[dest.region] || '') + (zoneLabel ? ' (' + zoneLabel + ')' : '');
+        cartDestRowEl.hidden = false;
       } else {
         cartDestRowEl.hidden = true;
       }
@@ -134,84 +132,24 @@
   }
   document.addEventListener('gadelo:cartchange', renderSummary);
 
-  // ---------- Fulfillment: Korea domestic delivery, or International (APO/FPO) ----------
-  var fulfillRadios = document.querySelectorAll('input[name="fulfillMethod"]');
-  var addressBlock = document.getElementById('cartAddress');
-  var addressBlockIntl = document.getElementById('cartAddressIntl');
-
-  function applyFulfillment() {
-    var method = currentFulfillMethod();
-    if (addressBlock) addressBlock.hidden = method !== 'domestic';
-    if (addressBlockIntl) addressBlockIntl.hidden = method !== 'international';
-    renderTotals();
-  }
-  fulfillRadios.forEach(function (r) {
-    r.checked = r.value === store.getFulfillment();
-    r.addEventListener('change', function () {
-      if (!r.checked) return;
-      store.setFulfillment(r.value);
-      applyFulfillment(r.value);
-    });
-  });
-  applyFulfillment(store.getFulfillment());
-
-  // ---------- Saved delivery address (this device only — no account or login) ----------
-  (function () {
-    var STORAGE_KEY = 'gadelo_last_address';
-    var fields = {
-      name: document.getElementById('addrName'),
-      phone: document.getElementById('addrPhone'),
-      email: document.getElementById('addrEmail'),
-      line1: document.getElementById('addrLine1'),
-      line2: document.getElementById('addrLine2'),
-      city: document.getElementById('addrCity'),
-      zip: document.getElementById('addrZip')
-    };
-    if (!fields.name) {
-      window.gadeloAddress = { save: function () {} };
-      return;
-    }
-
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        var data = JSON.parse(raw);
-        Object.keys(fields).forEach(function (key) {
-          if (fields[key] && data[key]) fields[key].value = data[key];
-        });
-      }
-    } catch (e) {
-      /* storage unavailable or corrupt — form just stays blank */
-    }
-
-    function saveCurrent() {
-      try {
-        var data = {};
-        Object.keys(fields).forEach(function (key) {
-          if (fields[key]) data[key] = fields[key].value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch (e) {
-        /* private browsing, storage full, or disabled — ignore */
-      }
-    }
-    window.gadeloAddress = { save: saveCurrent };
-  })();
-
-  // ---------- CAMP address — region + mandatory camp, then ONE free-text
-  // delivery-address box (2026-09-21, 12차 — replaces the earlier
-  // region→base→on-base/off-base structured field sets, including the
-  // Post-Box-only 11차 version). Region drives the automatic shipping-fee
-  // estimate (Korea is a flat fee, same as Off-Post Delivery; Japan/
-  // Okinawa/Hawaii/Guam are weight-tiered — see cart-store.js). Camp is
-  // required too, mainly so the order summary can show "Ship to: [camp]",
-  // and always has an "Other" option so a camp missing from the list never
-  // blocks checkout. Everything else about the address — on-base vs
-  // off-base, Post Box vs PSC/CMR vs a regular street address — is one
-  // free-text box the shopper fills in however suits their situation; see
-  // worker.js buildShippingAddress() for how that text becomes a PayPal
-  // shipping address (APO/FPO wording in the text is what now decides the
-  // country code, instead of a separate on-base/off-base selector).
+  // ---------- Delivery address — region + mandatory camp, then ONE free-text
+  // delivery-address box (2026-09-21, 12차 introduced this shape for CAMP
+  // orders only; 13차 made it the ONLY delivery flow on the page, removing
+  // the old top-level "영외 배송 / CAMP" fulfillment radio entirely — every
+  // order, military-affiliated or not, goes through this one form now).
+  // Region drives the automatic shipping-fee estimate (Korea is a flat fee;
+  // Japan/Okinawa/Hawaii/Guam are weight-tiered — see cart-store.js). Camp
+  // is required too, mainly so the order summary can show "Ship to: [camp]"
+  // — its first option is "No camp / regular address" for shoppers with no
+  // base affiliation, and it always has an "Other" option so a camp missing
+  // from the list never blocks checkout. Everything else about the address
+  // — on-base vs off-base, Post Box vs PSC/CMR vs a regular street address
+  // — is one free-text box the shopper fills in however suits their
+  // situation; see worker.js buildPurchaseUnit() (the 'international'
+  // branch, the only branch this page ever sends into now) for how that
+  // text becomes a PayPal shipping address (APO/FPO wording in the text is
+  // what decides the country code, instead of a separate on-base/off-base
+  // selector).
   var intlRegionEl = document.getElementById('intlRegion');
   var intlBaseEl = document.getElementById('intlBase');
   var intlBaseOtherRow = document.getElementById('intlBaseOtherRow');
@@ -246,6 +184,15 @@
         return;
       }
       intlBaseEl.disabled = false;
+      // 13차: with the old "영외 배송" (regular, non-base) fulfillment choice
+      // gone, this same Camp dropdown now also has to serve shoppers with no
+      // base affiliation at all — "No camp / regular address" lets them move
+      // on without picking a real camp or falling into "Other".
+      var noneOpt = document.createElement('option');
+      noneOpt.value = 'none';
+      noneOpt.textContent = 'No camp / regular address';
+      if (selectedBaseId === 'none') noneOpt.selected = true;
+      intlBaseEl.appendChild(noneOpt);
       var bases = store.baseList.filter(function (b) { return b.region === region; });
       bases.forEach(function (b) {
         var o = document.createElement('option');
@@ -394,22 +341,16 @@
     updateIntlReview();
   })();
 
-  function currentFulfillMethod() {
-    var checked = document.querySelector('input[name="fulfillMethod"]:checked');
-    return checked ? checked.value : 'domestic';
-  }
-
   function intlConfirmed() {
     return !!(intlConfirmCheck && intlConfirmCheck.checked);
   }
 
   // Whether checkout can proceed right now — used by requiredFieldsOk() to
   // block order creation, and by updatePaymentGate() to hide/disable the
-  // payment buttons with an explanatory message instead.
+  // payment buttons with an explanatory message instead. 13차: this is now
+  // the only checkout flow on the page (the old "영외 배송" domestic-only
+  // path is gone), so there's no longer a fulfillment method to branch on.
   function checkoutBlockReason() {
-    var method = currentFulfillMethod();
-    if (method === 'domestic') return null;
-    // international / CAMP
     var t = store.totals();
     if (t.manualQuoteRequired) {
       return 'This order is over 5kg, outside our automatic shipping calculator. Please contact us for a manual quote before ordering.';
@@ -450,51 +391,37 @@
     }
   }
 
-  function requiredFieldsOk(method) {
-    if (method === 'international') {
-      var reason = checkoutBlockReason();
-      if (reason) {
-        showToast(reason);
-        return false;
-      }
-      return true;
-    }
-    var basicsOk = val('addrName') && val('addrPhone') && val('addrLine1') && val('addrCity') && val('addrZip');
-    if (!basicsOk) {
-      showToast('Please fill in your name, phone, address, city and ZIP first.');
+  function requiredFieldsOk() {
+    var reason = checkoutBlockReason();
+    if (reason) {
+      showToast(reason);
       return false;
     }
     return true;
   }
 
   // ---------- Talk to our own backend (paypal-worker) ----------
+  // 13차: every order now goes through the worker's 'international' pricing
+  // branch (it already handles Korea's flat/free fee as well as the
+  // weight-tiered zones — see worker.js), so `fulfillment` is always sent
+  // as 'international'. worker.js keeps its old 'domestic' branch working
+  // as a dormant fallback for any stale cached client, matching this
+  // project's usual backward-compatibility pattern.
   function cartPayload() {
-    var method = currentFulfillMethod();
-    var address;
-    if (method === 'domestic') {
-      address = {
-        name: val('addrName'),
-        line1: val('addrLine1'),
-        line2: val('addrLine2'),
-        city: val('addrCity'),
-        zip: val('addrZip')
-      };
-    } else if (method === 'international') {
-      address = {
-        name: val('intlName'),
-        phone: val('intlPhone'),
-        email: val('intlEmail'),
-        text: val('intlAddressFree')
-      };
-    }
+    var address = {
+      name: val('intlName'),
+      phone: val('intlPhone'),
+      email: val('intlEmail'),
+      text: val('intlAddressFree')
+    };
     return {
       items: store.items().map(function (i) {
         return { slug: i.slug, sizeKey: i.sizeKey, qty: i.qty };
       }),
-      fulfillment: method,
-      region: method === 'international' && intlRegionEl ? intlRegionEl.value : undefined,
-      base: method === 'international' && intlBaseEl ? intlBaseEl.value : undefined,
-      baseOther: method === 'international' && intlBaseEl && intlBaseEl.value === 'other' ? val('intlBaseOther') : undefined,
+      fulfillment: 'international',
+      region: intlRegionEl ? intlRegionEl.value : undefined,
+      base: intlBaseEl ? intlBaseEl.value : undefined,
+      baseOther: intlBaseEl && intlBaseEl.value === 'other' ? val('intlBaseOther') : undefined,
       address: address
     };
   }
@@ -506,7 +433,7 @@
       showToast('Your cart is empty.');
       throw new Error('Cart is empty');
     }
-    if (!requiredFieldsOk(currentFulfillMethod())) {
+    if (!requiredFieldsOk()) {
       throw new Error('Missing required address fields');
     }
     var res = await fetch(API_BASE + '/create-order', {
@@ -533,11 +460,11 @@
   }
 
   function onOrderComplete() {
-    var wasInternational = currentFulfillMethod() === 'international';
-    if (window.gadeloAddress) window.gadeloAddress.save();
     if (window.gadeloIntlAddress) window.gadeloIntlAddress.save();
+    // 13차: every order goes through the free-text address flow now, so the
+    // "double-check your address" warning always applies.
     var successApoWarning = document.getElementById('successApoWarning');
-    if (successApoWarning) successApoWarning.hidden = !wasInternational;
+    if (successApoWarning) successApoWarning.hidden = false;
     store.clear();
     if (checkoutGrid) checkoutGrid.hidden = true;
     if (checkoutSuccess) checkoutSuccess.hidden = false;
@@ -650,7 +577,7 @@
                 showToast('Your cart is empty.');
                 return;
               }
-              if (!requiredFieldsOk(currentFulfillMethod())) return;
+              if (!requiredFieldsOk()) return;
               paymentsClient
                 .loadPaymentData({
                   apiVersion: config.apiVersion,

@@ -650,24 +650,13 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 }
 .cart-address select{appearance:auto;}
 
-/* ---------- Fulfillment + address (checkout.html) ----------
+/* ---------- Delivery address (checkout.html) ----------
    Only used on the dedicated checkout page now — the cart drawer itself no
-   longer collects fulfillment/address. Two methods: domestic (Korea, flat
-   fee) and international (APO/FPO — Japan/Okinawa/Hawaii/Guam, weight-based
-   tier lookup, see js/cart-store.js). */
-.fulfill-choice{
-  display:flex;flex-direction:column;gap:8px;
-}
-.fulfill-option{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;
-  border:1px solid var(--sand-line);border-radius:2px;padding:12px 14px;
-  font-family:'Space Mono',monospace;font-size:12.5px;letter-spacing:.02em;
-  background:var(--surface);transition:border-color .15s ease,background .15s ease;
-}
-.fulfill-option-main{display:flex;align-items:center;gap:10px;}
-.fulfill-option input{margin:0;accent-color:var(--field-rust);flex:none;}
-.fulfill-option:has(input:checked){border-color:var(--field-rust);background:var(--khaki-dim);}
-.fulfill-fee{color:var(--brass-dark);font-weight:700;white-space:nowrap;}
+   longer collects delivery info. 13차 (2026-09-21) removed the old
+   "영외 배송 / CAMP" fulfillment radio (.fulfill-choice/.fulfill-option/
+   .fulfill-fee rules retired along with it) — every order now goes through
+   one region+camp+free-text-address flow; see js/cart-store.js for the
+   Korea-flat-fee vs. weight-tier pricing this still drives. */
 .pickup-note{
   margin:0;padding-top:14px;font-size:12.5px;line-height:1.6;color:var(--olive-text);
 }

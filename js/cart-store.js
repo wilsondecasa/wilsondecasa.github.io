@@ -12,10 +12,12 @@
 // changes made from another tab (via the native 'storage' event).
 (function(){
   var STORAGE_KEY = 'gadelo_cart_v2';
-  var FULFILL_KEY = 'gadelo_fulfillment';
   var INTL_KEY = 'gadelo_intl_destination';
+  // 13차: the flat Korea shipping rate — used both for the old "영외 배송"
+  // domestic fee (now retired as a separate flow) and for Korea CAMP/no-camp
+  // orders, which are priced the same way. Kept under this name rather than
+  // renamed, to minimize the diff.
   var FULFILL_FEES = { domestic: 4.00 };
-  var FULFILL_METHODS = { domestic: true, international: true };
   var FREE_SHIP_THRESHOLD = 50; // USD subtotal — domestic delivery fee waived at/above this
 
   // ---------- International (APO/FPO) shipping — added 2026-09-14, Korea
@@ -168,19 +170,11 @@
 
   function subtotal(){ return readItems().reduce(function(s, i){ return s + i.unitPrice * i.qty; }, 0); }
 
-  // ---------- Fulfillment: Korea domestic delivery, or international (APO/FPO) ----------
-  function getFulfillment(){
-    var saved = 'domestic';
-    try{ saved = localStorage.getItem(FULFILL_KEY) || 'domestic'; }catch(e){}
-    return FULFILL_METHODS.hasOwnProperty(saved) ? saved : 'domestic';
-  }
-  function setFulfillment(method){
-    if(!FULFILL_METHODS.hasOwnProperty(method)) return;
-    try{ localStorage.setItem(FULFILL_KEY, method); }catch(e){}
-    notify();
-  }
-
-  // ---------- International destination (region + specific base) ----------
+  // ---------- Delivery destination (region + specific camp) ----------
+  // 13차 (2026-09-21): the old top-level "영외 배송 / CAMP" fulfillment
+  // choice is gone — every order now goes through this one destination
+  // picker, so there's no separate domestic-vs-international method to
+  // track any more (see shippingResult() below).
   function getIntlDestination(){
     try{
       var raw = localStorage.getItem(INTL_KEY);
@@ -199,7 +193,10 @@
   }
   // Resolves a destination object's camp to a display label, including the
   // "Other" case where the shopper typed their own camp name instead of
-  // picking one from BASE_LIST.
+  // picking one from BASE_LIST. base === 'none' (13차's "No camp / regular
+  // address" option) isn't in BASE_LIST either, so it falls through
+  // baseLabel() to '' on purpose — the caller then just shows the region
+  // name alone ("Ship to: Korea") instead of an awkward "Ship to: none".
   function destinationCampLabel(dest){
     if(!dest) return '';
     if(dest.base === 'other') return dest.baseOther || 'Other';
@@ -228,29 +225,24 @@
   // handling, not a $0 fee.
   function shippingResult(){
     if(items().length === 0) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: false };
-    var method = getFulfillment();
-    if(method === 'international'){
-      var dest = getIntlDestination();
-      if(!dest || !dest.region) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: true };
-      // Korea CAMP orders ship domestically (no overseas freight), so they're
-      // priced the same flat rate as regular Off-Post delivery instead of a
-      // weight-tier zone — added 2026-09-21 (12차).
-      if(isKoreaRegion(dest.region)){
-        var subK = subtotal();
-        var koreaFee = subK >= FREE_SHIP_THRESHOLD ? 0 : (FULFILL_FEES.domestic || 0);
-        return { fee: koreaFee, manualQuoteRequired: false, zone: null, needsDestination: false };
-      }
-      var zone = zoneForRegion(dest.region);
-      if(!zone) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: true };
-      var weightKg = cartWeightKg();
-      var fee = tierLookup(zone, weightKg);
-      if(fee == null) return { fee: 0, manualQuoteRequired: true, zone: zone, weightKg: weightKg, needsDestination: false };
-      return { fee: fee, manualQuoteRequired: false, zone: zone, weightKg: weightKg, needsDestination: false };
+    var dest = getIntlDestination();
+    if(!dest || !dest.region) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: true };
+    // Korea (CAMP or regular/no-camp address alike) ships domestically (no
+    // overseas freight), so it's priced the same flat rate as the old
+    // Off-Post delivery instead of a weight-tier zone — added 2026-09-21
+    // (12차), and applies to every Korea order since 13차 removed the
+    // separate domestic-delivery flow this rate used to live under.
+    if(isKoreaRegion(dest.region)){
+      var subK = subtotal();
+      var koreaFee = subK >= FREE_SHIP_THRESHOLD ? 0 : (FULFILL_FEES.domestic || 0);
+      return { fee: koreaFee, manualQuoteRequired: false, zone: null, needsDestination: false };
     }
-    // domestic
-    var sub = subtotal();
-    var domesticFee = sub >= FREE_SHIP_THRESHOLD ? 0 : (FULFILL_FEES.domestic || 0);
-    return { fee: domesticFee, manualQuoteRequired: false, zone: null, needsDestination: false };
+    var zone = zoneForRegion(dest.region);
+    if(!zone) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: true };
+    var weightKg = cartWeightKg();
+    var fee = tierLookup(zone, weightKg);
+    if(fee == null) return { fee: 0, manualQuoteRequired: true, zone: zone, weightKg: weightKg, needsDestination: false };
+    return { fee: fee, manualQuoteRequired: false, zone: zone, weightKg: weightKg, needsDestination: false };
   }
   function shippingFee(){ return shippingResult().fee; }
 
@@ -287,8 +279,6 @@
     count: count,
     subtotal: subtotal,
     totals: totals,
-    getFulfillment: getFulfillment,
-    setFulfillment: setFulfillment,
     shippingFee: shippingFee,
     shippingResult: shippingResult,
     freeShipThreshold: FREE_SHIP_THRESHOLD,
@@ -309,6 +299,6 @@
 
   // Keep other open tabs (or the drawer vs. the checkout page) in sync.
   window.addEventListener('storage', function(e){
-    if(e.key === STORAGE_KEY || e.key === FULFILL_KEY || e.key === INTL_KEY) notify();
+    if(e.key === STORAGE_KEY || e.key === INTL_KEY) notify();
   });
 })();
