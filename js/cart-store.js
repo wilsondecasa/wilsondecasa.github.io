@@ -18,13 +18,17 @@
   var FULFILL_METHODS = { domestic: true, international: true };
   var FREE_SHIP_THRESHOLD = 50; // USD subtotal — domestic delivery fee waived at/above this
 
-  // ---------- International (APO/FPO) shipping — added 2026-09-14 ----------
-  // Overseas military bases we ship to (Korea/domestic is unaffected — it
-  // keeps the flat-fee logic above). Zone 1 = Japan mainland + Okinawa,
+  // ---------- International (APO/FPO) shipping — added 2026-09-14, Korea
+  // added 2026-09-21 (12차) ----------
+  // Overseas military bases we ship to. Zone 1 = Japan mainland + Okinawa,
   // Zone 2 = Hawaii + Guam (Zone 2 is priced higher — USPS/EMS "US" rate
-  // territory vs. Japan). See project doc
-  // "gadelo-해외-apo-배송-확장-스펙.md" for the full spec/rationale — these
-  // per-kg rates are a draft pending official 우체국 EMS rate verification.
+  // territory vs. Japan). Korea has NO zone entry here on purpose — CAMP
+  // orders to a Korea camp are priced the same flat rate as regular
+  // Off-Post delivery (no overseas freight involved), handled as a special
+  // case in shippingResult() below rather than the weight-tier table. See
+  // project doc "gadelo-해외-apo-배송-확장-스펙.md" for the Japan/Okinawa/
+  // Hawaii/Guam rate rationale — these per-kg rates are a draft pending
+  // official 우체국 EMS rate verification.
   var REGION_ZONE = {
     japan_mainland: 'ZONE_1',
     okinawa: 'ZONE_1',
@@ -32,14 +36,30 @@
     guam: 'ZONE_2'
   };
   var REGION_LABELS = {
-    japan_mainland: 'Japan (Mainland)',
+    korea: 'Korea',
+    japan_mainland: 'Japan',
     okinawa: 'Okinawa',
     hawaii: 'Hawaii',
     guam: 'Guam'
   };
   var ZONE_LABELS = { ZONE_1: 'Zone 1', ZONE_2: 'Zone 2' };
-  // {id, label, region} — shown grouped by region in the base <select>.
+  function isKoreaRegion(region){ return region === 'korea'; }
+  // {id, label, region} — shown grouped by region in the Camp <select>.
+  // Every region's list also gets an "Other (enter camp name)" option added
+  // by checkout.js at render time (not stored here) — a safety net so a
+  // camp missing from this list never blocks checkout.
   var BASE_LIST = [
+    { id: 'camp_humphreys', label: 'Camp Humphreys', region: 'korea' },
+    { id: 'osan_ab', label: 'Osan Air Base', region: 'korea' },
+    { id: 'camp_casey', label: 'Camp Casey', region: 'korea' },
+    { id: 'camp_hovey', label: 'Camp Hovey', region: 'korea' },
+    { id: 'camp_walker', label: 'Camp Walker', region: 'korea' },
+    { id: 'camp_henry', label: 'Camp Henry', region: 'korea' },
+    { id: 'camp_carroll', label: 'Camp Carroll', region: 'korea' },
+    { id: 'yongsan_garrison', label: 'Yongsan Garrison', region: 'korea' },
+    { id: 'kunsan_ab', label: 'Kunsan Air Base', region: 'korea' },
+    { id: 'camp_mujuk', label: 'Camp Mujuk', region: 'korea' },
+    { id: 'fleet_activities_chinhae', label: 'Fleet Activities Chinhae', region: 'korea' },
     { id: 'yokota_ab', label: 'Yokota Air Base', region: 'japan_mainland' },
     { id: 'camp_zama', label: 'Camp Zama', region: 'japan_mainland' },
     { id: 'yokosuka_nb', label: 'Yokosuka Naval Base', region: 'japan_mainland' },
@@ -168,14 +188,22 @@
       return (data && data.region) ? data : null;
     }catch(e){ return null; }
   }
-  function setIntlDestination(region, baseId){
-    try{ localStorage.setItem(INTL_KEY, JSON.stringify({ region: region, base: baseId || '' })); }catch(e){ /* ignore */ }
+  function setIntlDestination(region, baseId, baseOtherLabel){
+    try{ localStorage.setItem(INTL_KEY, JSON.stringify({ region: region, base: baseId || '', baseOther: baseOtherLabel || '' })); }catch(e){ /* ignore */ }
     notify();
   }
   function zoneForRegion(region){ return REGION_ZONE[region] || null; }
   function baseLabel(baseId){
     var b = BASE_LIST.filter(function(x){ return x.id === baseId; })[0];
     return b ? b.label : '';
+  }
+  // Resolves a destination object's camp to a display label, including the
+  // "Other" case where the shopper typed their own camp name instead of
+  // picking one from BASE_LIST.
+  function destinationCampLabel(dest){
+    if(!dest) return '';
+    if(dest.base === 'other') return dest.baseOther || 'Other';
+    return baseLabel(dest.base);
   }
 
   // Total order weight in kg — used for the international tier lookup (a
@@ -203,7 +231,16 @@
     var method = getFulfillment();
     if(method === 'international'){
       var dest = getIntlDestination();
-      var zone = dest ? zoneForRegion(dest.region) : null;
+      if(!dest || !dest.region) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: true };
+      // Korea CAMP orders ship domestically (no overseas freight), so they're
+      // priced the same flat rate as regular Off-Post delivery instead of a
+      // weight-tier zone — added 2026-09-21 (12차).
+      if(isKoreaRegion(dest.region)){
+        var subK = subtotal();
+        var koreaFee = subK >= FREE_SHIP_THRESHOLD ? 0 : (FULFILL_FEES.domestic || 0);
+        return { fee: koreaFee, manualQuoteRequired: false, zone: null, needsDestination: false };
+      }
+      var zone = zoneForRegion(dest.region);
       if(!zone) return { fee: 0, manualQuoteRequired: false, zone: null, needsDestination: true };
       var weightKg = cartWeightKg();
       var fee = tierLookup(zone, weightKg);
@@ -265,6 +302,8 @@
     regionLabels: REGION_LABELS,
     zoneLabels: ZONE_LABELS,
     baseLabel: baseLabel,
+    destinationCampLabel: destinationCampLabel,
+    isKoreaRegion: isKoreaRegion,
     cartWeightKg: cartWeightKg
   };
 

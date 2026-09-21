@@ -112,10 +112,10 @@
       var method = currentFulfillMethod();
       if (method === 'international') {
         var dest = store.getIntlDestination();
-        if (dest) {
+        if (dest && dest.region) {
           var zoneLabel = t.zone ? store.zoneLabels[t.zone] : '';
-          var baseTxt = store.baseLabel(dest.base);
-          cartDestValueEl.textContent = (baseTxt || store.regionLabels[dest.region] || '') + (zoneLabel ? ' (' + zoneLabel + ')' : '');
+          var campTxt = store.destinationCampLabel(dest);
+          cartDestValueEl.textContent = (campTxt || store.regionLabels[dest.region] || '') + (zoneLabel ? ' (' + zoneLabel + ')' : '');
           cartDestRowEl.hidden = false;
         } else {
           cartDestRowEl.hidden = true;
@@ -198,24 +198,25 @@
     window.gadeloAddress = { save: saveCurrent };
   })();
 
-  // ---------- CAMP (APO/FPO) address — region + mandatory base, then an
-  // explicit on-base/off-base choice picks the matching address fields ----------
-  // Japan (Mainland) / Okinawa / Guam ("military" regions below) require a
-  // base to be picked (that's also how the shopper sees an estimated fee
-  // up front), then a residency radio (on-base vs off-base) swaps in either
-  // APO/FPO-style fields or a regular local-address field set. Hawaii is a
-  // real US state with no APO/FPO addressing at all, so it keeps its own
-  // separate standard street-address field set (added 2026-09-14, 9차) with
-  // no base/residency choice. Korea (on-post) is planned (2026-09-14, 10차
-  // decision) but not yet enabled here — its base list is still pending.
+  // ---------- CAMP address — region + mandatory camp, then ONE free-text
+  // delivery-address box (2026-09-21, 12차 — replaces the earlier
+  // region→base→on-base/off-base structured field sets, including the
+  // Post-Box-only 11차 version). Region drives the automatic shipping-fee
+  // estimate (Korea is a flat fee, same as Off-Post Delivery; Japan/
+  // Okinawa/Hawaii/Guam are weight-tiered — see cart-store.js). Camp is
+  // required too, mainly so the order summary can show "Ship to: [camp]",
+  // and always has an "Other" option so a camp missing from the list never
+  // blocks checkout. Everything else about the address — on-base vs
+  // off-base, Post Box vs PSC/CMR vs a regular street address — is one
+  // free-text box the shopper fills in however suits their situation; see
+  // worker.js buildShippingAddress() for how that text becomes a PayPal
+  // shipping address (APO/FPO wording in the text is what now decides the
+  // country code, instead of a separate on-base/off-base selector).
   var intlRegionEl = document.getElementById('intlRegion');
   var intlBaseEl = document.getElementById('intlBase');
+  var intlBaseOtherRow = document.getElementById('intlBaseOtherRow');
+  var intlBaseOtherEl = document.getElementById('intlBaseOther');
   var intlBaseFeeHintEl = document.getElementById('intlBaseFeeHint');
-  var intlFieldsMilitaryEl = document.getElementById('intlFieldsMilitary');
-  var intlFieldsHawaiiEl = document.getElementById('intlFieldsHawaii');
-  var intlFieldsOnBaseEl = document.getElementById('intlFieldsOnBase');
-  var intlFieldsOffBaseEl = document.getElementById('intlFieldsOffBase');
-  var intlResidencyRadios = document.querySelectorAll('input[name="intlResidency"]');
   var intlReviewBlock = document.getElementById('intlAddressReview');
   var intlReviewText = document.getElementById('intlAddressReviewText');
   var intlConfirmCheck = document.getElementById('intlConfirmCheck');
@@ -224,28 +225,9 @@
     name: document.getElementById('intlName'),
     phone: document.getElementById('intlPhone'),
     email: document.getElementById('intlEmail'),
-    box: document.getElementById('intlBox'),
-    apoCode: document.getElementById('intlApoCode'),
-    offStreet: document.getElementById('intlOffStreet'),
-    offLine2: document.getElementById('intlOffLine2'),
-    offCity: document.getElementById('intlOffCity'),
-    offPostal: document.getElementById('intlOffPostal'),
-    hiStreet: document.getElementById('intlHiStreet'),
-    hiLine2: document.getElementById('intlHiLine2'),
-    hiCity: document.getElementById('intlHiCity'),
-    hiZip: document.getElementById('intlHiZip')
+    addressFree: document.getElementById('intlAddressFree'),
+    baseOther: intlBaseOtherEl
   };
-
-  function isHawaiiRegion(region) {
-    return region === 'hawaii';
-  }
-  function isMilitaryRegion(region) {
-    return region === 'japan_mainland' || region === 'okinawa' || region === 'guam';
-  }
-  function currentResidency() {
-    var checked = document.querySelector('input[name="intlResidency"]:checked');
-    return checked ? checked.value : '';
-  }
 
   (function () {
     if (!intlRegionEl) return; // page without the international block (shouldn't happen on checkout.html)
@@ -255,20 +237,16 @@
     function populateBaseOptions(region, selectedBaseId) {
       if (!intlBaseEl) return;
       intlBaseEl.innerHTML = '';
-      var bases = store.baseList.filter(function (b) { return b.region === region; });
-      if (!region || bases.length === 0) {
+      var placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Camp…';
+      intlBaseEl.appendChild(placeholder);
+      if (!region) {
         intlBaseEl.disabled = true;
-        var opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = region ? 'No bases listed yet' : 'Base…';
-        intlBaseEl.appendChild(opt);
         return;
       }
       intlBaseEl.disabled = false;
-      var placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Base…';
-      intlBaseEl.appendChild(placeholder);
+      var bases = store.baseList.filter(function (b) { return b.region === region; });
       bases.forEach(function (b) {
         var o = document.createElement('option');
         o.value = b.id;
@@ -276,15 +254,31 @@
         if (b.id === selectedBaseId) o.selected = true;
         intlBaseEl.appendChild(o);
       });
+      var otherOpt = document.createElement('option');
+      otherOpt.value = 'other';
+      otherOpt.textContent = 'Other (enter camp name)';
+      if (selectedBaseId === 'other') otherOpt.selected = true;
+      intlBaseEl.appendChild(otherOpt);
     }
 
-    // Base selection doesn't change the fee (it's the same weight-tier fee
-    // for the whole region/zone), but showing it right where the shopper
-    // picks their base is what actually answers "how much will this cost".
+    function toggleBaseOtherField() {
+      var showOther = intlBaseEl && intlBaseEl.value === 'other';
+      if (intlBaseOtherRow) intlBaseOtherRow.hidden = !showOther;
+    }
+
+    // Region/camp choice doesn't change the fee (Korea is always flat,
+    // Japan/Okinawa/Hawaii/Guam are always by weight/zone regardless of
+    // which camp), but showing the estimate right where the shopper picks
+    // their region is what actually answers "how much will this cost".
     function updateBaseFeeHint(region) {
       if (!intlBaseFeeHintEl) return;
-      if (!isMilitaryRegion(region)) {
+      if (!region) {
         intlBaseFeeHintEl.textContent = '';
+        return;
+      }
+      if (store.isKoreaRegion(region)) {
+        var t0 = store.totals();
+        intlBaseFeeHintEl.textContent = 'Estimated shipping for this order: ' + (t0.shipping > 0 ? fmtUSD(t0.shipping) : 'Free') + ' (same rate as Off-Post Delivery)';
         return;
       }
       var zone = store.zoneForRegion(region);
@@ -298,18 +292,7 @@
       }
     }
 
-    function toggleRegionFields(region) {
-      if (intlFieldsMilitaryEl) intlFieldsMilitaryEl.hidden = !isMilitaryRegion(region);
-      if (intlFieldsHawaiiEl) intlFieldsHawaiiEl.hidden = !isHawaiiRegion(region);
-      updateBaseFeeHint(region);
-    }
-
-    function toggleResidencyFields(residency) {
-      if (intlFieldsOnBaseEl) intlFieldsOnBaseEl.hidden = residency !== 'onbase';
-      if (intlFieldsOffBaseEl) intlFieldsOffBaseEl.hidden = residency !== 'offbase';
-    }
-
-    // Restore saved region/base + address fields (device-local, same pattern as domestic)
+    // Restore saved region/camp + address fields (device-local, same pattern as domestic)
     var savedRegion = '';
     var savedBase = '';
     try {
@@ -324,17 +307,14 @@
         Object.keys(intlFields).forEach(function (key) {
           if (intlFields[key] && data[key]) intlFields[key].value = data[key];
         });
-        if (data.residency) {
-          intlResidencyRadios.forEach(function (r) { r.checked = r.value === data.residency; });
-        }
       }
     } catch (e) {
       /* storage unavailable or corrupt — form just stays blank */
     }
     if (savedRegion) intlRegionEl.value = savedRegion;
-    toggleRegionFields(savedRegion);
     populateBaseOptions(savedRegion, savedBase);
-    toggleResidencyFields(currentResidency());
+    toggleBaseOtherField();
+    updateBaseFeeHint(savedRegion);
 
     function saveIntlAddress() {
       try {
@@ -342,7 +322,6 @@
         Object.keys(intlFields).forEach(function (key) {
           if (intlFields[key]) data[key] = intlFields[key].value;
         });
-        data.residency = currentResidency();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (e) {
         /* private browsing, storage full, or disabled — ignore */
@@ -361,94 +340,52 @@
     function updateIntlReview() {
       var region = intlRegionEl.value;
       if (!intlReviewBlock || !intlReviewText) return;
-      var lines;
-      if (isHawaiiRegion(region)) {
-        var hasMinimumHi = val('intlName') && val('intlPhone') && val('intlHiStreet') && val('intlHiCity') && val('intlHiZip');
-        if (!hasMinimumHi) {
-          intlReviewBlock.hidden = true;
-          return;
-        }
-        lines = [
-          val('intlName'),
-          val('intlHiStreet'),
-          val('intlHiLine2'),
-          (val('intlHiCity') ? val('intlHiCity') + ', HI ' + val('intlHiZip') : ''),
-          val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
-        ].filter(Boolean);
-      } else if (isMilitaryRegion(region)) {
-        var baseId = intlBaseEl ? intlBaseEl.value : '';
-        var residency = currentResidency();
-        var baseLabel = baseId ? store.baseLabel(baseId) : '';
-        var regionLine = [baseLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
-        if (residency === 'onbase') {
-          var hasMinimumOn = val('intlName') && val('intlPhone') && baseId && val('intlBox') && val('intlApoCode');
-          if (!hasMinimumOn) {
-            intlReviewBlock.hidden = true;
-            return;
-          }
-          lines = [
-            val('intlName'),
-            'Box ' + val('intlBox'),
-            val('intlApoCode'),
-            regionLine,
-            val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
-          ].filter(Boolean);
-        } else if (residency === 'offbase') {
-          var hasMinimumOff = val('intlName') && val('intlPhone') && baseId && val('intlOffStreet') && val('intlOffCity') && val('intlOffPostal');
-          if (!hasMinimumOff) {
-            intlReviewBlock.hidden = true;
-            return;
-          }
-          lines = [
-            val('intlName'),
-            val('intlOffStreet'),
-            val('intlOffLine2'),
-            [val('intlOffCity'), val('intlOffPostal')].filter(Boolean).join(' '),
-            regionLine,
-            val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')
-          ].filter(Boolean);
-        } else {
-          intlReviewBlock.hidden = true;
-          return;
-        }
-      } else {
+      if (!region) {
         intlReviewBlock.hidden = true;
         return;
       }
+      var baseId = intlBaseEl ? intlBaseEl.value : '';
+      var campLabel = baseId === 'other' ? val('intlBaseOther') : store.baseLabel(baseId);
+      var regionLine = [campLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
+      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && val('intlAddressFree');
+      if (!hasMinimum) {
+        intlReviewBlock.hidden = true;
+        return;
+      }
+      var lines = [val('intlName'), val('intlAddressFree'), regionLine, val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')].filter(Boolean);
       intlReviewText.textContent = lines.join('\n');
       intlReviewBlock.hidden = false;
     }
 
     intlRegionEl.addEventListener('change', function () {
-      toggleRegionFields(intlRegionEl.value);
       populateBaseOptions(intlRegionEl.value, '');
-      intlResidencyRadios.forEach(function (r) { r.checked = false; });
-      toggleResidencyFields('');
-      store.setIntlDestination(intlRegionEl.value, '');
+      toggleBaseOtherField();
+      updateBaseFeeHint(intlRegionEl.value);
+      store.setIntlDestination(intlRegionEl.value, '', '');
       onIntlChange();
     });
     if (intlBaseEl) {
       intlBaseEl.addEventListener('change', function () {
-        store.setIntlDestination(intlRegionEl.value, intlBaseEl.value);
+        toggleBaseOtherField();
+        store.setIntlDestination(intlRegionEl.value, intlBaseEl.value, val('intlBaseOther'));
         onIntlChange();
       });
     }
-    intlResidencyRadios.forEach(function (r) {
-      r.addEventListener('change', function () {
-        if (!r.checked) return;
-        toggleResidencyFields(r.value);
+    if (intlBaseOtherEl) {
+      intlBaseOtherEl.addEventListener('input', function () {
+        store.setIntlDestination(intlRegionEl.value, intlBaseEl ? intlBaseEl.value : '', intlBaseOtherEl.value);
         onIntlChange();
       });
-    });
+    }
     Object.keys(intlFields).forEach(function (key) {
-      if (intlFields[key]) intlFields[key].addEventListener('input', onIntlChange);
+      if (intlFields[key] && key !== 'baseOther') intlFields[key].addEventListener('input', onIntlChange);
     });
     if (intlConfirmCheck) {
       intlConfirmCheck.addEventListener('change', function () {
         renderTotals();
       });
     }
-    // Cart weight (and so the estimated fee shown next to Base) can change
+    // Cart weight (and so the estimated fee shown next to Region) can change
     // from the drawer/other tabs without touching this form.
     document.addEventListener('gadelo:cartchange', function () {
       updateBaseFeeHint(intlRegionEl.value);
@@ -472,7 +409,7 @@
   function checkoutBlockReason() {
     var method = currentFulfillMethod();
     if (method === 'domestic') return null;
-    // international
+    // international / CAMP
     var t = store.totals();
     if (t.manualQuoteRequired) {
       return 'This order is over 5kg, outside our automatic shipping calculator. Please contact us for a manual quote before ordering.';
@@ -481,32 +418,16 @@
     if (!region) {
       return 'Please select your delivery region.';
     }
-    var basicsOk;
-    if (isHawaiiRegion(region)) {
-      basicsOk = val('intlName') && val('intlPhone') && val('intlHiStreet') && val('intlHiCity') && val('intlHiZip');
-      if (!basicsOk) {
-        return 'Please fill in your name, phone, street address, city, and ZIP code first.';
-      }
-    } else {
-      var baseId = intlBaseEl ? intlBaseEl.value : '';
-      if (!baseId) {
-        return 'Please select your base.';
-      }
-      var residency = currentResidency();
-      if (!residency) {
-        return 'Please choose on-base (APO/FPO) or off-base (local address).';
-      }
-      if (residency === 'onbase') {
-        basicsOk = val('intlName') && val('intlPhone') && val('intlBox') && val('intlApoCode');
-        if (!basicsOk) {
-          return 'Please fill in your name, phone, Post Box number, and APO/FPO code first.';
-        }
-      } else {
-        basicsOk = val('intlName') && val('intlPhone') && val('intlOffStreet') && val('intlOffCity') && val('intlOffPostal');
-        if (!basicsOk) {
-          return 'Please fill in your name, phone, street address, city, and postal code first.';
-        }
-      }
+    var baseId = intlBaseEl ? intlBaseEl.value : '';
+    if (!baseId) {
+      return 'Please select your camp.';
+    }
+    if (baseId === 'other' && !val('intlBaseOther')) {
+      return 'Please enter your camp name.';
+    }
+    var basicsOk = val('intlName') && val('intlPhone') && val('intlAddressFree');
+    if (!basicsOk) {
+      return 'Please fill in your name, phone, and delivery address first.';
     }
     if (!intlConfirmed()) {
       return 'Please review your address above and check the confirmation box.';
@@ -559,36 +480,12 @@
         zip: val('addrZip')
       };
     } else if (method === 'international') {
-      var region = intlRegionEl ? intlRegionEl.value : '';
-      if (isHawaiiRegion(region)) {
-        address = {
-          name: val('intlName'),
-          phone: val('intlPhone'),
-          email: val('intlEmail'),
-          street: val('intlHiStreet'),
-          line2: val('intlHiLine2'),
-          city: val('intlHiCity'),
-          zip: val('intlHiZip')
-        };
-      } else if (currentResidency() === 'onbase') {
-        address = {
-          name: val('intlName'),
-          phone: val('intlPhone'),
-          email: val('intlEmail'),
-          box: val('intlBox'),
-          apoCode: val('intlApoCode')
-        };
-      } else {
-        address = {
-          name: val('intlName'),
-          phone: val('intlPhone'),
-          email: val('intlEmail'),
-          street: val('intlOffStreet'),
-          line2: val('intlOffLine2'),
-          city: val('intlOffCity'),
-          postal: val('intlOffPostal')
-        };
-      }
+      address = {
+        name: val('intlName'),
+        phone: val('intlPhone'),
+        email: val('intlEmail'),
+        text: val('intlAddressFree')
+      };
     }
     return {
       items: store.items().map(function (i) {
@@ -597,7 +494,7 @@
       fulfillment: method,
       region: method === 'international' && intlRegionEl ? intlRegionEl.value : undefined,
       base: method === 'international' && intlBaseEl ? intlBaseEl.value : undefined,
-      residency: method === 'international' && !isHawaiiRegion(intlRegionEl ? intlRegionEl.value : '') ? currentResidency() : undefined,
+      baseOther: method === 'international' && intlBaseEl && intlBaseEl.value === 'other' ? val('intlBaseOther') : undefined,
       address: address
     };
   }
