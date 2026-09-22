@@ -460,6 +460,11 @@ section{padding:80px 0;}
   padding:40px;
 }
 .about-visual img{width:100%;opacity:.85;}
+/* 2026-09-22: video variant (Our Story clip) — fills the same 4/5 frame
+   edge-to-edge instead of sitting inset/opacity-dimmed like the old logo
+   placeholder image above. */
+.about-visual.has-video{padding:0;overflow:hidden;}
+.about-visual.has-video video{width:100%;height:100%;object-fit:cover;display:block;}
 .about h2{font-size:clamp(24px,3vw,34px);margin:8px 0 16px;}
 .about p{color:var(--olive-text);margin-bottom:16px;}
 .value-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}

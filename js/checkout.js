@@ -173,18 +173,28 @@
   // page, but worker.js still only understands one newline-joined free-text
   // address string (see the big comment above #cartAddressIntl in
   // checkout.html) — this composes them into that same shape so the backend
-  // needs no changes. Address is line 1 (→ address_line_1); City and detail
-  // are joined onto line 2 (→ address_line_2). Blank fields are dropped, so
-  // an APO/FPO shopper who leaves City blank still gets a clean two-line
-  // address instead of a stray leading comma.
+  // needs no changes. Address is normally line 1 (→ address_line_1); City and
+  // detail are joined onto line 2 (→ address_line_2). Blank fields are
+  // dropped, so an APO/FPO shopper who leaves City blank still gets a clean
+  // two-line address instead of a stray leading comma.
+  // 15차: Address and Address detail are now interchangeable for validation
+  // (see requiredFieldsOk() below) — a Post Box/PSC-CMR shopper may fill only
+  // Detail and leave Address blank. If Address is empty, promote City+Detail
+  // to line 1 instead, so worker.js's "Address not provided" fallback never
+  // shows up on a real order just because the shopper used the other box.
   function composeIntlAddressText() {
     var address = val('intlAddress');
     var city = val('intlCity');
     var detail = val('intlAddressDetail');
     var lines = [];
-    if (address) lines.push(address);
-    var rest = [city, detail].filter(Boolean).join(', ');
-    if (rest) lines.push(rest);
+    if (address) {
+      lines.push(address);
+      var rest = [city, detail].filter(Boolean).join(', ');
+      if (rest) lines.push(rest);
+    } else {
+      var promoted = [city, detail].filter(Boolean).join(', ');
+      if (promoted) lines.push(promoted);
+    }
     return lines.join('\n');
   }
 
@@ -324,7 +334,7 @@
       var baseId = intlBaseEl ? intlBaseEl.value : '';
       var campLabel = baseId === 'other' ? val('intlBaseOther') : store.baseLabel(baseId);
       var regionLine = [campLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
-      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && val('intlAddress');
+      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && (val('intlAddress') || val('intlAddressDetail'));
       if (!hasMinimum) {
         intlReviewBlock.hidden = true;
         return;
@@ -397,7 +407,10 @@
     if (baseId === 'other' && !val('intlBaseOther')) {
       return 'Please enter your camp name.';
     }
-    var basicsOk = val('intlName') && val('intlPhone') && val('intlAddress');
+    // 15차: Address and Address detail are interchangeable here — a Post Box/
+    // PSC-CMR shopper may have filled only Detail (see composeIntlAddressText()
+    // above), so either one satisfies "an address was entered".
+    var basicsOk = val('intlName') && val('intlPhone') && (val('intlAddress') || val('intlAddressDetail'));
     if (!basicsOk) {
       return 'Please fill in your name, phone, and delivery address first.';
     }
