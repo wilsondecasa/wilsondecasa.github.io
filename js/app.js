@@ -15,7 +15,6 @@
   (function(){
     var ANNOUNCEMENTS = [
       'Freshly roasted in small batches — never sitting on a shelf.',
-      'Checkout securely with PayPal — pay the way you trust.',
       "Ask us about bulk orders for your unit or spouses' club."
     ];
     var announceEl = document.getElementById('announceText');

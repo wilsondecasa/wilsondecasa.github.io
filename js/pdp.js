@@ -26,7 +26,9 @@
     return;
   }
 
-  // Sizes this product actually sells, ascending (Freedom has no 1000/1kg).
+  // Sizes this product actually sells, ascending (all 5 blends sell all 3
+  // sizes as of 2026-09-22 — derived from the data so nothing here needed
+  // to change when Freedom's 1kg size was added).
   var sizeKeys = Object.keys(product.prices).map(Number).sort(function(a, b){ return a - b; });
 
   // Gallery: a single actual product photo (the bag for the selected size) —

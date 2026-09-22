@@ -3,14 +3,20 @@
 // Military Exclusive Lineup — 5 blends, relaunched with confirmed recipes,
 // roast levels and USD pricing (see project notes for the KRW basis).
 //
-// Packaging: 200g, 400g and 1kg bags (Freedom ships in 200g/400g only — no
-// 1kg option). Every size on the site is labelled in oz for 200g/400g and lb
-// for 1kg — see sizeLabelFor() in cart-store.js.
+// Packaging: 200g, 400g and 1kg bags — all 5 blends now sell all 3 sizes
+// (2026-09-22: Freedom's 1kg size was added this round; see its `images`
+// entry below for a temporary bag-photo note). Every size on the site is
+// labelled in oz for 200g/400g and lb for 1kg — see sizeLabelFor() in
+// cart-store.js.
 //
 // Pricing: `compareAtPrices` is the pre-discount list price (shown with a
 // strikethrough) and `prices` is the Military & Family discount price (10%
-// off) — this is the price actually charged everywhere (cart, checkout,
-// paypal-worker/worker.js). The discount is automatic, no code required.
+// off) — this is the price actually charged on THIS site (cart, checkout).
+// paypal-worker/worker.js keeps its own separate copy of this same table
+// (see the comment there) since it's the actual authority at payment time —
+// any price change here must be mirrored there too, and that file needs a
+// Cloudflare redeploy to take effect. The discount itself is automatic here,
+// no code required.
 var GADELO_PRODUCTS = {
   fighttonight: {
     slug: "fighttonight",
@@ -20,8 +26,8 @@ var GADELO_PRODUCTS = {
     roastLevel: "medium",
     line: "core",
     color: "#4B3A2A",
-    compareAtPrices: {200: 11.99, 400: 19.99, 1000: 39.99},
-    prices: {200: 10.99, 400: 17.99, 1000: 35.99},
+    compareAtPrices: {200: 13.99, 400: 24.99, 1000: 33.99},
+    prices: {200: 12.59, 400: 22.49, 1000: 30.59},
     images: {
       card1: "images/products/fighttonight/card1.webp",
       card2: "images/products/fighttonight/card2.webp",
@@ -47,8 +53,8 @@ var GADELO_PRODUCTS = {
     roastLevel: "medium",
     line: "core",
     color: "#2F3B52",
-    compareAtPrices: {200: 11.99, 400: 19.99, 1000: 40.99},
-    prices: {200: 10.99, 400: 17.99, 1000: 36.99},
+    compareAtPrices: {200: 13.99, 400: 24.99, 1000: 33.99},
+    prices: {200: 12.59, 400: 22.49, 1000: 30.59},
     images: {
       card1: "images/products/unclesam/card1.webp",
       card2: "images/products/unclesam/card2.webp",
@@ -74,12 +80,15 @@ var GADELO_PRODUCTS = {
     roastLevel: "light",
     line: "core",
     color: "#7A2E2E",
-    compareAtPrices: {200: 18.99, 400: 33.99},
-    prices: {200: 16.99, 400: 30.99},
+    compareAtPrices: {200: 14.99, 400: 25.99, 1000: 34.99},
+    prices: {200: 13.49, 400: 23.39, 1000: 31.49},
     images: {
       card1: "images/products/freedom/card1.webp",
       card2: "images/products/freedom/card2.webp",
-      bags: {200: "images/products/freedom/bag-200.webp", 400: "images/products/freedom/bag-400.webp"}
+      // 2026-09-22: Freedom now also ships 1kg — no dedicated 1kg bag photo
+      // exists yet, so this temporarily reuses the 400g bag shot (see the
+      // top-of-file note below). Swap in a real bag-1000.webp once it exists.
+      bags: {200: "images/products/freedom/bag-200.webp", 400: "images/products/freedom/bag-400.webp", 1000: "images/products/freedom/bag-400.webp"}
     },
     image: "images/products/freedom/bag-400.webp",
     originEn: "Thailand 42.3% · Colombia 34.1% · Ethiopia 23.5%",
@@ -103,8 +112,8 @@ var GADELO_PRODUCTS = {
     roastLevel: "dark",
     line: "core",
     color: "#4B5330",
-    compareAtPrices: {200: 10.99, 400: 16.99, 1000: 33.99},
-    prices: {200: 9.99, 400: 14.99, 1000: 30.99},
+    compareAtPrices: {200: 10.99, 400: 19.99, 1000: 24.99},
+    prices: {200: 9.89, 400: 17.99, 1000: 22.49},
     images: {
       card1: "images/products/india/card1.webp",
       card2: "images/products/india/card2.webp",
@@ -130,8 +139,8 @@ var GADELO_PRODUCTS = {
     roastLevel: "dark",
     line: "core",
     color: "#8C6A26",
-    compareAtPrices: {200: 12.99, 400: 20.99, 1000: 43.99},
-    prices: {200: 11.99, 400: 18.99, 1000: 39.99},
+    compareAtPrices: {200: 13.99, 400: 21.99, 1000: 38.99},
+    prices: {200: 12.59, 400: 19.79, 1000: 35.09},
     images: {
       card1: "images/products/goodwill/card1.webp",
       card2: "images/products/goodwill/card2.webp",
