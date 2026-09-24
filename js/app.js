@@ -15,7 +15,10 @@
   (function(){
     var ANNOUNCEMENTS = [
       'Freshly roasted in small batches — never sitting on a shelf.',
-      "Ask us about bulk orders for your unit or spouses' club."
+      "Ask us about bulk orders for your unit or spouses' club.",
+      'Thank you for your service.',
+      "Survived PT today? You've earned a strong cup of coffee.",
+      'Reporting for duty: one cup strong enough to get you through formation.'
     ];
     var announceEl = document.getElementById('announceText');
     if(!announceEl) return;
