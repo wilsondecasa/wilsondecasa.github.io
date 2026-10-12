@@ -228,7 +228,8 @@ section{padding:80px 0;}
 }
 .blend-grid.blend-grid-3,
 .blend-grid.blend-grid-5,
-.blend-grid.blend-grid-6{grid-template-columns:repeat(3,1fr);max-width:940px;margin:0 auto;}
+.blend-grid.blend-grid-6,
+.blend-grid.blend-grid-7{grid-template-columns:repeat(3,1fr);max-width:940px;margin:0 auto;}
 .blend-card.roast-hidden{display:none;}
 
 /* ---------- Section divider tag (e.g. "Military Exclusive") ---------- */
@@ -860,7 +861,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid{grid-template-columns:repeat(2,1fr);}
   .blend-grid.blend-grid-3,
   .blend-grid.blend-grid-5,
-  .blend-grid.blend-grid-6{grid-template-columns:repeat(2,1fr);max-width:640px;}
+  .blend-grid.blend-grid-6,
+  .blend-grid.blend-grid-7{grid-template-columns:repeat(2,1fr);max-width:640px;}
   .about{grid-template-columns:1fr;}
   .community-inner{grid-template-columns:1fr;}
   .giveback-inner{grid-template-columns:1fr;}
@@ -888,7 +890,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid{grid-template-columns:1fr 1fr;gap:14px;}
   .blend-grid.blend-grid-3,
   .blend-grid.blend-grid-5,
-  .blend-grid.blend-grid-6{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
+  .blend-grid.blend-grid-6,
+  .blend-grid.blend-grid-7{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
   .footer-grid{grid-template-columns:1fr;gap:36px;}
   .announce-inner{flex-direction:column;gap:4px;}
   section{padding:56px 0;}
@@ -907,7 +910,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid{grid-template-columns:1fr 1fr;gap:10px;}
   .blend-grid.blend-grid-3,
   .blend-grid.blend-grid-5,
-  .blend-grid.blend-grid-6{grid-template-columns:1fr 1fr;gap:10px;}
+  .blend-grid.blend-grid-6,
+  .blend-grid.blend-grid-7{grid-template-columns:1fr 1fr;gap:10px;}
   .blend-body{padding:12px 12px 14px;gap:8px;}
   /* Price + "Add to Cart" stack instead of sharing the row — at 2-column card
      widths the button only had ~half the card to work with, so its label
