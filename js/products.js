@@ -157,5 +157,91 @@ var GADELO_PRODUCTS = {
       "움직여야 할 때는, 움직입니다. 롤 아웃은 진하고 버터리한 마카다미아로 시작해 부드러운 바닐라의 온기, 그리고 끝까지 이어지는 다크초콜릿 피니시로 마무리됩니다. 한 손엔 커피, 한 손엔 장비를 들고 서서 마시는 커피. 망설임 없이, 재고 없이 — 그냥 roll.",
       "지역 소방서에 원두를 후원하고 있습니다. 함께할 다음 부대를 항상 찾고 있습니다."
     ]
+  },
+
+  // ---------------------------------------------------------------------
+  // Special Edition lineup — seasonal/limited blends, added separately from
+  // the 5-blend core lineup above (2026-10-12).
+  //
+  // Sizes: 200g/400g only (no 1kg) for both of these, matching how they're
+  // actually sold on the Korean (Naver) store today — see each entry's price
+  // note below for the full basis.
+  // ---------------------------------------------------------------------
+
+  halloween: {
+    slug: "halloween",
+    nameEn: "Halloween Shock and Fear",
+    nameKo: "할로윈 충격과 공포",
+    badge: "special",
+    roastLevel: "light",
+    // "seasonal" (not "core") — kept OUT of the homepage grid's cross-sell
+    // rotation on purpose, since this one gets its own standalone feature
+    // section on index.html instead of a regular grid card. See index.html's
+    // "Seasonal — Limited Edition" section, right after the hero.
+    line: "seasonal",
+    color: "#B9581E",
+    // PRICE NOTE (2026-10-12): 조나단 didn't have a US-site USD price set yet
+    // and instead passed the Korean/Naver cost-and-margin breakdown for this
+    // blend (제조원가 10,735원/200g · 18,070원/400g, Naver 판매가 26,900원/
+    // 39,900원). There's no fixed KRW→USD formula on this site — the 5 core
+    // blends' USD prices were each given directly by 조나단 and don't track a
+    // clean FX rate. These two numbers are MY estimate, extrapolated from how
+    // the existing India/Roll Out blends' USD compareAtPrice relates to their
+    // own Naver 판매가 (ratio ≈0.00074 × Naver price, rounded to a .99
+        // ending) — not a confirmed figure. Flagged to 조나단; treat as
+    // provisional until confirmed/corrected.
+    compareAtPrices: {200: 19.99, 400: 29.99},
+    prices: {200: 17.99, 400: 26.99},
+    images: {
+      card1: "images/products/halloween/card1.webp",
+      card2: "images/products/halloween/card2.webp",
+      // No real bag photography yet — temporarily reusing the bean-card
+      // illustration (jack-o'-lantern soldier) as the product photo for both
+      // sizes. Swap in real bag-200/400.webp once 조나단 sends them.
+      bags: {200: "images/products/halloween/card1.webp", 400: "images/products/halloween/card1.webp"}
+    },
+    image: "images/products/halloween/card1.webp",
+    originEn: "Costa Rica Don Mayo El Milagro Cinnamon Anaerobic Honey 70% · Indonesia Sumatra Mandheling Wet-Hulled 30%",
+    originKo: "코스타리카 돈 마요 엘 밀라그로 시나몬 아나에로빅 허니 70% · 인도네시아 수마트라 만델링 웻헐링 30%",
+    descEn: [
+      "This pumpkin spice season doesn't need another run-of-the-mill new release. GADELO's Halloween Shock & Fear takes a light roast base and loads it with real pumpkin spice flavor, cinnamon, and sugar so fall shows up in a single sip."
+    ],
+    descKo: [
+      "이번 가을, 펌킨 스파이스의 계절에 또 그런 흔한 신상은 필요 없습니다. 가델로의 할로윈 충격과 공포는 라이트 로스팅 베이스에 펌킨 스파이스 풍미와 따뜻한 시나몬, 설탕을 담아, 한 모금에 가을이 느껴지도록 만들었습니다."
+    ]
+  },
+
+  alwaysprepared: {
+    slug: "alwaysprepared",
+    nameEn: "Always Prepared",
+    nameKo: "올웨이즈 프리페어드",
+    badge: "special",
+    roastLevel: "dark",
+    line: "core", // regular grid card + cross-sell eligible, unlike halloween above
+    color: "#0D1F3F",
+    // PRICE NOTE (2026-10-12): same situation/method as Halloween above —
+    // 조나단 passed Naver cost/margin data (제조원가 9,333원/200g ·
+    // 15,267원/400g, Naver 판매가 25,000원/36,000원) instead of a USD figure.
+    // Estimated the same way (≈0.00074 × Naver price, rounded to .99).
+    // Provisional until confirmed/corrected.
+    compareAtPrices: {200: 18.99, 400: 26.99},
+    prices: {200: 17.09, 400: 24.29},
+    images: {
+      card1: "images/products/alwaysprepared/card1.webp",
+      // No card2/back image or real bag photography yet — reusing the one
+      // poster illustration (Patriot battery) everywhere for now.
+      bags: {200: "images/products/alwaysprepared/card1.webp", 400: "images/products/alwaysprepared/card1.webp"}
+    },
+    image: "images/products/alwaysprepared/card1.webp",
+    originEn: "Guatemala Kin (Washed) 60% · Nicaragua Segovia (Washed) 40%",
+    originKo: "과테말라 킨 워시드 60% · 니카라과 세고비아 워시드 40%",
+    descEn: [
+      "Chocolate runs through every sip from first to last, with macadamia and pistachio stepping forward, one note at a time. Well-balanced sweetness and a heavy, nutty body fill the palate.",
+      "We donate beans to local firehouses. Always looking for the next unit to team up with."
+    ],
+    descKo: [
+      "첫 모금부터 끝까지 초콜릿이 중심을 잡아주고, 그 위로 마카다미아와 피스타치오의 고소함이 한 발 한 발 또렷하게 번집니다. 단맛과 밸런스가 좋고, 묵직한 견과류의 풍미가 입안을 가득 채우는 바디감 좋은 블렌드입니다.",
+      "지역 소방서에 원두를 후원하고 있습니다. 함께할 다음 부대를 항상 찾고 있습니다."
+    ]
   }
 };

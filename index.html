@@ -89,6 +89,45 @@
   <h1 class="sr-only">GADELO Coffee Roasters — Roasted in Korea</h1>
 </section>
 
+<!-- ================= Seasonal — Limited Edition (Halloween) ================= -->
+<!-- 2026-10-12: pulled out of the regular grid on purpose per 조나단's
+     request — a standalone "limited drop" feature section (Black Rifle
+     Coffee Co.-style), not just another card in #blendGrid. Uses the olive/
+     pumpkin "Special Edition" palette from the blend's own SmartStore detail
+     page instead of the site's usual navy/khaki, so it reads as a distinct,
+     time-boxed drop rather than part of the core lineup. See .seasonal-feature
+     in style.css. Price shown is a provisional estimate — see js/products.js'
+     "PRICE NOTE" comment on the halloween entry. -->
+<section class="seasonal-feature" id="seasonal-halloween">
+  <div class="wrap seasonal-inner">
+    <div class="seasonal-art">
+      <img src="images/products/halloween/card1.webp" alt="Halloween Shock and Fear">
+    </div>
+    <div class="seasonal-copy">
+      <div class="seasonal-badges">
+        <span class="seasonal-badge">Limited Edition</span>
+        <span class="seasonal-badge ghost">Seasonal Drop</span>
+      </div>
+      <span class="eyebrow" style="color:var(--pumpkin);">GADELO SPECIAL EDITION</span>
+      <h2>Halloween Shock and Fear</h2>
+      <p class="seasonal-sub">Light roast, pumpkin spice, real cinnamon. Fall, in one sip — while it lasts.</p>
+      <p>This pumpkin spice season doesn't need another run-of-the-mill new release. GADELO's Halloween Shock &amp; Fear takes a light roast base and loads it with real pumpkin spice flavor, cinnamon, and sugar so fall shows up in a single sip.</p>
+      <div class="seasonal-chips">
+        <span class="chip">Cinnamon</span>
+        <span class="chip">Pumpkin</span>
+        <span class="chip">Sugar</span>
+        <span class="chip">Spice</span>
+        <span class="chip">Cedar</span>
+      </div>
+      <div class="seasonal-cta-row">
+        <span class="price"><span class="price-compare">$19.99</span><span class="price-final">$17.99</span></span>
+        <a class="btn btn-pumpkin" href="product.html?blend=halloween">Shop Halloween Shock and Fear →</a>
+      </div>
+      <div class="seasonal-note">Small-batch, roasted to order — once this run is gone, it's gone until next fall.</div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= Featured Blends (core lineup) ================= -->
 <section id="blends">
   <div class="wrap">
@@ -105,8 +144,8 @@
       <button class="roast-tab" data-roast="dark">Dark Roast</button>
     </div>
 
-    <!-- Military Exclusive Lineup — 5 blends, confirmed recipes/pricing, see js/products.js -->
-    <div class="blend-grid blend-grid-5" id="blendGrid">
+    <!-- Military Exclusive Lineup — 6 blends, confirmed recipes/pricing, see js/products.js -->
+    <div class="blend-grid blend-grid-6" id="blendGrid">
       <!-- Card 1: Fight Tonight -->
       <article class="blend-card" data-slug="fighttonight">
         <a class="blend-art-link" href="product.html?blend=fighttonight">
@@ -237,6 +276,32 @@
           </div>
           <div class="price-row">
             <span class="price"><span class="price-compare">$25.99</span><span class="price-final">$23.39</span></span>
+            <button class="add-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 6: Always Prepared (Special Edition, 200g/400g only — no 1kg) -->
+      <article class="blend-card" data-slug="alwaysprepared">
+        <a class="blend-art-link" href="product.html?blend=alwaysprepared">
+          <div class="blend-art has-photo" style="--card-bg:#0D1F3F;">
+            <img class="blend-art-photo" src="images/products/alwaysprepared/card1.webp" alt="Always Prepared">
+            <span class="mark">Special Edition</span>
+            <div>
+              <div class="name-en">Always Prepared</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=alwaysprepared">Always Prepared</a>
+          <div class="roast-tag">Dark Roast</div>
+          <div class="blend-origin"><span style="color:var(--brass-dark);">Cup Notes:</span> Chocolate, macadamia, pistachio, heavy body</div>
+          <div class="size-select">
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
+          </div>
+          <div class="price-row">
+            <span class="price"><span class="price-compare">$18.99</span><span class="price-final">$17.09</span></span>
             <button class="add-btn">Add to Cart</button>
           </div>
         </div>

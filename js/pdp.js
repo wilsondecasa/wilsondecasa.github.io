@@ -2,7 +2,7 @@
 (function(){
   function fmtUSD(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 
-  var BADGE_LABEL = { house: 'House Blend', premium: 'Premium Blend', flagship: 'Flagship Blend' };
+  var BADGE_LABEL = { house: 'House Blend', premium: 'Premium Blend', flagship: 'Flagship Blend', special: 'Special Edition' };
   var ROAST_LABEL = { light: 'Light Roast', medium: 'Medium Roast', dark: 'Dark Roast' };
   var SIZE_PILL_LABEL = {
     200: {main: '7oz', sub: '(200g)'},

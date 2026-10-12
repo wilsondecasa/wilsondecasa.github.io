@@ -227,7 +227,8 @@ section{padding:80px 0;}
   display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
 }
 .blend-grid.blend-grid-3,
-.blend-grid.blend-grid-5{grid-template-columns:repeat(3,1fr);max-width:940px;margin:0 auto;}
+.blend-grid.blend-grid-5,
+.blend-grid.blend-grid-6{grid-template-columns:repeat(3,1fr);max-width:940px;margin:0 auto;}
 .blend-card.roast-hidden{display:none;}
 
 /* ---------- Section divider tag (e.g. "Military Exclusive") ---------- */
@@ -858,7 +859,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 @media (max-width: 980px){
   .blend-grid{grid-template-columns:repeat(2,1fr);}
   .blend-grid.blend-grid-3,
-  .blend-grid.blend-grid-5{grid-template-columns:repeat(2,1fr);max-width:640px;}
+  .blend-grid.blend-grid-5,
+  .blend-grid.blend-grid-6{grid-template-columns:repeat(2,1fr);max-width:640px;}
   .about{grid-template-columns:1fr;}
   .community-inner{grid-template-columns:1fr;}
   .giveback-inner{grid-template-columns:1fr;}
@@ -885,7 +887,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .hero-ctas .btn{width:100%;}
   .blend-grid{grid-template-columns:1fr 1fr;gap:14px;}
   .blend-grid.blend-grid-3,
-  .blend-grid.blend-grid-5{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
+  .blend-grid.blend-grid-5,
+  .blend-grid.blend-grid-6{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
   .footer-grid{grid-template-columns:1fr;gap:36px;}
   .announce-inner{flex-direction:column;gap:4px;}
   section{padding:56px 0;}
@@ -903,7 +906,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
      the cards are compact enough (image + name + price + button) to stay legible. */
   .blend-grid{grid-template-columns:1fr 1fr;gap:10px;}
   .blend-grid.blend-grid-3,
-  .blend-grid.blend-grid-5{grid-template-columns:1fr 1fr;gap:10px;}
+  .blend-grid.blend-grid-5,
+  .blend-grid.blend-grid-6{grid-template-columns:1fr 1fr;gap:10px;}
   .blend-body{padding:12px 12px 14px;gap:8px;}
   /* Price + "Add to Cart" stack instead of sharing the row — at 2-column card
      widths the button only had ~half the card to work with, so its label
@@ -928,4 +932,65 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
      "2.2lb". The size is still unambiguous and the grams are one tap away
      on the product page. */
   .size-opt .size-sub{display:none;}
+}
+
+/* ---------- Seasonal — Limited Edition feature (Halloween, 2026-10-12) ---------- */
+/* Standalone "limited drop" section, deliberately styled apart from the
+   site's usual navy/khaki core-lineup look (Black Rifle Coffee Co.-style
+   promo block) — olive + pumpkin, lifted from this blend's own SmartStore
+   detail-page palette, so it reads as a time-boxed special rather than one
+   more card in the regular grid. Not reused elsewhere; if a future seasonal
+   blend needs the same treatment, swap --pumpkin/--pumpkin-d per-section
+   via an inline style on .seasonal-feature instead of forking this block. */
+.seasonal-feature{
+  --sf-olive:#2C2F1F; --sf-olive-2:#24271A; --sf-olive-line:#4A4D34;
+  --sf-bone:#EFE6D2; --sf-bone-2:#CFC6B0;
+  --pumpkin:#E8873A; --pumpkin-d:#B9581E;
+  background:var(--sf-olive); color:var(--sf-bone);
+  padding:0;
+  border-top:1px solid var(--sf-olive-line); border-bottom:1px solid var(--sf-olive-line);
+  overflow:hidden;
+}
+.seasonal-inner{
+  display:grid; grid-template-columns:.85fr 1.15fr; align-items:center; gap:56px;
+  padding:64px 24px;
+}
+.seasonal-art{
+  border-radius:4px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.45);
+  max-width:360px; margin:0 auto;
+}
+.seasonal-art img{width:100%;display:block;}
+.seasonal-badges{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.seasonal-badge{
+  display:inline-flex;align-items:center;height:30px;padding:0 14px;border-radius:15px;
+  background:var(--pumpkin); color:#1E1408;
+  font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:700;
+}
+.seasonal-badge.ghost{background:transparent;border:1px solid rgba(239,230,210,.55);color:var(--sf-bone);}
+.seasonal-feature h2{
+  font-size:clamp(28px,3.4vw,42px); margin:6px 0 10px; color:var(--sf-bone);
+}
+.seasonal-sub{color:var(--pumpkin); font-size:16px; font-weight:700; margin:0 0 16px;}
+.seasonal-feature p{color:var(--sf-bone-2); max-width:56ch; margin:0 0 20px;}
+.seasonal-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px;}
+.seasonal-chips .chip{
+  display:inline-flex;align-items:center;height:34px;padding:0 16px;border-radius:17px;
+  background:var(--sf-olive-2); border:1px solid var(--sf-olive-line);
+  font-size:13px; color:var(--sf-bone);
+}
+.seasonal-cta-row{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:14px;}
+.seasonal-cta-row .price-compare{color:var(--sf-bone-2);text-decoration:line-through;margin-right:8px;font-size:15px;}
+.seasonal-cta-row .price-final{color:var(--pumpkin);font-size:22px;font-weight:700;}
+.btn-pumpkin{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--pumpkin); color:#1E1408; border:1px solid var(--pumpkin);
+  padding:13px 24px;border-radius:2px;font-weight:700;font-size:14px;
+  transition:background .2s ease;
+}
+.btn-pumpkin:hover{background:var(--pumpkin-d);border-color:var(--pumpkin-d);}
+.seasonal-note{font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.03em;color:var(--sf-bone-2);}
+@media (max-width:980px){
+  .seasonal-inner{grid-template-columns:1fr;text-align:center;padding:48px 24px;gap:32px;}
+  .seasonal-badges,.seasonal-chips,.seasonal-cta-row{justify-content:center;}
+  .seasonal-feature p{margin-left:auto;margin-right:auto;}
 }
