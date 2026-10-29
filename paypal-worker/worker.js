@@ -54,8 +54,17 @@ const PRODUCTS = {
   // provisional estimate (조나단 gave Korean/Naver cost data, not a
   // confirmed USD figure), not a locked-in number. Update both files
   // together if the price changes, same as any other product.
-  halloween: { name: 'Halloween Shock and Fear', prices: { 200: 17.99, 400: 26.99 } },
-  alwaysprepared: { name: 'Always Prepared', prices: { 200: 17.09, 400: 24.29 } }
+  // 2026-10-28: discontinued, website only (SmartStore listing untouched —
+  // see js/products.js' matching comment on the halloween entry). soldOut
+  // is enforced below in buildPurchaseUnit() so a checkout can't go through
+  // even if a cached page, bookmark, or direct API call tries to buy it —
+  // the front-end disabling the button is not enough on its own.
+  halloween: { name: 'Halloween Shock and Fear', prices: { 200: 17.99, 400: 26.99 }, soldOut: true },
+  alwaysprepared: { name: 'Always Prepared', prices: { 200: 17.09, 400: 24.29 } },
+  // 2026-10-28: added alongside the js/products.js entry — see that file's
+  // "PRICE NOTE" comment on frozenchosin for how these were estimated
+  // (provisional, not yet confirmed by 조나단).
+  frozenchosin: { name: 'Frozen Chosin', prices: { 200: 15.29, 400: 22.49 } }
 };
 const SIZE_LABEL = { 200: '7.05 oz (200g)', 400: '14.11 oz (400g)', 1000: '2.20 lb (1kg)' };
 const DOMESTIC_FEE = 4.0;
@@ -182,6 +191,9 @@ function buildPurchaseUnit(body) {
     const sizeKey = Number(line.sizeKey);
     if (!product || !product.prices[sizeKey]) {
       throw new Error('Unknown product: ' + line.slug + ' / ' + line.sizeKey);
+    }
+    if (product.soldOut) {
+      throw new Error(product.name + ' is sold out.');
     }
     const qty = Math.max(1, Math.min(20, parseInt(line.qty, 10) || 1));
     const unitPrice = product.prices[sizeKey];

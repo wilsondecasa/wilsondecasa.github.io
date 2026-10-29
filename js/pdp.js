@@ -97,6 +97,7 @@
     document.querySelectorAll('.pdp-gallery-main').forEach(function(el){
       el.style.setProperty('--card-bg', product.color);
       el.classList.toggle('has-photo', !!(product.images && product.images.bags));
+      el.classList.toggle('sold-out', !!product.soldOut);
     });
     var mainNameEn = document.getElementById('pdpMainNameEn');
     if(mainNameEn) mainNameEn.textContent = product.nameEn;
@@ -141,8 +142,13 @@
   if(qtyPlus) qtyPlus.addEventListener('click', function(){ state.qty = Math.min(20, state.qty + 1); document.getElementById('pdpQtyValue').textContent = state.qty; });
 
   var addBtn = document.getElementById('pdpAddBtn');
+  if(addBtn && product.soldOut){
+    addBtn.disabled = true;
+    addBtn.textContent = 'Sold Out';
+  }
   if(addBtn){
     addBtn.addEventListener('click', function(){
+      if(product.soldOut) return;
       window.gadeloCart.add({
         slug: product.slug,
         nameEn: product.nameEn,

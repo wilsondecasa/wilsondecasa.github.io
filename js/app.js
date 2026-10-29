@@ -308,6 +308,14 @@
     var addBtn = card.querySelector('.add-btn');
     var currentSize = 400;
 
+    // Sold-out blends (product.soldOut, set in products.js): ribbon + disabled
+    // size/add controls, driven entirely from product data so a card never
+    // needs editing by hand when a blend's status changes.
+    if(product.soldOut){
+      card.classList.add('sold-out');
+      if(addBtn){ addBtn.disabled = true; addBtn.textContent = 'Sold Out'; }
+    }
+
     function updatePrice(){
       if(!priceEl) return;
       var compare = product.compareAtPrices && product.compareAtPrices[currentSize];

@@ -179,6 +179,14 @@ var GADELO_PRODUCTS = {
     // section on index.html instead of a regular grid card. See index.html's
     // "Seasonal — Limited Edition" section, right after the hero.
     line: "seasonal",
+    // DISCONTINUED (2026-10-28): 조나단 — Halloween Shock and Fear is being
+    // discontinued and should show as sold out on this site (website only —
+    // the SmartStore listing is handled separately and is NOT touched by
+    // this flag). soldOut=true disables the size selector + Add to Cart on
+    // both the homepage grid card and the PDP, and shows a "SOLD OUT" ribbon
+    // (see .sold-out rules in css/style.css). Prices are left in place so
+    // the strikethrough/compare price still renders under the ribbon.
+    soldOut: true,
     color: "#B9581E",
     // PRICE NOTE (2026-10-12): 조나단 didn't have a US-site USD price set yet
     // and instead passed the Korean/Naver cost-and-margin breakdown for this
@@ -227,12 +235,16 @@ var GADELO_PRODUCTS = {
     compareAtPrices: {200: 18.99, 400: 26.99},
     prices: {200: 17.09, 400: 24.29},
     images: {
-      card1: "images/products/alwaysprepared/card1.webp",
+      // ?v=20261012 is a cache-busting version tag — bump it (date of the
+      // change) any time this same filename's pixel content is replaced,
+      // so phones/browsers that cached the old bytes under the old URL
+      // fetch the new ones instead of showing a stale image.
+      card1: "images/products/alwaysprepared/card1.webp?v=20261012",
       // No card2/back image or real bag photography yet — reusing the one
       // poster illustration (Patriot battery) everywhere for now.
-      bags: {200: "images/products/alwaysprepared/card1.webp", 400: "images/products/alwaysprepared/card1.webp"}
+      bags: {200: "images/products/alwaysprepared/card1.webp?v=20261012", 400: "images/products/alwaysprepared/card1.webp?v=20261012"}
     },
-    image: "images/products/alwaysprepared/card1.webp",
+    image: "images/products/alwaysprepared/card1.webp?v=20261012",
     originEn: "Guatemala Kin (Washed) 60% · Nicaragua Segovia (Washed) 40%",
     originKo: "과테말라 킨 워시드 60% · 니카라과 세고비아 워시드 40%",
     descEn: [
@@ -243,5 +255,59 @@ var GADELO_PRODUCTS = {
       "첫 모금부터 끝까지 초콜릿이 중심을 잡아주고, 그 위로 마카다미아와 피스타치오의 고소함이 한 발 한 발 또렷하게 번집니다. 단맛과 밸런스가 좋고, 묵직한 견과류의 풍미가 입안을 가득 채우는 바디감 좋은 블렌드입니다.",
       "지역 소방서에 원두를 후원하고 있습니다. 함께할 다음 부대를 항상 찾고 있습니다."
     ]
+  },
+
+  // Frozen Chosin — 2026-10-28, added per 조나단's "업로드 준비" request.
+  // US-site tribute version of the Korean SmartStore "겨울방학" (Winter
+  // Break) blend — same beans/roast, different label/story (same pattern as
+  // Roll Out/Goodwill and Indian Head/India). See project docs
+  // gadelo-겨울방학-프로즌초신-컨셉.md and -배합-카드문구.md for the full
+  // sourcing (concept, history references, copy drafts).
+  frozenchosin: {
+    slug: "frozenchosin",
+    nameEn: "Frozen Chosin",
+    nameKo: "프로즌 초신",
+    badge: "special",
+    // Confirmed "Medium Dark" (2026-10-14 배합 문서) — this site's roast
+    // filter only has light/medium/dark, so bucketing as "dark" (closer of
+    // the two). Doesn't affect pricing/copy, only which Our-Coffee roast tab
+    // the card shows under.
+    roastLevel: "dark",
+    line: "seasonal", // winter-only run, same as 겨울방학's SmartStore "시즌 블렌딩" categorization — kept out of cross-sell
+    color: "#16263B",
+    // PRICE NOTE (2026-10-28): no USD figure from 조나단 yet — estimated the
+    // same way as Halloween/Always Prepared. Bean cost confirmed straight
+    // from GADELO_원가계산표 (Google Sheets, read 2026-10-28): Indonesia
+    // Aceh Gayo 16,000/kg × 50% + India Mysore 15,500/kg × 35% + Costa Rica
+    // Don Mayo Honey 26,500/kg × 15% = 17,400원 생두, ×1.2 로스팅 가산 =
+    // 20,880원/kg 원두원가 — matches the sheet's "겨울방학" row exactly (same
+    // blend). No Naver listing exists yet for Frozen Chosin itself (US-only
+    // product), so used 겨울방학's own already-set SmartStore price
+    // (200g 21,900원 / 400g 32,900원) as the KRW reference and applied the
+    // same ratio method as the other two dual-market-style estimates
+    // (≈0.00075 × KRW price, rounded to .99). Provisional until confirmed.
+    compareAtPrices: {200: 16.99, 400: 24.99},
+    prices: {200: 15.29, 400: 22.49},
+    images: {
+      // Bean-card front art (already finished in "16. Frozen chosin/02. Card"
+      // as of 2026-10-28) reused as the product photo, same stopgap pattern
+      // as Halloween/Always Prepared at their own launch — no real bag photo
+      // yet. Swap to bag-200.webp/bag-400.webp in images.bags once that
+      // exists, same as those two's "남은 할 일".
+      card1: "images/products/frozenchosin/card1.webp",
+      bags: {200: "images/products/frozenchosin/card1.webp", 400: "images/products/frozenchosin/card1.webp"}
+    },
+    image: "images/products/frozenchosin/card1.webp",
+    originEn: "Indonesia Aceh Gayo (Wet-Hulled) 50% · India Mysore Nuggets (Bold) 35% · Costa Rica Don Mayo (Honey) 15%",
+    originKo: "인도네시아 아체가요 웨트헐드 50% · 인도 마이소르 너겟 볼드 35% · 코스타리카 돈 마요 허니 15%",
+    descEn: [
+      "A small star in the snow. A warm cup for the long road.",
+      "In December 1950, in the bitter cold of the Chosin Reservoir, U.S. Marines, soldiers of the U.S. Army, British Royal Marines and Korean allies fought their way out against overwhelming odds. At Koto-ri, a faint star appeared one snowbound night, and the Marines began to sing their hymn. Some called it a sign, some called it chance. To those who were there, it was a light in the dark.",
+      "Their long walk out helped make possible the evacuation at Hungnam, where tens of thousands of soldiers and Korean civilians boarded ships and sailed to safety.",
+      "This blend is our way of saying thank you. Roasted slow and sweet, with notes of baked sweet potato and burnt-sugar toffee, it is made to be held with both hands on a cold morning, and to remind us who walked through the cold so that we could sit down to a warm cup."
+    ],
+    // English-only by 조나단's decision (겨울방학-프로즌초신-컨셉.md §6-2) —
+    // deliberately left empty rather than translated.
+    descKo: []
   }
 };

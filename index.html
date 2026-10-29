@@ -89,41 +89,46 @@
   <h1 class="sr-only">GADELO Coffee Roasters — Roasted in Korea</h1>
 </section>
 
-<!-- ================= Seasonal — Limited Edition (Halloween) ================= -->
+<!-- ================= Seasonal — Limited Edition (Frozen Chosin) ================= -->
 <!-- 2026-10-12: pulled out of the regular grid on purpose per 조나단's
      request — a standalone "limited drop" feature section (Black Rifle
-     Coffee Co.-style), not just another card in #blendGrid. Uses the olive/
-     pumpkin "Special Edition" palette from the blend's own SmartStore detail
-     page instead of the site's usual navy/khaki, so it reads as a distinct,
-     time-boxed drop rather than part of the core lineup. See .seasonal-feature
-     in style.css. Price shown is a provisional estimate — see js/products.js'
-     "PRICE NOTE" comment on the halloween entry. -->
-<section class="seasonal-feature" id="seasonal-halloween">
+     Coffee Co.-style) directly under the hero, not just another card in
+     #blendGrid. See .seasonal-feature in style.css — the olive/accent
+     palette is scoped to this section via inline CSS custom properties
+     (--sf-olive/--pumpkin/--pumpkin-d etc.) so each seasonal drop gets its
+     own look without forking the CSS block.
+     2026-10-29: Halloween's run ended (soldOut:true, website only — see
+     js/products.js), so per 조나단 this spot — directly under the hero,
+     where Halloween's own banner used to be — is replaced with Frozen
+     Chosin, the current winter seasonal drop. Halloween itself is not
+     deleted: it still shows sold out as its own card in #blendGrid below.
+     Frozen Chosin's price is a provisional estimate — see js/products.js'
+     "PRICE NOTE" comment on the frozenchosin entry. -->
+<section class="seasonal-feature" id="seasonal-frozenchosin" style="--sf-olive:#0C1726; --sf-olive-2:#16263B; --sf-olive-line:#2A4660; --pumpkin:#8FCFEF; --pumpkin-d:#5FA9CE;">
   <div class="wrap seasonal-inner">
     <div class="seasonal-art">
-      <img src="images/products/halloween/card1.webp" alt="Halloween Shock and Fear">
+      <img src="images/products/frozenchosin/card1.webp" alt="Frozen Chosin">
     </div>
     <div class="seasonal-copy">
       <div class="seasonal-badges">
-        <span class="seasonal-badge">Limited Edition</span>
+        <span class="seasonal-badge">Winter Only</span>
         <span class="seasonal-badge ghost">Seasonal Drop</span>
       </div>
       <span class="eyebrow" style="color:var(--pumpkin);">GADELO SPECIAL EDITION</span>
-      <h2>Halloween Shock and Fear</h2>
-      <p class="seasonal-sub">Light roast, pumpkin spice, real cinnamon. Fall, in one sip — while it lasts.</p>
-      <p>This pumpkin spice season doesn't need another run-of-the-mill new release. GADELO's Halloween Shock &amp; Fear takes a light roast base and loads it with real pumpkin spice flavor, cinnamon, and sugar so fall shows up in a single sip.</p>
+      <h2>Frozen Chosin</h2>
+      <p class="seasonal-sub">Dark roast, baked sweet potato, dalgona, toffee. A warm cup for the long road.</p>
+      <p>In December 1950, in the bitter cold of the Chosin Reservoir, U.S. Marines, soldiers of the U.S. Army, British Royal Marines, and Korean allies fought their way out against overwhelming odds. At Koto-ri, a faint star appeared one snowbound night — some called it a sign, some called it chance. This blend is our way of saying thank you: roasted slow and sweet, with notes of baked sweet potato and burnt-sugar toffee, made to be held with both hands on a cold morning.</p>
       <div class="seasonal-chips">
-        <span class="chip">Cinnamon</span>
-        <span class="chip">Pumpkin</span>
-        <span class="chip">Sugar</span>
-        <span class="chip">Spice</span>
-        <span class="chip">Cedar</span>
+        <span class="chip">Sweet Potato</span>
+        <span class="chip">Dalgona</span>
+        <span class="chip">Toffee</span>
+        <span class="chip">Maple Syrup</span>
       </div>
       <div class="seasonal-cta-row">
-        <span class="price"><span class="price-compare">$19.99</span><span class="price-final">$17.99</span></span>
-        <a class="btn btn-pumpkin" href="product.html?blend=halloween">Shop Halloween Shock and Fear →</a>
+        <span class="price"><span class="price-compare">$24.99</span><span class="price-final">$22.49</span></span>
+        <a href="product.html?blend=frozenchosin" class="btn btn-pumpkin">Shop Frozen Chosin</a>
       </div>
-      <div class="seasonal-note">Small-batch, roasted to order — once this run is gone, it's gone until next fall.</div>
+      <div class="seasonal-note">A small star in the snow — roasted in tribute to the Chosin Few.</div>
     </div>
   </div>
 </section>
@@ -145,7 +150,7 @@
     </div>
 
     <!-- Military Exclusive Lineup — 6 blends, confirmed recipes/pricing, see js/products.js -->
-    <div class="blend-grid blend-grid-7" id="blendGrid">
+    <div class="blend-grid blend-grid-8" id="blendGrid">
       <!-- Card 1: Fight Tonight -->
       <article class="blend-card" data-slug="fighttonight">
         <a class="blend-art-link" href="product.html?blend=fighttonight">
@@ -282,9 +287,11 @@
       </article>
 
       <!-- Card 6: Halloween Shock and Fear (Special Edition, 200g/400g only — no
-           1kg). Also featured in its own "Seasonal — Limited Edition" section
-           above #blends — added here too per 조나단's note (2026-10-12) that
-           it should still show up in the full catalog grid, not only there. -->
+           1kg). Had its own standalone "Seasonal — Limited Edition" hero
+           banner above #blends (added 2026-10-12); as of 2026-10-29 that
+           banner spot now features Frozen Chosin instead (Halloween's
+           season is over — see #seasonal-frozenchosin above), so this
+           sold-out grid card is the only place Halloween still shows. -->
       <article class="blend-card" data-slug="halloween">
         <a class="blend-art-link" href="product.html?blend=halloween">
           <div class="blend-art has-photo" style="--card-bg:#B9581E;">
@@ -314,7 +321,7 @@
       <article class="blend-card" data-slug="alwaysprepared">
         <a class="blend-art-link" href="product.html?blend=alwaysprepared">
           <div class="blend-art has-photo" style="--card-bg:#0D1F3F;">
-            <img class="blend-art-photo" src="images/products/alwaysprepared/card1.webp" alt="Always Prepared">
+            <img class="blend-art-photo" src="images/products/alwaysprepared/card1.webp?v=20261012" alt="Always Prepared">
             <span class="mark">Special Edition</span>
             <div>
               <div class="name-en">Always Prepared</div>
@@ -331,6 +338,36 @@
           </div>
           <div class="price-row">
             <span class="price"><span class="price-compare">$18.99</span><span class="price-final">$17.09</span></span>
+            <button class="add-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 8: Frozen Chosin (Special Edition, 200g/400g only — no 1kg).
+           2026-10-28: added per 조나단's "업로드 준비" request — US-site
+           tribute version of the Korean "겨울방학" blend. Price is a
+           provisional estimate, see js/products.js' PRICE NOTE on this
+           entry. -->
+      <article class="blend-card" data-slug="frozenchosin">
+        <a class="blend-art-link" href="product.html?blend=frozenchosin">
+          <div class="blend-art has-photo" style="--card-bg:#16263B;">
+            <img class="blend-art-photo" src="images/products/frozenchosin/card1.webp" alt="Frozen Chosin">
+            <span class="mark">Special Edition</span>
+            <div>
+              <div class="name-en">Frozen Chosin</div>
+            </div>
+          </div>
+        </a>
+        <div class="blend-body">
+          <a class="blend-name-link" href="product.html?blend=frozenchosin">Frozen Chosin</a>
+          <div class="roast-tag">Dark Roast</div>
+          <div class="blend-origin"><span style="color:var(--brass-dark);">Cup Notes:</span> Baked sweet potato, dalgona, toffee, maple syrup</div>
+          <div class="size-select">
+            <div class="size-opt" data-size="200">7oz <span class="size-sub">(200g)</span></div>
+            <div class="size-opt active" data-size="400">14oz <span class="size-sub">(400g)</span></div>
+          </div>
+          <div class="price-row">
+            <span class="price"><span class="price-compare">$24.99</span><span class="price-final">$22.49</span></span>
             <button class="add-btn">Add to Cart</button>
           </div>
         </div>

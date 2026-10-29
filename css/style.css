@@ -229,7 +229,8 @@ section{padding:80px 0;}
 .blend-grid.blend-grid-3,
 .blend-grid.blend-grid-5,
 .blend-grid.blend-grid-6,
-.blend-grid.blend-grid-7{grid-template-columns:repeat(3,1fr);max-width:940px;margin:0 auto;}
+.blend-grid.blend-grid-7,
+.blend-grid.blend-grid-8{grid-template-columns:repeat(3,1fr);max-width:940px;margin:0 auto;}
 .blend-card.roast-hidden{display:none;}
 
 /* ---------- Section divider tag (e.g. "Military Exclusive") ---------- */
@@ -327,6 +328,33 @@ section{padding:80px 0;}
 }
 .add-btn:hover{background:#c2903f;}
 .grid-foot{text-align:center;margin-top:40px;}
+
+/* ---------- Sold out (data-driven from product.soldOut in products.js) ----------
+   Grid card: .blend-card.sold-out, toggled by js/app.js. PDP gallery:
+   .pdp-gallery-main.sold-out, toggled by js/pdp.js. Both get the same
+   corner ribbon; size/add controls are dimmed and non-interactive rather
+   than hidden, so the blend stays visible/browsable but not purchasable. */
+.blend-card.sold-out .blend-art,
+.pdp-gallery-main.sold-out{
+  overflow:hidden;
+  filter:grayscale(.5) brightness(.65);
+}
+.blend-card.sold-out .blend-art::after,
+.pdp-gallery-main.sold-out::after{
+  content:"SOLD OUT";
+  position:absolute;top:20px;right:-42px;z-index:3;
+  width:170px;text-align:center;
+  background:#7A2A2A;color:#F6F1E4;
+  font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.12em;
+  padding:5px 0;transform:rotate(38deg);
+  box-shadow:0 2px 6px rgba(0,0,0,.35);
+}
+.blend-card.sold-out .size-opt{opacity:.4;pointer-events:none;}
+.blend-card.sold-out .add-btn,
+.pdp-add:disabled{
+  background:var(--sand-line);color:var(--olive-text);cursor:not-allowed;
+}
+.blend-card.sold-out .add-btn:hover{background:var(--sand-line);}
 
 /* ---------- Give Back (unit sponsorship) ----------
    .giveback-media is a full-bleed photo layer behind the section (same slot
@@ -862,7 +890,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid.blend-grid-3,
   .blend-grid.blend-grid-5,
   .blend-grid.blend-grid-6,
-  .blend-grid.blend-grid-7{grid-template-columns:repeat(2,1fr);max-width:640px;}
+  .blend-grid.blend-grid-7,
+  .blend-grid.blend-grid-8{grid-template-columns:repeat(2,1fr);max-width:640px;}
   .about{grid-template-columns:1fr;}
   .community-inner{grid-template-columns:1fr;}
   .giveback-inner{grid-template-columns:1fr;}
@@ -891,7 +920,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid.blend-grid-3,
   .blend-grid.blend-grid-5,
   .blend-grid.blend-grid-6,
-  .blend-grid.blend-grid-7{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
+  .blend-grid.blend-grid-7,
+  .blend-grid.blend-grid-8{grid-template-columns:1fr 1fr;gap:14px;max-width:none;}
   .footer-grid{grid-template-columns:1fr;gap:36px;}
   .announce-inner{flex-direction:column;gap:4px;}
   section{padding:56px 0;}
@@ -911,7 +941,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   .blend-grid.blend-grid-3,
   .blend-grid.blend-grid-5,
   .blend-grid.blend-grid-6,
-  .blend-grid.blend-grid-7{grid-template-columns:1fr 1fr;gap:10px;}
+  .blend-grid.blend-grid-7,
+  .blend-grid.blend-grid-8{grid-template-columns:1fr 1fr;gap:10px;}
   .blend-body{padding:12px 12px 14px;gap:8px;}
   /* Price + "Add to Cart" stack instead of sharing the row — at 2-column card
      widths the button only had ~half the card to work with, so its label
@@ -971,6 +1002,8 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:700;
 }
 .seasonal-badge.ghost{background:transparent;border:1px solid rgba(239,230,210,.55);color:var(--sf-bone);}
+.seasonal-badge.soldout{background:#7A2A2A;color:#F6F1E4;}
+.seasonal-art-soldout{position:relative;filter:grayscale(.45) brightness(.7);}
 .seasonal-feature h2{
   font-size:clamp(28px,3.4vw,42px); margin:6px 0 10px; color:var(--sf-bone);
 }
@@ -992,6 +1025,7 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
   transition:background .2s ease;
 }
 .btn-pumpkin:hover{background:var(--pumpkin-d);border-color:var(--pumpkin-d);}
+.btn-pumpkin.btn-disabled{background:var(--sf-olive-line);border-color:var(--sf-olive-line);color:var(--sf-bone-2);cursor:not-allowed;pointer-events:none;}
 .seasonal-note{font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.03em;color:var(--sf-bone-2);}
 @media (max-width:980px){
   .seasonal-inner{grid-template-columns:1fr;text-align:center;padding:48px 24px;gap:32px;}
