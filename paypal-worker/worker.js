@@ -28,6 +28,23 @@
 //   ALLOWED_ORIGIN          Environment Variable — the exact address of the
 //                           GADELO website, e.g. https://yourname.github.io
 //                           (no trailing slash). Use * only while testing.
+//
+// 2026-11-02 (1단계 — admin order list) additions:
+//   DB                     D1 Database binding, name MUST be exactly "DB" —
+//                           Settings → Bindings → Add → D1 Database. Run the
+//                           schema in paypal-worker/schema.sql against it
+//                           once (D1 database page → Console tab) before
+//                           deploying this file. If DB isn't bound, order
+//                           history is just silently skipped — payments
+//                           still work fine either way, this is additive.
+//   ADMIN_PASSWORD          Secret — the password admin.html's login screen
+//                           checks against. Pick something you don't use
+//                           anywhere else; this is the only thing standing
+//                           between the public internet and your order list.
+//   ADMIN_SESSION_SECRET    Secret — a long random string (40+ characters is
+//                           plenty) used to sign admin login tokens. Not a
+//                           password anyone types — generate it once
+//                           (anything random works) and never share it.
 // ---------------------------------------------------------------------------
 
 // Keep this price table in sync with js/products.js on the website. This is
@@ -104,14 +121,27 @@ const REGION_OFFBASE_COUNTRY = { japan_mainland: 'JP', okinawa: 'JP', guam: 'GU'
 // Worker no longer receives body.residency or any of the old structured
 // address fields (a.street/a.city/a.box/a.apoCode/a.pscCmr/...) — only
 // body.address = { name, phone, email, text }. Country code / APO-style
-// addressing is now inferred from the free text itself:
+// addressing was inferred from the free text itself:
 //   - Korea            → always 'KR' (never APO/FPO).
 //   - Hawaii           → always 'US' / admin_area_1 'HI' (real US state).
-//   - Japan/Okinawa/Guam → the shopper's own text is scanned for the words
-//     "APO" or "FPO"; a match means they're on-base (US military mail,
-//     country_code 'US', admin_area_1 from REGION_ADMIN_AREA, admin_area_2
-//     'APO'), no match means a genuine local host-country address
+//   - Japan/Okinawa/Guam → the shopper's own text was scanned for the words
+//     "APO" or "FPO"; a match meant on-base (US military mail, country_code
+//     'US', admin_area_1 from REGION_ADMIN_AREA, admin_area_2 'APO'), no
+//     match meant a genuine local host-country address
 //     (REGION_OFFBASE_COUNTRY).
+//
+// 2026-11-02: checkout.html/checkout.js replaced the "just mention APO/FPO
+// somewhere" free-text approach with an explicit yes/no question the
+// shopper answers on-screen ("can this address get door delivery, or do you
+// need a Post Box") — see the dated comment above #cartAddressIntl in
+// checkout.html. The answer now arrives as body.address.deliveryType
+// ('home' | 'postbox'), which this Worker trusts directly instead of
+// pattern-matching the text. Korea is included now too (조나단 요청) — a
+// Korea Post Box answer still ships as a plain 'KR' address (Korea was
+// never APO/FPO to begin with; this only changes what goes in the address
+// line). The old APO_FPO_PATTERN scan stays below as a fallback ONLY for a
+// stale cached client that predates this change and never sends
+// deliveryType at all.
 const APO_FPO_PATTERN = /\b(APO|FPO)\b/i;
 // Best-effort US-style postal code extraction from the free-text address —
 // used only when present; PayPal's create-order call does not require it.
@@ -148,8 +178,10 @@ function intlShippingFee(zone, weightKg) {
 function corsHeaders(env) {
   return {
     'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN || '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    // 2026-11-02: GET added for /admin/orders, Authorization added for the
+    // admin page's "Bearer <token>" header — see the ADMIN AUTH section.
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Content-Type': 'application/json'
   };
 }
@@ -290,12 +322,21 @@ function buildPurchaseUnit(body) {
     } else if (region === 'hawaii') {
       countryCode = 'US';
       adminArea1 = 'HI';
-    } else if (APO_FPO_PATTERN.test(freeText)) {
-      countryCode = 'US';
-      adminArea1 = REGION_ADMIN_AREA[region] || undefined;
-      adminArea2 = 'APO';
     } else {
-      countryCode = REGION_OFFBASE_COUNTRY[region] || 'US';
+      // 2026-11-02: trust the shopper's explicit on-screen answer when the
+      // front-end sends one; only fall back to scanning the text for
+      // "APO"/"FPO" for a stale cached client from before this field
+      // existed. See the dated comment above APO_FPO_PATTERN.
+      const isOnBase = a.deliveryType === 'home' || a.deliveryType === 'postbox'
+        ? a.deliveryType === 'postbox'
+        : APO_FPO_PATTERN.test(freeText);
+      if (isOnBase) {
+        countryCode = 'US';
+        adminArea1 = REGION_ADMIN_AREA[region] || undefined;
+        adminArea2 = 'APO';
+      } else {
+        countryCode = REGION_OFFBASE_COUNTRY[region] || 'US';
+      }
     }
 
     purchaseUnit.shipping = {
@@ -315,6 +356,154 @@ function buildPurchaseUnit(body) {
   return purchaseUnit;
 }
 
+// ---------------------------------------------------------------------------
+// ORDER STORAGE (D1) — added 2026-11-02, 1단계 (주문 관리자). Every order is
+// written to D1 twice: once as 'pending' right after PayPal confirms order
+// CREATION (so even an abandoned/never-paid checkout is visible — useful on
+// its own), then flipped to 'paid' once capture actually succeeds. Both
+// writes are best-effort: if D1 isn't bound yet (env.DB missing) or a write
+// throws, we log and move on rather than fail a real customer's checkout
+// over our own order-history feature. Schema: paypal-worker/schema.sql —
+// run it against the D1 database once (Console tab) before relying on this.
+// ---------------------------------------------------------------------------
+async function insertPendingOrder(env, body, purchaseUnit, paypalOrderId) {
+  if (!env.DB) return;
+  const a = body.address || {};
+  await env.DB.prepare(
+    `INSERT INTO orders
+      (paypal_order_id, status, customer_name, customer_phone, customer_email,
+       fulfillment, region, camp_id, camp_other, delivery_type, shipping_text,
+       items_json, subtotal, shipping_fee, total)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+  )
+    .bind(
+      paypalOrderId,
+      'pending',
+      String(a.name || ''),
+      String(a.phone || ''),
+      String(a.email || ''),
+      String(body.fulfillment || ''),
+      String(body.region || ''),
+      String(body.base || ''),
+      String(body.baseOther || ''),
+      String(a.deliveryType || ''),
+      String(a.text || ''),
+      JSON.stringify(purchaseUnit.items),
+      Number(purchaseUnit.amount.breakdown.item_total.value),
+      Number(purchaseUnit.amount.breakdown.shipping.value),
+      Number(purchaseUnit.amount.value)
+    )
+    .run();
+}
+
+async function markOrderCaptured(env, paypalOrderId) {
+  if (!env.DB) return;
+  await env.DB.prepare(
+    "UPDATE orders SET status = 'paid', captured_at = datetime('now') WHERE paypal_order_id = ?"
+  )
+    .bind(paypalOrderId)
+    .run();
+}
+
+// ---------------------------------------------------------------------------
+// ADMIN AUTH — added 2026-11-02, 1단계. One shared password (ADMIN_PASSWORD
+// secret), not per-staff accounts — that's a later phase once real customer
+// accounts exist too. A successful /admin/login gets back a signed, 12-hour
+// token (HMAC-SHA256 over a JSON payload, using ADMIN_SESSION_SECRET) that
+// admin.html stores in localStorage and sends back as
+// "Authorization: Bearer <token>" on every /admin/* call — a bearer token
+// instead of a cookie because the Worker (*.workers.dev) and the site
+// (gadelocoffeeroasters.com) are different origins, which makes cross-site
+// cookies needlessly fiddly for no real benefit here.
+// ---------------------------------------------------------------------------
+const ADMIN_TOKEN_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+
+function bufToBase64Url(buf) {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function base64UrlToBuf(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  const bin = atob(str);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+async function hmacKey(env) {
+  return crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(env.ADMIN_SESSION_SECRET || ''),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
+  );
+}
+async function signAdminToken(env) {
+  const payload = JSON.stringify({ exp: Math.floor(Date.now() / 1000) + ADMIN_TOKEN_TTL_SECONDS });
+  const payloadB64 = bufToBase64Url(new TextEncoder().encode(payload).buffer);
+  const key = await hmacKey(env);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadB64));
+  return payloadB64 + '.' + bufToBase64Url(sig);
+}
+async function verifyAdminToken(env, token) {
+  if (!token || typeof token !== 'string' || token.indexOf('.') === -1) return false;
+  const [payloadB64, sigB64] = token.split('.');
+  const key = await hmacKey(env);
+  const expectedSig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadB64));
+  if (bufToBase64Url(expectedSig) !== sigB64) return false;
+  try {
+    const payload = JSON.parse(new TextDecoder().decode(base64UrlToBuf(payloadB64)));
+    return !!payload.exp && payload.exp >= Math.floor(Date.now() / 1000);
+  } catch (e) {
+    return false;
+  }
+}
+function getBearerToken(request) {
+  const header = request.headers.get('Authorization') || '';
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1] : '';
+}
+async function requireAdmin(request, env) {
+  return verifyAdminToken(env, getBearerToken(request));
+}
+
+async function handleAdminLogin(request, env) {
+  const body = await request.json();
+  const password = String(body.password || '');
+  if (!env.ADMIN_PASSWORD || !password || password !== env.ADMIN_PASSWORD) {
+    return jsonResponse({ error: 'invalid_credentials' }, 401, env);
+  }
+  const token = await signAdminToken(env);
+  return jsonResponse({ token, expiresIn: ADMIN_TOKEN_TTL_SECONDS }, 200, env);
+}
+
+async function handleAdminOrders(request, env) {
+  const authed = await requireAdmin(request, env);
+  if (!authed) return jsonResponse({ error: 'unauthorized' }, 401, env);
+  if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
+
+  const url = new URL(request.url);
+  const status = url.searchParams.get('status'); // '' | 'paid' | 'pending'
+  const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get('limit'), 10) || 100));
+
+  let query = 'SELECT * FROM orders';
+  const params = [];
+  if (status) {
+    query += ' WHERE status = ?';
+    params.push(status);
+  }
+  query += ' ORDER BY created_at DESC LIMIT ?';
+  params.push(limit);
+
+  const result = await env.DB.prepare(query)
+    .bind(...params)
+    .all();
+  return jsonResponse({ orders: result.results || [] }, 200, env);
+}
+
 async function handleCreateOrder(request, env) {
   const body = await request.json();
   const purchaseUnit = buildPurchaseUnit(body);
@@ -331,6 +520,14 @@ async function handleCreateOrder(request, env) {
   });
   const data = await res.json();
   if (!res.ok) return jsonResponse({ error: 'create_order_failed', details: data }, 502, env);
+
+  try {
+    await insertPendingOrder(env, body, purchaseUnit, data.id);
+  } catch (err) {
+    // Never fail a real checkout over our own order-history write.
+    console.error('[GADELO] insertPendingOrder failed', err);
+  }
+
   return jsonResponse({ id: data.id }, 200, env);
 }
 
@@ -352,6 +549,13 @@ async function handleCaptureOrder(request, env) {
   );
   const data = await res.json();
   if (!res.ok) return jsonResponse({ error: 'capture_failed', details: data }, 502, env);
+
+  try {
+    await markOrderCaptured(env, body.orderId);
+  } catch (err) {
+    console.error('[GADELO] markOrderCaptured failed', err);
+  }
+
   return jsonResponse(data, 200, env);
 }
 
@@ -369,6 +573,13 @@ export default {
       }
       if (request.method === 'POST' && url.pathname === '/capture-order') {
         return await handleCaptureOrder(request, env);
+      }
+      // 2026-11-02 (1단계) — admin.html's login + order list.
+      if (request.method === 'POST' && url.pathname === '/admin/login') {
+        return await handleAdminLogin(request, env);
+      }
+      if (request.method === 'GET' && url.pathname === '/admin/orders') {
+        return await handleAdminOrders(request, env);
       }
       if (request.method === 'GET' && url.pathname === '/health') {
         return jsonResponse({ ok: true }, 200, env);

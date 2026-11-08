@@ -159,6 +159,14 @@
   var intlReviewText = document.getElementById('intlAddressReviewText');
   var intlConfirmCheck = document.getElementById('intlConfirmCheck');
   var intlManualQuoteEl = document.getElementById('intlManualQuote');
+  // 2026-11-02 — door-delivery-vs-Post-Box toggle, see the dated comment
+  // above #cartAddressIntl in checkout.html.
+  var deliveryTypeRow = document.getElementById('deliveryTypeRow');
+  var deliveryTypeHomeBtn = document.getElementById('deliveryTypeHomeBtn');
+  var deliveryTypePostboxBtn = document.getElementById('deliveryTypePostboxBtn');
+  var addrFieldsHomeEl = document.getElementById('addrFieldsHome');
+  var addrFieldsPostboxEl = document.getElementById('addrFieldsPostbox');
+  var deliveryType = ''; // '' (not yet chosen) | 'home' | 'postbox'
   var intlFields = {
     name: document.getElementById('intlName'),
     phone: document.getElementById('intlPhone'),
@@ -166,8 +174,43 @@
     city: document.getElementById('intlCity'),
     address: document.getElementById('intlAddress'),
     addressDetail: document.getElementById('intlAddressDetail'),
+    postBox: document.getElementById('intlPostBox'),
     baseOther: intlBaseOtherEl
   };
+
+  // Hawaii is a real US state — always door delivery, never asked. Every
+  // other region (including Korea, added 2026-11-02 per 조나단's request)
+  // gets the question once a real camp is picked.
+  function regionNeedsDeliveryChoice(region) {
+    return !!region && region !== 'hawaii';
+  }
+
+  function setDeliveryType(type) {
+    deliveryType = type;
+    if (deliveryTypeHomeBtn) deliveryTypeHomeBtn.classList.toggle('active', type === 'home');
+    if (deliveryTypePostboxBtn) deliveryTypePostboxBtn.classList.toggle('active', type === 'postbox');
+    if (addrFieldsHomeEl) addrFieldsHomeEl.hidden = type !== 'home';
+    if (addrFieldsPostboxEl) addrFieldsPostboxEl.hidden = type !== 'postbox';
+  }
+
+  // Shows/hides the question itself based on Region + Camp, and keeps the
+  // two field groups in sync with whatever's currently chosen (or not yet
+  // chosen — then BOTH stay hidden, so door-delivery fields never look like
+  // the default for someone who actually needs a Post Box).
+  function updateDeliveryTypeVisibility() {
+    var region = intlRegionEl.value;
+    var baseId = intlBaseEl ? intlBaseEl.value : '';
+    var needsChoice = regionNeedsDeliveryChoice(region) && !!baseId && baseId !== 'none';
+    if (deliveryTypeRow) deliveryTypeRow.hidden = !needsChoice;
+    if (!needsChoice) {
+      setDeliveryType('home');
+    } else if (deliveryType) {
+      setDeliveryType(deliveryType); // re-apply current choice's field visibility
+    } else {
+      if (addrFieldsHomeEl) addrFieldsHomeEl.hidden = true;
+      if (addrFieldsPostboxEl) addrFieldsPostboxEl.hidden = true;
+    }
+  }
 
   // 14차: City / Address / 상세주소(detail) are three separate inputs on the
   // page, but worker.js still only understands one newline-joined free-text
@@ -183,6 +226,13 @@
   // to line 1 instead, so worker.js's "Address not provided" fallback never
   // shows up on a real order just because the shopper used the other box.
   function composeIntlAddressText() {
+    // 2026-11-02: a Post Box answer sends just the box number as the whole
+    // address — see the dated comment above #cartAddressIntl in
+    // checkout.html. deliveryType is read live (not captured as an arg) so
+    // this always reflects whatever's currently selected.
+    if (deliveryType === 'postbox') {
+      return val('intlPostBox');
+    }
     var address = val('intlAddress');
     var city = val('intlCity');
     var detail = val('intlAddressDetail');
@@ -273,6 +323,7 @@
     // Restore saved region/camp + address fields (device-local, same pattern as domestic)
     var savedRegion = '';
     var savedBase = '';
+    var savedDeliveryType = '';
     try {
       var dest = store.getIntlDestination();
       if (dest) {
@@ -285,6 +336,7 @@
         Object.keys(intlFields).forEach(function (key) {
           if (intlFields[key] && data[key]) intlFields[key].value = data[key];
         });
+        if (data.deliveryType === 'home' || data.deliveryType === 'postbox') savedDeliveryType = data.deliveryType;
         // 14차: a device that saved an address under 13차's single
         // "addressFree" box won't have city/address/addressDetail keys —
         // split its old free text into the new fields once, on first load,
@@ -302,6 +354,13 @@
     populateBaseOptions(savedRegion, savedBase);
     toggleBaseOtherField();
     updateBaseFeeHint(savedRegion);
+    updateDeliveryTypeVisibility();
+    // Only re-apply a saved choice if it's still relevant for this saved
+    // region/camp (e.g. not Hawaii, a real camp is picked) — otherwise
+    // updateDeliveryTypeVisibility() above already forced 'home'.
+    if (deliveryTypeRow && !deliveryTypeRow.hidden && savedDeliveryType) {
+      setDeliveryType(savedDeliveryType);
+    }
 
     function saveIntlAddress() {
       try {
@@ -309,6 +368,7 @@
         Object.keys(intlFields).forEach(function (key) {
           if (intlFields[key]) data[key] = intlFields[key].value;
         });
+        data.deliveryType = deliveryType;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (e) {
         /* private browsing, storage full, or disabled — ignore */
@@ -334,12 +394,16 @@
       var baseId = intlBaseEl ? intlBaseEl.value : '';
       var campLabel = baseId === 'other' ? val('intlBaseOther') : store.baseLabel(baseId);
       var regionLine = [campLabel, store.regionLabels[region] || region].filter(Boolean).join(' — ');
-      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && (val('intlAddress') || val('intlAddressDetail'));
+      var needsChoice = regionNeedsDeliveryChoice(region) && !!baseId && baseId !== 'none';
+      var addressOk = deliveryType === 'postbox' ? !!val('intlPostBox') : !!(val('intlAddress') || val('intlAddressDetail'));
+      var hasMinimum = val('intlName') && val('intlPhone') && baseId && (baseId !== 'other' || val('intlBaseOther')) && (!needsChoice || deliveryType) && addressOk;
       if (!hasMinimum) {
         intlReviewBlock.hidden = true;
         return;
       }
-      var addressSummary = [val('intlAddress'), val('intlCity'), val('intlAddressDetail')].filter(Boolean).join(', ');
+      var addressSummary = deliveryType === 'postbox'
+        ? val('intlPostBox')
+        : [val('intlAddress'), val('intlCity'), val('intlAddressDetail')].filter(Boolean).join(', ');
       var lines = [val('intlName'), addressSummary, regionLine, val('intlPhone') + (val('intlEmail') ? ' · ' + val('intlEmail') : '')].filter(Boolean);
       intlReviewText.textContent = lines.join('\n');
       intlReviewBlock.hidden = false;
@@ -350,12 +414,28 @@
       toggleBaseOtherField();
       updateBaseFeeHint(intlRegionEl.value);
       store.setIntlDestination(intlRegionEl.value, '', '');
+      deliveryType = ''; // region changed — re-ask the delivery question
+      updateDeliveryTypeVisibility();
       onIntlChange();
     });
     if (intlBaseEl) {
       intlBaseEl.addEventListener('change', function () {
         toggleBaseOtherField();
         store.setIntlDestination(intlRegionEl.value, intlBaseEl.value, val('intlBaseOther'));
+        deliveryType = ''; // camp changed — re-ask the delivery question
+        updateDeliveryTypeVisibility();
+        onIntlChange();
+      });
+    }
+    if (deliveryTypeHomeBtn) {
+      deliveryTypeHomeBtn.addEventListener('click', function () {
+        setDeliveryType('home');
+        onIntlChange();
+      });
+    }
+    if (deliveryTypePostboxBtn) {
+      deliveryTypePostboxBtn.addEventListener('click', function () {
+        setDeliveryType('postbox');
         onIntlChange();
       });
     }
@@ -407,10 +487,22 @@
     if (baseId === 'other' && !val('intlBaseOther')) {
       return 'Please enter your camp name.';
     }
+    // 2026-11-02: once a real camp is picked (for any region but Hawaii),
+    // the shopper must answer the door-delivery-vs-Post-Box question before
+    // either address field group even applies.
+    if (regionNeedsDeliveryChoice(region) && baseId !== 'none' && !deliveryType) {
+      return 'Please tell us whether we can deliver to your door or you need a Post Box.';
+    }
+    if (deliveryType === 'postbox' && !val('intlPostBox')) {
+      return 'Please enter your Post Box number.';
+    }
     // 15차: Address and Address detail are interchangeable here — a Post Box/
     // PSC-CMR shopper may have filled only Detail (see composeIntlAddressText()
-    // above), so either one satisfies "an address was entered".
-    var basicsOk = val('intlName') && val('intlPhone') && (val('intlAddress') || val('intlAddressDetail'));
+    // above), so either one satisfies "an address was entered". 2026-11-02:
+    // a Post Box answer is checked above instead, so this only runs for the
+    // regular address fields.
+    var addressOk = deliveryType === 'postbox' ? true : (val('intlAddress') || val('intlAddressDetail'));
+    var basicsOk = val('intlName') && val('intlPhone') && addressOk;
     if (!basicsOk) {
       return 'Please fill in your name, phone, and delivery address first.';
     }
@@ -456,7 +548,13 @@
       name: val('intlName'),
       phone: val('intlPhone'),
       email: val('intlEmail'),
-      text: composeIntlAddressText()
+      text: composeIntlAddressText(),
+      // 2026-11-02: explicit door-delivery-vs-Post-Box answer, sent
+      // alongside the free text so worker.js no longer has to guess from
+      // "APO"/"FPO" wording — see the dated comment above #cartAddressIntl
+      // in checkout.html. Defaults to 'home' for Hawaii/no-camp orders,
+      // where the question is never asked.
+      deliveryType: deliveryType || 'home'
     };
     return {
       items: store.items().map(function (i) {

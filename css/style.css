@@ -724,6 +724,54 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 .addr-base-fee-hint{
   font-size:11.5px;color:var(--brass-dark);margin:-2px 0 12px;line-height:1.5;
 }
+/* Delivery-type (door delivery vs. Post Box) toggle — added 2026-11-02, see
+   the dated comment above #cartAddressIntl in checkout.html. Mirrors the
+   .size-select/.size-opt segmented-button pattern used on the product
+   cards for visual consistency. */
+.addr-deliv-question{font-size:12.5px;color:var(--ink);margin:0 0 8px;line-height:1.5;}
+.deliv-select{display:flex;gap:6px;margin-bottom:12px;}
+.deliv-opt{
+  flex:1;min-width:0;text-align:center;padding:10px 8px;border:1px solid var(--sand-line);
+  font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;border-radius:2px;
+  background:var(--khaki-dim);color:var(--ink);line-height:1.4;
+}
+.deliv-opt.active{background:var(--brass);color:var(--charcoal);border-color:var(--brass);}
+
+/* ---------- Admin page (admin.html) — added 2026-11-02. Internal order-list
+   tool, not customer-facing — reuses the checkout page's header/button/hint
+   classes for visual consistency rather than its own design language. See
+   paypal-worker/worker.js's "ADMIN AUTH" / "ORDER STORAGE (D1)" sections for
+   how the password + order list behind this page actually work. ---------- */
+.admin-page{padding:32px 0 60px;}
+.admin-login{max-width:360px;margin:40px auto 0;}
+.admin-login .addr-row{margin-bottom:12px;}
+.admin-login-error{color:var(--field-rust);}
+.admin-badge{
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--khaki);background:rgba(239,234,214,.1);padding:4px 10px;border-radius:12px;
+}
+.admin-orders-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
+.admin-orders-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.admin-orders-actions select{
+  padding:8px 10px;border:1px solid var(--sand-line);border-radius:2px;
+  font-family:'PT Serif',serif;font-size:13px;background:var(--surface);color:var(--ink);
+}
+.admin-table-wrap{overflow-x:auto;border:1px solid var(--sand-line);border-radius:2px;}
+.admin-table{width:100%;border-collapse:collapse;font-size:12.5px;font-family:'PT Serif',serif;}
+.admin-table th, .admin-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--sand-line);vertical-align:top;}
+.admin-table th{
+  font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--olive-text);background:var(--khaki-dim);white-space:nowrap;
+}
+.admin-table tr:last-child td{border-bottom:none;}
+.admin-dim{color:var(--olive-text);font-size:11.5px;}
+.admin-empty{text-align:center;color:var(--olive-text);padding:24px;}
+.admin-status{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:10px;}
+.admin-status-paid{background:rgba(110,150,90,.2);color:#8fcf7a;}
+.admin-status-pending{background:rgba(208,112,71,.14);color:var(--field-rust);}
+@media (max-width:560px){
+  .admin-orders-head{flex-direction:column;align-items:stretch;}
+}
 /* Free-text CAMP address box (2026-09-21, 12차 — replaced the structured
    on-base/off-base/Post Box field sets with one box the shopper fills in
    however suits their situation) and the disabled state on the Camp select
