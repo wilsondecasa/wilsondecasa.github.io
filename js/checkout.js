@@ -535,7 +535,7 @@
     var acctLoggedIn = document.getElementById('acctLoggedIn');
     var acctShowLoginBtn = document.getElementById('acctShowLoginBtn');
     var acctMiniForm = document.getElementById('acctMiniForm');
-    var acctEmailEl = document.getElementById('acctEmail');
+    var acctUsernameEl = document.getElementById('acctUsername');
     var acctPasswordEl = document.getElementById('acctPassword');
     var acctLoginBtn = document.getElementById('acctLoginBtn');
     var acctCancelBtn = document.getElementById('acctCancelBtn');
@@ -558,7 +558,7 @@
       acctShowLoginBtn.addEventListener('click', function () {
         if (acctMiniForm) acctMiniForm.hidden = false;
         acctShowLoginBtn.hidden = true;
-        if (acctEmailEl) acctEmailEl.focus();
+        if (acctUsernameEl) acctUsernameEl.focus();
       });
     }
     if (acctCancelBtn) {
@@ -570,19 +570,19 @@
     }
     if (acctLoginBtn) {
       acctLoginBtn.addEventListener('click', async function () {
-        var email = acctEmailEl ? acctEmailEl.value.trim() : '';
+        var username = acctUsernameEl ? acctUsernameEl.value.trim() : '';
         var password = acctPasswordEl ? acctPasswordEl.value : '';
-        if (!email || !password) return;
+        if (!username || !password) return;
         if (acctErrorEl) acctErrorEl.hidden = true;
         acctLoginBtn.disabled = true;
         try {
-          var customer = await window.GadeloCustomer.login(email, password);
+          var customer = await window.GadeloCustomer.login(username, password);
           showLoggedInView(customer);
           showToast('Logged in — your info has been filled in.');
         } catch (err) {
           if (acctErrorEl) {
             acctErrorEl.textContent = err && err.message === 'invalid_credentials'
-              ? 'Wrong email or password.'
+              ? 'Wrong username or password.'
               : 'Could not log in. Please try again.';
             acctErrorEl.hidden = false;
           }

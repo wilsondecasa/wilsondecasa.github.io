@@ -40,14 +40,32 @@ CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 -- password_hash/password_salt are PBKDF2 output (never plain text) — see
 -- worker.js's "CUSTOMER ACCOUNTS" section for how they're produced/checked.
 -- The saved_* columns are the shipping info auto-filled at checkout next
--- time — written by POST /customer/save-address right after an order ships.
+-- time — written by POST /customer/save-address right after an order ships,
+-- or optionally filled right away at signup (region + address + detail
+-- only — no camp/Post Box/city, see worker.js's handleCustomerSignup).
+--
+-- 2026-11-09 수정 — added `username` (아이디, the actual login ID — email is
+-- now contact info only, not used to log in) and repurposed `name` to hold
+-- the nickname (닉네임) instead of a real name.
+--
+-- ONE-TIME MIGRATION NOTE: if you already ran the ORIGINAL version of this
+-- file (the one without `username`), the line below drops that table before
+-- recreating it with the new column. This only matters if `customers`
+-- already has real signups in it — it did not at the time this migration
+-- was written (only the `orders` table had data), so this was safe to run
+-- as-is then. If you are re-reading this later and customers already has
+-- real accounts, do NOT run the DROP — ask Claude to write a proper
+-- ALTER TABLE migration instead so no accounts are lost.
 -- ---------------------------------------------------------------------------
+DROP TABLE IF EXISTS customers;
+
 CREATE TABLE IF NOT EXISTS customers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL UNIQUE,
+  username TEXT NOT NULL UNIQUE,                  -- 아이디 — what the customer actually logs in with
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
-  name TEXT,
+  name TEXT,                                       -- 닉네임 (nickname), despite the column name
   phone TEXT,
   saved_region TEXT,                              -- 'korea' | 'japan_mainland' | 'okinawa' | 'hawaii' | 'guam'
   saved_camp_id TEXT,
@@ -61,3 +79,4 @@ CREATE TABLE IF NOT EXISTS customers (
 );
 
 CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_username ON customers(username);

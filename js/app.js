@@ -77,6 +77,27 @@
     });
   }
 
+  // ---------- Account icon (header) — logged-in vs. logged-out look ----------
+  // js/customer.js (loaded just before this file on every page that has
+  // this icon) exposes window.GadeloCustomer. We flip a class right away
+  // from the stored token so there's no flicker/delay, then confirm with
+  // the server in the background and revert the look if that token turned
+  // out to be expired — see .nav-account-in in css/style.css for the look.
+  (function(){
+    var link = document.getElementById('navAccountLink');
+    if(!link || !window.GadeloCustomer) return;
+    function setState(loggedIn){
+      link.classList.toggle('nav-account-in', loggedIn);
+      link.setAttribute('aria-label', loggedIn ? 'Account (logged in)' : 'Account');
+    }
+    if(window.GadeloCustomer.isLoggedIn()){
+      setState(true);
+      window.GadeloCustomer.me().then(function(customer){
+        if(!customer) setState(false);
+      });
+    }
+  })();
+
   // ---------- Helpers ----------
   var store = window.gadeloCartStore;
   function fmtUSD(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }

@@ -21,11 +21,22 @@
     return !!getToken();
   }
 
+  // data: {email, username, password, nickname, phone, address?}. address,
+  // if given, is the simple {region, address, addressDetail} shape from the
+  // signup form's optional address block — not the full checkout picker.
   async function signup(data) {
+    var payload = {
+      email: data.email,
+      username: data.username,
+      password: data.password,
+      nickname: data.nickname,
+      phone: data.phone
+    };
+    if (data.address) payload.address = data.address;
     var res = await fetch(API_BASE + '/customer/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: data.email, password: data.password, name: data.name, phone: data.phone })
+      body: JSON.stringify(payload)
     });
     var out = await res.json();
     if (!res.ok) throw new Error(out.error || 'signup_failed');
@@ -33,11 +44,12 @@
     return out.customer;
   }
 
-  async function login(email, password) {
+  // Login is by 아이디(username), not email — email is contact info only.
+  async function login(username, password) {
     var res = await fetch(API_BASE + '/customer/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: password })
+      body: JSON.stringify({ username: username, password: password })
     });
     var out = await res.json();
     if (!res.ok) throw new Error(out.error || 'login_failed');

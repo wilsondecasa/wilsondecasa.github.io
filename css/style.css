@@ -153,6 +153,16 @@ nav.primary a:hover::after{transform:scaleX(1);}
   width:16px;height:16px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
 }
+/* Account icon (#navAccountLink) — logged-in state, set by js/app.js once
+   js/customer.js confirms a valid session. Default (logged-out) is just the
+   plain outline person icon already defined inline on the svg. */
+.nav-account-in svg{fill:var(--brass);}
+.nav-account-in::after{
+  content:'';
+  position:absolute; top:1px; right:1px;
+  width:9px; height:9px; border-radius:50%;
+  background:#8fcf7a; border:2px solid var(--charcoal);
+}
 .hamburger{display:none;}
 
 /* ---------- Breadcrumb (product page) ---------- */

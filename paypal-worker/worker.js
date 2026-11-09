@@ -552,9 +552,16 @@ async function handleAdminOrders(request, env) {
 const CUSTOMER_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 const PBKDF2_ITERATIONS = 100000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// 아이디 (login ID) — 2026-11-09 추가: lowercased before storage/matching so
+// it's effectively case-insensitive; email stays account/contact info only,
+// it's no longer how a customer logs in.
+const USERNAME_PATTERN = /^[a-z0-9_]{4,20}$/;
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
+}
+function normalizeUsername(username) {
+  return String(username || '').trim().toLowerCase();
 }
 async function hashPassword(password, saltBuf) {
   const salt = saltBuf || crypto.getRandomValues(new Uint8Array(16)).buffer;
@@ -589,8 +596,9 @@ async function verifyPassword(password, storedHashB64, storedSaltB64) {
 function customerRowToPublic(row) {
   return {
     id: row.id,
+    username: row.username || '',
     email: row.email,
-    name: row.name || '',
+    name: row.name || '', // nickname (닉네임) — see the "name" column comment in schema.sql
     phone: row.phone || '',
     savedAddress: {
       region: row.saved_region || '',
@@ -608,28 +616,61 @@ async function handleCustomerSignup(request, env) {
   if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
   const body = await request.json();
   const email = normalizeEmail(body.email);
+  const username = normalizeUsername(body.username);
   const password = String(body.password || '');
-  const name = String(body.name || '').slice(0, 200);
-  const phone = String(body.phone || '').slice(0, 60);
+  const nickname = String(body.nickname || '').trim().slice(0, 50);
+  const phone = String(body.phone || '').trim().slice(0, 60);
+  // Address at signup is optional and deliberately simple (region + one
+  // address line + detail) — not the full checkout picker (camp/Post Box/
+  // city). If given, it's saved as a 'home'-type saved address; checkout's
+  // applyProfile() fills whatever's here and the shopper can still add/
+  // change camp or switch to Post Box on their first real order.
+  const addr = body.address && typeof body.address === 'object' ? body.address : null;
 
   if (!EMAIL_PATTERN.test(email)) return jsonResponse({ error: 'invalid_email' }, 400, env);
+  if (!USERNAME_PATTERN.test(username)) return jsonResponse({ error: 'invalid_username' }, 400, env);
   if (password.length < 8) return jsonResponse({ error: 'password_too_short' }, 400, env);
+  if (!nickname) return jsonResponse({ error: 'nickname_required' }, 400, env);
+  if (!phone) return jsonResponse({ error: 'phone_required' }, 400, env);
 
-  const existing = await env.DB.prepare('SELECT id FROM customers WHERE email = ?').bind(email).first();
-  if (existing) return jsonResponse({ error: 'email_taken' }, 409, env);
+  const existingEmail = await env.DB.prepare('SELECT id FROM customers WHERE email = ?').bind(email).first();
+  if (existingEmail) return jsonResponse({ error: 'email_taken' }, 409, env);
+  const existingUsername = await env.DB.prepare('SELECT id FROM customers WHERE username = ?').bind(username).first();
+  if (existingUsername) return jsonResponse({ error: 'username_taken' }, 409, env);
 
   const { hash, salt } = await hashPassword(password);
+
+  const savedRegion = addr && addr.region ? String(addr.region).slice(0, 40) : null;
+  const savedAddress = addr && addr.address ? String(addr.address).trim().slice(0, 300) : null;
+  const savedAddressDetail = addr && addr.addressDetail ? String(addr.addressDetail).trim().slice(0, 300) : null;
+  const savedDeliveryType = savedRegion && savedAddress ? 'home' : null;
+
   const result = await env.DB.prepare(
-    `INSERT INTO customers (email, password_hash, password_salt, name, phone)
-     VALUES (?,?,?,?,?)`
+    `INSERT INTO customers
+       (email, username, password_hash, password_salt, name, phone,
+        saved_region, saved_delivery_type, saved_address, saved_address_detail)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`
   )
-    .bind(email, hash, salt, name, phone)
+    .bind(email, username, hash, salt, nickname, phone, savedRegion, savedDeliveryType, savedAddress, savedAddressDetail)
     .run();
   const customerId = result.meta && result.meta.last_row_id;
 
   const token = await signToken(env, { typ: 'customer', sub: customerId }, CUSTOMER_TOKEN_TTL_SECONDS);
   return jsonResponse(
-    { token, customer: customerRowToPublic({ id: customerId, email, name, phone }) },
+    {
+      token,
+      customer: customerRowToPublic({
+        id: customerId,
+        email: email,
+        username: username,
+        name: nickname,
+        phone: phone,
+        saved_region: savedRegion,
+        saved_delivery_type: savedDeliveryType,
+        saved_address: savedAddress,
+        saved_address_detail: savedAddressDetail
+      })
+    },
     200,
     env
   );
@@ -638,10 +679,10 @@ async function handleCustomerSignup(request, env) {
 async function handleCustomerLogin(request, env) {
   if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
   const body = await request.json();
-  const email = normalizeEmail(body.email);
+  const username = normalizeUsername(body.username);
   const password = String(body.password || '');
 
-  const row = await env.DB.prepare('SELECT * FROM customers WHERE email = ?').bind(email).first();
+  const row = await env.DB.prepare('SELECT * FROM customers WHERE username = ?').bind(username).first();
   if (!row) return jsonResponse({ error: 'invalid_credentials' }, 401, env);
   const ok = await verifyPassword(password, row.password_hash, row.password_salt);
   if (!ok) return jsonResponse({ error: 'invalid_credentials' }, 401, env);

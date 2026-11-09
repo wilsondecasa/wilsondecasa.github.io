@@ -53,7 +53,7 @@
     <div id="loginForm">
       <h1 class="checkout-title" style="font-size:24px; margin-bottom:20px;">Log In</h1>
       <div class="addr-row">
-        <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+        <input type="text" id="loginUsername" placeholder="Username (아이디)" autocomplete="username">
       </div>
       <div class="addr-row">
         <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
@@ -62,20 +62,48 @@
       <p class="admin-login-error" id="loginError" hidden></p>
     </div>
 
+    <!-- Order here matches how the sign-up was asked for: email, username,
+         password, phone, nickname, then an optional address block. Address
+         is deliberately simple (region + one line + detail) — not the full
+         camp/Post Box picker from checkout.html — a shopper's first real
+         order still asks for the rest and saves it automatically for next
+         time (see js/checkout.js's applyProfile()/currentAddressForSave()). -->
     <div id="signupForm" hidden>
       <h1 class="checkout-title" style="font-size:24px; margin-bottom:20px;">Create Account</h1>
       <div class="addr-row">
         <input type="email" id="signupEmail" placeholder="Email" autocomplete="email">
       </div>
       <div class="addr-row">
-        <input type="password" id="signupPassword" placeholder="Password (min. 8 characters)" autocomplete="new-password">
+        <input type="text" id="signupUsername" placeholder="Username (아이디, 4–20 characters: letters, numbers, _)" autocomplete="username">
       </div>
       <div class="addr-row">
-        <input type="text" id="signupName" placeholder="Full name" autocomplete="name">
+        <input type="password" id="signupPassword" placeholder="Password (min. 8 characters)" autocomplete="new-password">
       </div>
       <div class="addr-row">
         <input type="tel" id="signupPhone" placeholder="Phone" autocomplete="tel">
       </div>
+      <div class="addr-row">
+        <input type="text" id="signupNickname" placeholder="Nickname (닉네임)" autocomplete="nickname">
+      </div>
+
+      <p class="acct-prompt" style="margin:16px 0 8px;">Shipping address (optional — you can add this on your first order instead)</p>
+      <div class="addr-row">
+        <select id="signupRegion">
+          <option value="">Region…</option>
+          <option value="korea">Korea</option>
+          <option value="japan_mainland">Japan</option>
+          <option value="okinawa">Okinawa</option>
+          <option value="hawaii">Hawaii</option>
+          <option value="guam">Guam</option>
+        </select>
+      </div>
+      <div class="addr-row">
+        <input type="text" id="signupAddress" placeholder="Address">
+      </div>
+      <div class="addr-row">
+        <input type="text" id="signupAddressDetail" placeholder="Apt / Unit / additional detail (optional)">
+      </div>
+
       <button type="button" class="btn btn-brass btn-block" id="signupSubmitBtn">Create Account</button>
       <p class="admin-login-error" id="signupError" hidden></p>
     </div>

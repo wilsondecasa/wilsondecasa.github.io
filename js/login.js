@@ -10,15 +10,19 @@
   var signupForm = document.getElementById('signupForm');
   var acctSuccess = document.getElementById('acctSuccess');
 
-  var loginEmailEl = document.getElementById('loginEmail');
+  var loginUsernameEl = document.getElementById('loginUsername');
   var loginPasswordEl = document.getElementById('loginPassword');
   var loginSubmitBtn = document.getElementById('loginSubmitBtn');
   var loginErrorEl = document.getElementById('loginError');
 
   var signupEmailEl = document.getElementById('signupEmail');
+  var signupUsernameEl = document.getElementById('signupUsername');
   var signupPasswordEl = document.getElementById('signupPassword');
-  var signupNameEl = document.getElementById('signupName');
   var signupPhoneEl = document.getElementById('signupPhone');
+  var signupNicknameEl = document.getElementById('signupNickname');
+  var signupRegionEl = document.getElementById('signupRegion');
+  var signupAddressEl = document.getElementById('signupAddress');
+  var signupAddressDetailEl = document.getElementById('signupAddressDetail');
   var signupSubmitBtn = document.getElementById('signupSubmitBtn');
   var signupErrorEl = document.getElementById('signupError');
 
@@ -55,10 +59,14 @@
   }
   function errorMessage(err) {
     var map = {
-      invalid_credentials: 'Wrong email or password.',
+      invalid_credentials: 'Wrong username or password.',
       email_taken: 'An account with that email already exists — try logging in instead.',
+      username_taken: 'That username is already taken — please choose another.',
       invalid_email: 'Please enter a valid email address.',
+      invalid_username: 'Username must be 4–20 characters: letters, numbers, or _ only.',
       password_too_short: 'Password must be at least 8 characters.',
+      nickname_required: 'Please enter a nickname.',
+      phone_required: 'Please enter a phone number.',
       database_not_configured: 'Accounts aren’t set up on the server yet — please try again later.'
     };
     return map[err && err.message] || 'Something went wrong. Please try again.';
@@ -89,13 +97,13 @@
 
   if (loginSubmitBtn) {
     loginSubmitBtn.addEventListener('click', async function () {
-      var email = loginEmailEl ? loginEmailEl.value.trim() : '';
+      var username = loginUsernameEl ? loginUsernameEl.value.trim() : '';
       var password = loginPasswordEl ? loginPasswordEl.value : '';
-      if (!email || !password) return;
+      if (!username || !password) return;
       if (loginErrorEl) loginErrorEl.hidden = true;
       loginSubmitBtn.disabled = true;
       try {
-        var customer = await window.GadeloCustomer.login(email, password);
+        var customer = await window.GadeloCustomer.login(username, password);
         showSuccess('Logged in', customer);
       } catch (err) {
         showError(loginErrorEl, errorMessage(err));
@@ -113,14 +121,23 @@
   if (signupSubmitBtn) {
     signupSubmitBtn.addEventListener('click', async function () {
       var email = signupEmailEl ? signupEmailEl.value.trim() : '';
+      var username = signupUsernameEl ? signupUsernameEl.value.trim() : '';
       var password = signupPasswordEl ? signupPasswordEl.value : '';
-      var name = signupNameEl ? signupNameEl.value.trim() : '';
       var phone = signupPhoneEl ? signupPhoneEl.value.trim() : '';
-      if (!email || !password) return;
+      var nickname = signupNicknameEl ? signupNicknameEl.value.trim() : '';
+      var region = signupRegionEl ? signupRegionEl.value : '';
+      var address = signupAddressEl ? signupAddressEl.value.trim() : '';
+      var addressDetail = signupAddressDetailEl ? signupAddressDetailEl.value.trim() : '';
+      if (!email || !username || !password) return;
       if (signupErrorEl) signupErrorEl.hidden = true;
       signupSubmitBtn.disabled = true;
       try {
-        var customer = await window.GadeloCustomer.signup({ email: email, password: password, name: name, phone: phone });
+        var payload = { email: email, username: username, password: password, nickname: nickname, phone: phone };
+        // Address is optional — only send it if the shopper actually filled
+        // in a region + address (a region with no street address isn't
+        // useful to save, and vice versa).
+        if (region && address) payload.address = { region: region, address: address, addressDetail: addressDetail };
+        var customer = await window.GadeloCustomer.signup(payload);
         showSuccess('Account created', customer);
       } catch (err) {
         showError(signupErrorEl, errorMessage(err));
