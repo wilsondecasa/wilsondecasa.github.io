@@ -45,6 +45,15 @@
 //                           plenty) used to sign admin login tokens. Not a
 //                           password anyone types — generate it once
 //                           (anything random works) and never share it.
+//
+// 2026-11-09 (2단계 — 회원가입/로그인) additions:
+//   No new Cloudflare Secret needed — customer login tokens are signed with
+//   the SAME ADMIN_SESSION_SECRET above (see "ACCOUNT TOKENS" section). A
+//   signed token carries a "typ" claim ('admin' vs 'customer') so the two
+//   kinds can never be mixed up or used on each other's routes, even though
+//   they share one signing key. The `customers` table this phase needs is
+//   in the same paypal-worker/schema.sql file as `orders` — re-run that
+//   file in the D1 Console (it's all IF NOT EXISTS, safe to re-run).
 // ---------------------------------------------------------------------------
 
 // Keep this price table in sync with js/products.js on the website. This is
@@ -441,25 +450,36 @@ async function hmacKey(env) {
     ['sign', 'verify']
   );
 }
-async function signAdminToken(env) {
-  const payload = JSON.stringify({ exp: Math.floor(Date.now() / 1000) + ADMIN_TOKEN_TTL_SECONDS });
+// Generic signed-token pair, shared by admin AND customer sessions (see the
+// 2026-11-09 doc comment up top) — `claims` carries whatever the caller
+// needs (admin tokens: {typ:'admin'}; customer tokens: {typ:'customer',
+// sub:<customer id>}) plus an `exp` this function adds itself.
+async function signToken(env, claims, ttlSeconds) {
+  const payload = JSON.stringify(Object.assign({}, claims, { exp: Math.floor(Date.now() / 1000) + ttlSeconds }));
   const payloadB64 = bufToBase64Url(new TextEncoder().encode(payload).buffer);
   const key = await hmacKey(env);
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadB64));
   return payloadB64 + '.' + bufToBase64Url(sig);
 }
-async function verifyAdminToken(env, token) {
-  if (!token || typeof token !== 'string' || token.indexOf('.') === -1) return false;
+// Returns the parsed claims object on success, or null if the signature is
+// bad, the token is malformed, or it's expired. Callers check `typ`
+// themselves — this function only verifies the signature and expiry.
+async function verifyToken(env, token) {
+  if (!token || typeof token !== 'string' || token.indexOf('.') === -1) return null;
   const [payloadB64, sigB64] = token.split('.');
   const key = await hmacKey(env);
   const expectedSig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadB64));
-  if (bufToBase64Url(expectedSig) !== sigB64) return false;
+  if (bufToBase64Url(expectedSig) !== sigB64) return null;
   try {
     const payload = JSON.parse(new TextDecoder().decode(base64UrlToBuf(payloadB64)));
-    return !!payload.exp && payload.exp >= Math.floor(Date.now() / 1000);
+    if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
   } catch (e) {
-    return false;
+    return null;
   }
+}
+function signAdminToken(env) {
+  return signToken(env, { typ: 'admin' }, ADMIN_TOKEN_TTL_SECONDS);
 }
 function getBearerToken(request) {
   const header = request.headers.get('Authorization') || '';
@@ -467,7 +487,15 @@ function getBearerToken(request) {
   return match ? match[1] : '';
 }
 async function requireAdmin(request, env) {
-  return verifyAdminToken(env, getBearerToken(request));
+  const claims = await verifyToken(env, getBearerToken(request));
+  return !!claims && claims.typ === 'admin';
+}
+// Returns the logged-in customer's row id (a number), or null if the
+// bearer token is missing/invalid/expired/not a customer token.
+async function requireCustomer(request, env) {
+  const claims = await verifyToken(env, getBearerToken(request));
+  if (!claims || claims.typ !== 'customer' || !claims.sub) return null;
+  return claims.sub;
 }
 
 async function handleAdminLogin(request, env) {
@@ -502,6 +530,176 @@ async function handleAdminOrders(request, env) {
     .bind(...params)
     .all();
   return jsonResponse({ orders: result.results || [] }, 200, env);
+}
+
+// ---------------------------------------------------------------------------
+// CUSTOMER ACCOUNTS (2단계 — 회원가입/로그인) — added 2026-11-09. Real
+// customer accounts, separate from the single-shared-password admin login
+// above. login.html and checkout.html's inline account section both call
+// these routes through js/customer.js. Tokens use the same signToken/
+// verifyToken pair as admin (typ:'customer', sub:<customer row id>), a
+// 30-day TTL (much longer than admin's 12h — a shopper logging in once per
+// visit would defeat the point of "remember my address"), and are stored by
+// the front-end in localStorage under 'gadelo_customer_token', never a
+// cookie — same cross-origin reasoning as the admin token.
+//
+// Passwords are never stored in plain text: PBKDF2-SHA256 (100,000
+// iterations, a random 16-byte salt per account, via Web Crypto's
+// crypto.subtle — no external bcrypt/argon2 library, since this Worker has
+// no build step and can't pull npm dependencies) and compared with a
+// constant-time check in verifyPassword() below.
+// ---------------------------------------------------------------------------
+const CUSTOMER_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+const PBKDF2_ITERATIONS = 100000;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+async function hashPassword(password, saltBuf) {
+  const salt = saltBuf || crypto.getRandomValues(new Uint8Array(16)).buffer;
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    keyMaterial,
+    256
+  );
+  return { hash: bufToBase64Url(bits), salt: bufToBase64Url(salt) };
+}
+async function verifyPassword(password, storedHashB64, storedSaltB64) {
+  const salt = base64UrlToBuf(storedSaltB64);
+  const { hash } = await hashPassword(password, salt);
+  // Constant-time-ish compare (fixed-length base64url strings from the same
+  // hash function, so this leaks nothing a timing attack could use here).
+  if (hash.length !== storedHashB64.length) return false;
+  let diff = 0;
+  for (let i = 0; i < hash.length; i++) diff |= hash.charCodeAt(i) ^ storedHashB64.charCodeAt(i);
+  return diff === 0;
+}
+
+// Shape returned to the front-end for "the logged-in customer" — never the
+// password hash/salt, and matches the field names checkout.js's auto-fill
+// expects (see js/customer.js).
+function customerRowToPublic(row) {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name || '',
+    phone: row.phone || '',
+    savedAddress: {
+      region: row.saved_region || '',
+      campId: row.saved_camp_id || '',
+      campOther: row.saved_camp_other || '',
+      deliveryType: row.saved_delivery_type || '',
+      city: row.saved_city || '',
+      address: row.saved_address || '',
+      addressDetail: row.saved_address_detail || ''
+    }
+  };
+}
+
+async function handleCustomerSignup(request, env) {
+  if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
+  const body = await request.json();
+  const email = normalizeEmail(body.email);
+  const password = String(body.password || '');
+  const name = String(body.name || '').slice(0, 200);
+  const phone = String(body.phone || '').slice(0, 60);
+
+  if (!EMAIL_PATTERN.test(email)) return jsonResponse({ error: 'invalid_email' }, 400, env);
+  if (password.length < 8) return jsonResponse({ error: 'password_too_short' }, 400, env);
+
+  const existing = await env.DB.prepare('SELECT id FROM customers WHERE email = ?').bind(email).first();
+  if (existing) return jsonResponse({ error: 'email_taken' }, 409, env);
+
+  const { hash, salt } = await hashPassword(password);
+  const result = await env.DB.prepare(
+    `INSERT INTO customers (email, password_hash, password_salt, name, phone)
+     VALUES (?,?,?,?,?)`
+  )
+    .bind(email, hash, salt, name, phone)
+    .run();
+  const customerId = result.meta && result.meta.last_row_id;
+
+  const token = await signToken(env, { typ: 'customer', sub: customerId }, CUSTOMER_TOKEN_TTL_SECONDS);
+  return jsonResponse(
+    { token, customer: customerRowToPublic({ id: customerId, email, name, phone }) },
+    200,
+    env
+  );
+}
+
+async function handleCustomerLogin(request, env) {
+  if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
+  const body = await request.json();
+  const email = normalizeEmail(body.email);
+  const password = String(body.password || '');
+
+  const row = await env.DB.prepare('SELECT * FROM customers WHERE email = ?').bind(email).first();
+  if (!row) return jsonResponse({ error: 'invalid_credentials' }, 401, env);
+  const ok = await verifyPassword(password, row.password_hash, row.password_salt);
+  if (!ok) return jsonResponse({ error: 'invalid_credentials' }, 401, env);
+
+  const token = await signToken(env, { typ: 'customer', sub: row.id }, CUSTOMER_TOKEN_TTL_SECONDS);
+  return jsonResponse({ token, customer: customerRowToPublic(row) }, 200, env);
+}
+
+async function handleCustomerMe(request, env) {
+  const customerId = await requireCustomer(request, env);
+  if (!customerId) return jsonResponse({ error: 'unauthorized' }, 401, env);
+  if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
+
+  const row = await env.DB.prepare('SELECT * FROM customers WHERE id = ?').bind(customerId).first();
+  if (!row) return jsonResponse({ error: 'unauthorized' }, 401, env);
+  return jsonResponse({ customer: customerRowToPublic(row) }, 200, env);
+}
+
+// Called by checkout.js right after a successful PayPal capture, when the
+// shopper was logged in — saves exactly the address/contact info that
+// order shipped to, so the NEXT order auto-fills from it. Partial-ish: any
+// field left out of the request body keeps its previous saved value rather
+// than being blanked out (COALESCE below), so a half-filled call never
+// wipes out previously-saved info.
+async function handleCustomerSaveAddress(request, env) {
+  const customerId = await requireCustomer(request, env);
+  if (!customerId) return jsonResponse({ error: 'unauthorized' }, 401, env);
+  if (!env.DB) return jsonResponse({ error: 'database_not_configured' }, 500, env);
+
+  const body = await request.json();
+  await env.DB.prepare(
+    `UPDATE customers SET
+       name = COALESCE(?, name),
+       phone = COALESCE(?, phone),
+       saved_region = COALESCE(?, saved_region),
+       saved_camp_id = COALESCE(?, saved_camp_id),
+       saved_camp_other = COALESCE(?, saved_camp_other),
+       saved_delivery_type = COALESCE(?, saved_delivery_type),
+       saved_city = COALESCE(?, saved_city),
+       saved_address = COALESCE(?, saved_address),
+       saved_address_detail = COALESCE(?, saved_address_detail),
+       updated_at = datetime('now')
+     WHERE id = ?`
+  )
+    .bind(
+      body.name != null ? String(body.name).slice(0, 200) : null,
+      body.phone != null ? String(body.phone).slice(0, 60) : null,
+      body.region != null ? String(body.region) : null,
+      body.campId != null ? String(body.campId) : null,
+      body.campOther != null ? String(body.campOther) : null,
+      body.deliveryType != null ? String(body.deliveryType) : null,
+      body.city != null ? String(body.city) : null,
+      body.address != null ? String(body.address) : null,
+      body.addressDetail != null ? String(body.addressDetail) : null,
+      customerId
+    )
+    .run();
+  return jsonResponse({ ok: true }, 200, env);
 }
 
 async function handleCreateOrder(request, env) {
@@ -580,6 +778,20 @@ export default {
       }
       if (request.method === 'GET' && url.pathname === '/admin/orders') {
         return await handleAdminOrders(request, env);
+      }
+      // 2026-11-09 (2단계) — customer accounts: login.html + checkout.html's
+      // inline account section.
+      if (request.method === 'POST' && url.pathname === '/customer/signup') {
+        return await handleCustomerSignup(request, env);
+      }
+      if (request.method === 'POST' && url.pathname === '/customer/login') {
+        return await handleCustomerLogin(request, env);
+      }
+      if (request.method === 'GET' && url.pathname === '/customer/me') {
+        return await handleCustomerMe(request, env);
+      }
+      if (request.method === 'POST' && url.pathname === '/customer/save-address') {
+        return await handleCustomerSaveAddress(request, env);
       }
       if (request.method === 'GET' && url.pathname === '/health') {
         return jsonResponse({ ok: true }, 200, env);

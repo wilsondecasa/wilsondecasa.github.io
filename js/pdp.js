@@ -26,6 +26,61 @@
     return;
   }
 
+  // SEO (2026-11-09) — product.html is one template rendered for every
+  // blend via ?blend=<slug>, so the <head> tags written in the HTML are
+  // only a generic fallback. This fills them in with the actual blend's
+  // info as soon as we know which product loaded, so each blend reads as
+  // its own page to Google (distinct title/description/canonical/OG +
+  // Product structured data) instead of 8 identical-looking URLs. Keep
+  // these element ids in sync with the ones product.html's <head> defines.
+  function applySeo(p, slug){
+    var siteUrl = 'https://www.gadelocoffeeroasters.com/';
+    var pageUrl = siteUrl + 'product.html?blend=' + encodeURIComponent(slug);
+    var title = p.nameEn + ' — Military Tribute Coffee Blend | GADELO Coffee Roasters';
+    var rawDesc = (p.descEn && p.descEn[0]) || (p.nameEn + ' — specialty coffee from GADELO Coffee Roasters.');
+    var desc = rawDesc.length > 160 ? rawDesc.slice(0, 157).replace(/\s+\S*$/, '') + '…' : rawDesc;
+    var image = siteUrl + (p.images && p.images.card1 ? p.images.card1 : p.image || 'images/hero-poster.jpg');
+    var lowestPrice = Math.min.apply(null, Object.keys(p.prices).map(function(k){ return p.prices[k]; }));
+
+    document.title = title;
+    var set = function(id, value){
+      var el = document.getElementById(id);
+      if(!el) return;
+      if(el.tagName === 'LINK') el.setAttribute('href', value);
+      else el.setAttribute('content', value);
+    };
+
+    set('seoDescription', desc);
+    set('seoCanonical', pageUrl);
+    set('seoOgTitle', title);
+    set('seoOgDescription', desc);
+    set('seoOgUrl', pageUrl);
+    set('seoOgImage', image);
+    set('seoTwitterTitle', title);
+    set('seoTwitterDescription', desc);
+    set('seoTwitterImage', image);
+
+    var jsonLdEl = document.getElementById('seoProductJsonLd');
+    if(jsonLdEl){
+      jsonLdEl.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: p.nameEn,
+        image: image,
+        description: desc,
+        brand: { '@type': 'Brand', name: 'GADELO Coffee Roasters' },
+        offers: {
+          '@type': 'Offer',
+          url: pageUrl,
+          priceCurrency: 'USD',
+          price: lowestPrice.toFixed(2),
+          availability: 'https://schema.org/InStock'
+        }
+      });
+    }
+  }
+  applySeo(product, slug);
+
   // Sizes this product actually sells, ascending (all 5 blends sell all 3
   // sizes as of 2026-09-22 — derived from the data so nothing here needed
   // to change when Freedom's 1kg size was added).

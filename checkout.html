@@ -14,6 +14,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout — GADELO Coffee Roasters</title>
 <meta name="description" content="GADELO Coffee Roasters — secure checkout.">
+<!-- Transactional page — keep out of search results (2026-11-09 SEO pass). -->
+<meta name="robots" content="noindex, nofollow">
 <!-- Favicon (2026-09-22) — see index.html head comment for source/crop notes. -->
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="images/favicon/favicon-16x16.png" sizes="16x16" type="image/png">
@@ -60,6 +62,40 @@
 
   <div class="checkout-grid" id="checkoutGrid">
     <div class="checkout-main">
+
+      <!-- Account section (2026-11-09, 2단계) — inline, compact version of
+           login.html's forms, so a returning customer doesn't have to leave
+           checkout to log in. Logging in here calls GET /customer/me and
+           auto-fills the fields below from the saved profile (see
+           applyCustomerProfile() in checkout.js); a guest sees only the
+           "Have an account?" prompt and checkout works exactly as before.
+           After a successful order, if logged in, checkout.js POSTs the
+           address that was actually used to /customer/save-address so next
+           time it's already filled in. -->
+      <section class="checkout-section acct-section" id="acctSection">
+        <div id="acctLoggedOut">
+          <p class="acct-prompt">
+            Have an account? <button type="button" class="acct-link-btn" id="acctShowLoginBtn">Log in</button>
+            to auto-fill your info, or <a href="login.html?next=checkout.html" class="acct-link-btn-a">create one</a>.
+          </p>
+          <div class="acct-mini-form" id="acctMiniForm" hidden>
+            <div class="addr-row-split">
+              <input type="email" id="acctEmail" placeholder="Email" autocomplete="email">
+              <input type="password" id="acctPassword" placeholder="Password" autocomplete="current-password">
+            </div>
+            <div class="acct-mini-actions">
+              <button type="button" class="btn btn-brass btn-sm" id="acctLoginBtn">Log In</button>
+              <button type="button" class="btn btn-outline btn-sm" id="acctCancelBtn">Cancel</button>
+            </div>
+            <p class="acct-error" id="acctError" hidden></p>
+          </div>
+        </div>
+        <div id="acctLoggedIn" hidden>
+          <span class="admin-badge" id="acctBadge">Logged in</span>
+          <button type="button" class="acct-link-btn" id="acctLogoutBtn">Not you? Log out</button>
+        </div>
+      </section>
+
       <section class="checkout-section">
         <h2 class="checkout-section-title">1. Delivery</h2>
         <p class="addr-note">Please pick your delivery region first — shipping is calculated automatically from it (Korea: flat $4, free over $50 / other regions: based on total cart weight). If you're affiliated with a base, select it below; otherwise pick "No camp / regular address."</p>
@@ -234,6 +270,7 @@
 <script src="https://pay.google.com/gp/p/js/pay.js"></script>
 <script src="js/products.js"></script>
 <script src="js/cart-store.js"></script>
+<script src="js/customer.js"></script>
 <script src="js/checkout.js"></script>
 <!-- PayPal JS SDK v6. Swap to https://www.sandbox.paypal.com/web-sdk/v6/core
      while testing with a Sandbox Client ID/Secret — see paypal-worker/README.md. -->

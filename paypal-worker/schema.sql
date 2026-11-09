@@ -33,3 +33,31 @@ CREATE TABLE IF NOT EXISTS orders (
 
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+
+-- ---------------------------------------------------------------------------
+-- 2단계 (회원가입/로그인) — added 2026-11-09. Real customer accounts, kept
+-- in this same file/database so there's only ever one D1 schema to run.
+-- password_hash/password_salt are PBKDF2 output (never plain text) — see
+-- worker.js's "CUSTOMER ACCOUNTS" section for how they're produced/checked.
+-- The saved_* columns are the shipping info auto-filled at checkout next
+-- time — written by POST /customer/save-address right after an order ships.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS customers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  password_salt TEXT NOT NULL,
+  name TEXT,
+  phone TEXT,
+  saved_region TEXT,                              -- 'korea' | 'japan_mainland' | 'okinawa' | 'hawaii' | 'guam'
+  saved_camp_id TEXT,
+  saved_camp_other TEXT,
+  saved_delivery_type TEXT,                        -- 'home' | 'postbox'
+  saved_city TEXT,
+  saved_address TEXT,
+  saved_address_detail TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);

@@ -374,7 +374,66 @@
         /* private browsing, storage full, or disabled — ignore */
       }
     }
-    window.gadeloIntlAddress = { save: saveIntlAddress };
+    // 2026-11-09 (2단계) — applies a logged-in customer's saved profile
+    // (from GET /customer/me, see js/customer.js) on top of whatever's
+    // already in the form. Mirrors the localStorage-restore block just
+    // above it exactly (same populateBaseOptions/updateDeliveryTypeVisibility
+    // sequence), the difference being this can run later, once the async
+    // /customer/me call resolves — and it only ever fills a field, never
+    // blanks one the shopper (or the local-storage restore) already set.
+    function applyProfile(customer) {
+      if (!customer) return;
+      if (intlFields.name && customer.name && !intlFields.name.value) intlFields.name.value = customer.name;
+      if (intlFields.phone && customer.phone && !intlFields.phone.value) intlFields.phone.value = customer.phone;
+      var sa = customer.savedAddress || {};
+      if (sa.region && !intlRegionEl.value) {
+        intlRegionEl.value = sa.region;
+        populateBaseOptions(sa.region, sa.campId || '');
+        toggleBaseOtherField();
+        updateBaseFeeHint(sa.region);
+        store.setIntlDestination(sa.region, sa.campId || '', sa.campOther || '');
+      }
+      if (sa.campOther && intlFields.baseOther && !intlFields.baseOther.value) intlFields.baseOther.value = sa.campOther;
+      // sa.address doubles as "the Post Box number" when the saved delivery
+      // type is 'postbox' (see currentAddressForSave() below — there's no
+      // separate saved_post_box column, home and Post Box addresses are
+      // mutually exclusive so one column covers both).
+      if (sa.deliveryType === 'postbox') {
+        if (sa.address && intlFields.postBox && !intlFields.postBox.value) intlFields.postBox.value = sa.address;
+      } else {
+        if (sa.city && intlFields.city && !intlFields.city.value) intlFields.city.value = sa.city;
+        if (sa.address && intlFields.address && !intlFields.address.value) intlFields.address.value = sa.address;
+        if (sa.addressDetail && intlFields.addressDetail && !intlFields.addressDetail.value) intlFields.addressDetail.value = sa.addressDetail;
+      }
+      updateDeliveryTypeVisibility();
+      if (deliveryTypeRow && !deliveryTypeRow.hidden && !deliveryType && (sa.deliveryType === 'home' || sa.deliveryType === 'postbox')) {
+        setDeliveryType(sa.deliveryType);
+      }
+      onIntlChange();
+    }
+
+    // Returns exactly the fields worker.js's /customer/save-address expects
+    // — called right after a successful order, if the shopper was logged
+    // in, so the address that order actually shipped to is what's
+    // remembered (not necessarily whatever's left in the form afterward).
+    function currentAddressForSave() {
+      var isPostbox = deliveryType === 'postbox';
+      return {
+        name: val('intlName'),
+        phone: val('intlPhone'),
+        region: intlRegionEl.value,
+        campId: intlBaseEl ? intlBaseEl.value : '',
+        campOther: val('intlBaseOther'),
+        deliveryType: deliveryType || 'home',
+        // Post Box number is stored in the same "address" slot as a door
+        // address — see the matching comment in applyProfile() above.
+        city: isPostbox ? '' : val('intlCity'),
+        address: isPostbox ? val('intlPostBox') : val('intlAddress'),
+        addressDetail: isPostbox ? '' : val('intlAddressDetail')
+      };
+    }
+
+    window.gadeloIntlAddress = { save: saveIntlAddress, applyProfile: applyProfile, currentAddressForSave: currentAddressForSave };
 
     function onIntlChange() {
       // Any edit invalidates a previous "yes this is correct" confirmation —
@@ -460,6 +519,97 @@
     });
 
     updateIntlReview();
+  })();
+
+  // ---------------------------------------------------------------------
+  // Account section (2026-11-09, 2단계) — inline login so a returning
+  // customer doesn't have to leave checkout. See the dated comment above
+  // #acctSection in checkout.html for the overall shape; depends on
+  // js/customer.js (loaded before this file) and on window.gadeloIntlAddress
+  // (set just above, in the IIFE that just closed) for applyProfile().
+  // ---------------------------------------------------------------------
+  (function () {
+    if (!window.GadeloCustomer) return; // js/customer.js failed to load — checkout still works as a guest
+
+    var acctLoggedOut = document.getElementById('acctLoggedOut');
+    var acctLoggedIn = document.getElementById('acctLoggedIn');
+    var acctShowLoginBtn = document.getElementById('acctShowLoginBtn');
+    var acctMiniForm = document.getElementById('acctMiniForm');
+    var acctEmailEl = document.getElementById('acctEmail');
+    var acctPasswordEl = document.getElementById('acctPassword');
+    var acctLoginBtn = document.getElementById('acctLoginBtn');
+    var acctCancelBtn = document.getElementById('acctCancelBtn');
+    var acctErrorEl = document.getElementById('acctError');
+    var acctBadge = document.getElementById('acctBadge');
+    var acctLogoutBtn = document.getElementById('acctLogoutBtn');
+
+    function showLoggedInView(customer) {
+      if (acctLoggedOut) acctLoggedOut.hidden = true;
+      if (acctLoggedIn) acctLoggedIn.hidden = false;
+      if (acctBadge) acctBadge.textContent = customer && customer.name ? 'Logged in as ' + customer.name : 'Logged in';
+      if (window.gadeloIntlAddress) window.gadeloIntlAddress.applyProfile(customer);
+    }
+    function showLoggedOutView() {
+      if (acctLoggedIn) acctLoggedIn.hidden = true;
+      if (acctLoggedOut) acctLoggedOut.hidden = false;
+    }
+
+    if (acctShowLoginBtn) {
+      acctShowLoginBtn.addEventListener('click', function () {
+        if (acctMiniForm) acctMiniForm.hidden = false;
+        acctShowLoginBtn.hidden = true;
+        if (acctEmailEl) acctEmailEl.focus();
+      });
+    }
+    if (acctCancelBtn) {
+      acctCancelBtn.addEventListener('click', function () {
+        if (acctMiniForm) acctMiniForm.hidden = true;
+        if (acctShowLoginBtn) acctShowLoginBtn.hidden = false;
+        if (acctErrorEl) acctErrorEl.hidden = true;
+      });
+    }
+    if (acctLoginBtn) {
+      acctLoginBtn.addEventListener('click', async function () {
+        var email = acctEmailEl ? acctEmailEl.value.trim() : '';
+        var password = acctPasswordEl ? acctPasswordEl.value : '';
+        if (!email || !password) return;
+        if (acctErrorEl) acctErrorEl.hidden = true;
+        acctLoginBtn.disabled = true;
+        try {
+          var customer = await window.GadeloCustomer.login(email, password);
+          showLoggedInView(customer);
+          showToast('Logged in — your info has been filled in.');
+        } catch (err) {
+          if (acctErrorEl) {
+            acctErrorEl.textContent = err && err.message === 'invalid_credentials'
+              ? 'Wrong email or password.'
+              : 'Could not log in. Please try again.';
+            acctErrorEl.hidden = false;
+          }
+        } finally {
+          acctLoginBtn.disabled = false;
+        }
+      });
+    }
+    if (acctPasswordEl) {
+      acctPasswordEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && acctLoginBtn) acctLoginBtn.click();
+      });
+    }
+    if (acctLogoutBtn) {
+      acctLogoutBtn.addEventListener('click', function () {
+        window.GadeloCustomer.logout();
+        showLoggedOutView();
+      });
+    }
+
+    // Already logged in from an earlier visit (or just came back from
+    // login.html?next=checkout.html) — skip the prompt and auto-fill.
+    if (window.GadeloCustomer.isLoggedIn()) {
+      window.GadeloCustomer.me().then(function (customer) {
+        if (customer) showLoggedInView(customer);
+      });
+    }
   })();
 
   function intlConfirmed() {
@@ -603,6 +753,14 @@
 
   function onOrderComplete() {
     if (window.gadeloIntlAddress) window.gadeloIntlAddress.save();
+    // 2026-11-09 (2단계) — if the shopper was logged in, remember exactly
+    // the address this order shipped to, so next time it's already filled
+    // in. Fire-and-forget: saveAddress() never throws and this never blocks
+    // or delays showing the success screen — a real payment already went
+    // through, nothing here should be able to make that look like it failed.
+    if (window.GadeloCustomer && window.GadeloCustomer.isLoggedIn() && window.gadeloIntlAddress) {
+      window.GadeloCustomer.saveAddress(window.gadeloIntlAddress.currentAddressForSave());
+    }
     // 13차: every order goes through the free-text address flow now, so the
     // "double-check your address" warning always applies.
     var successApoWarning = document.getElementById('successApoWarning');

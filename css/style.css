@@ -737,6 +737,24 @@ footer{background:var(--charcoal);color:#c9c7b3;padding:70px 0 0;}
 }
 .deliv-opt.active{background:var(--brass);color:var(--charcoal);border-color:var(--brass);}
 
+/* ---------- Customer account (login.html + checkout.html inline section)
+   — added 2026-11-09, 2단계. The .acct-* classes below style ONLY the
+   compact inline prompt/mini-form on checkout.html; login.html's own card
+   reuses .admin-login/.deliv-select/.deliv-opt directly (no new classes
+   needed there) for visual consistency with admin.html. ---------- */
+.acct-section{margin-bottom:22px;padding:14px 16px;border:1px solid var(--sand-line);border-radius:var(--radius);background:var(--khaki-dim);}
+.acct-prompt{margin:0;font-size:13px;line-height:1.6;color:var(--ink);}
+.acct-link-btn, .acct-link-btn-a{
+  background:none;border:none;padding:0;cursor:pointer;
+  font-family:'PT Serif',serif;font-size:13px;color:var(--brass-dark);
+  text-decoration:underline;
+}
+.acct-mini-form{margin-top:12px;}
+.acct-mini-form .addr-row-split{margin-bottom:10px;}
+.acct-mini-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.acct-error{color:var(--field-rust);font-size:12px;margin:8px 0 0;}
+#acctLoggedIn{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+
 /* ---------- Admin page (admin.html) — added 2026-11-02. Internal order-list
    tool, not customer-facing — reuses the checkout page's header/button/hint
    classes for visual consistency rather than its own design language. See
